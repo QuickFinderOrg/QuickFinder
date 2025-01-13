@@ -3,10 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Data;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
 }
