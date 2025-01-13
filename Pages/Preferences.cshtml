@@ -1,0 +1,26 @@
+﻿@page
+@model group_finder.Pages.PreferencesModel
+@{
+    <div>
+        <h1>Your Preferences</h1>
+        <form>
+            <label>
+                Language
+                <select>
+                    <option>English</option>
+                    <option>Norwegian</option>
+                </select>
+            </label>
+
+            <label>
+                Availability
+                <select>
+                    <option>Day</option>
+                    <option>Afternoon</option>
+                </select>
+            </label>
+            <button type="submit">Submit</button>
+        </form>
+        <a href="/Matching">To matching</a>
+    </div>
+}
