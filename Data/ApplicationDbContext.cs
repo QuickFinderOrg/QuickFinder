@@ -8,6 +8,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Person> People { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
+    public DbSet<WaitingPerson> WaitingPeople { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -19,7 +21,22 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             return;
         }
-        People.Add(new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Preferences = new Preferences() { Availability = Availability.Daytime, Language = "en" } });
+
+        var people = new List<Person> {
+            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
+            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
+            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } },
+            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } }
+        };
+
+        AddRange(people);
+
+        // add all to waitlist/matchmaking pool
+        foreach (var person in people)
+        {
+            Add(new WaitingPerson() { Id = Guid.NewGuid(), Person = person });
+        }
+
         SaveChanges();
     }
 }
