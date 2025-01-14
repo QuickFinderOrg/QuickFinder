@@ -41,6 +41,8 @@ public class MatchmakingService(ApplicationDbContext db)
             {
                 // create new group
             }
+
+            // remove from waiting list
         }
     }
 
