@@ -1,0 +1,58 @@
+﻿@page
+@model StudentsModel
+@{
+    ViewData["Title"] = "Students";
+}
+@* //TODO: make available only to admins *@
+<div class="text-center">
+    <h1 class="display-4">Students list</h1>
+    <a asp-page="/AddStudent" class="btn btn-primary">Add Student</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Availability</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model.Students)
+            {
+                <tr>
+                    <td>@student.Id</td>
+                    <td>@student.Preferences.Availability</td>
+                    <td>
+                        <a asp-page="/EditStudent" asp-route-id="@student.Id" class="btn btn-primary">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p>Groups</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Availability</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var group in Model.Groups)
+            {
+                <tr>
+                    <td>@group.Id</td>
+                    <td>
+                        @foreach (var member in group.Members)
+                        {
+                            <p>@member.Id</p>
+                        }
+                    </td>
+                    <td>
+                        <a asp-page="/EditStudent" asp-route-id="@group.Id" class="btn btn-primary">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
