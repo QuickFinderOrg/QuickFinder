@@ -54,4 +54,25 @@ public class MatchmakingService(ApplicationDbContext db)
 
     }
 
+    // remove all groups and put everyone back into the waitlist
+    public async Task Reset()
+    {
+        var waitlist = await db.WaitingPeople.ToArrayAsync();
+        db.RemoveRange(waitlist);
+        await db.SaveChangesAsync();
+
+        var groups = await db.Groups.ToArrayAsync();
+        db.RemoveRange(groups);
+
+        var people = await db.People.ToArrayAsync();
+
+
+        foreach (var person in people)
+        {
+            db.WaitingPeople.Add(new WaitingPerson() { Person = person });
+        }
+
+        await db.SaveChangesAsync();
+    }
+
 }

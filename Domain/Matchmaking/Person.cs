@@ -6,6 +6,7 @@ public class Person()
 {
     public Guid Id { get; init; }
     public required Guid UserId { get; set; }
+    public required string Name { get; set; }
     public required Criteria Criteria { get; set; }
     public required Preferences Preferences { get; set; }
 }

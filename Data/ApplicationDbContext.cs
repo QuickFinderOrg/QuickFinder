@@ -23,10 +23,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         }
 
         var people = new List<Person> {
-            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } }
+            new Person() { Id = Guid.NewGuid(), Name = "John Cena", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
+            new Person() { Id = Guid.NewGuid(), Name = "John Doe", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
+            new Person() { Id = Guid.NewGuid(), Name = "Rocket Racer", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } },
+            new Person() { Id = Guid.NewGuid(), Name = "Thrall", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } }
         };
 
         AddRange(people);

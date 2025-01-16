@@ -19,12 +19,17 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
         Groups = await db.Groups.Include(c => c.Members).ToListAsync();
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostMatchAsync()
     {
         await matchmaking.DoMatching();
-        Students = await db.WaitingPeople.Include(c => c.Person).ToListAsync();
-        Groups = await db.Groups.Include(c => c.Members).ToListAsync();
-        return Page();
+        return RedirectToPage("Students");
+
+    }
+
+    public async Task<IActionResult> OnPostResetAsync()
+    {
+        await matchmaking.Reset();
+        return RedirectToPage("Students");
     }
 }
 
