@@ -25,7 +25,7 @@ public class MatchmakingService(ApplicationDbContext db)
         return null;
     }
 
-    public async void DoMatching()
+    public async Task DoMatching()
     {
         // needs a queue of people waiting to match
         var waitlist = await db.WaitingPeople.Include(c => c.Person).ToArrayAsync() ?? throw new Exception("WAITLIST");
@@ -36,14 +36,21 @@ public class MatchmakingService(ApplicationDbContext db)
             if (foundGroup != null)
             {
                 // add to group
+                foundGroup.Members.Add(waiting.Person);
             }
             else
             {
                 // create new group
+                var group = new Group();
+                group.Members.Add(waiting.Person);
+                db.Add(group);
             }
 
             // remove from waiting list
+
+            db.Remove(waiting);
         }
+        await db.SaveChangesAsync();
     }
 
 }

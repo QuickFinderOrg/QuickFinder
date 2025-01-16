@@ -6,17 +6,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Pages;
 
-public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext db) : PageModel
+public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext db, MatchmakingService matchmaking) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
-    public List<Person> Students = [];
+    public List<WaitingPerson> Students = [];
     public List<Group> Groups = [];
 
-    public async void OnGet()
+    public async Task OnGet()
     {
-        Students = await db.People.ToListAsync();
+        Students = await db.WaitingPeople.Include(c => c.Person).ToListAsync();
         Groups = await db.Groups.Include(c => c.Members).ToListAsync();
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        await matchmaking.DoMatching();
+        Students = await db.WaitingPeople.Include(c => c.Person).ToListAsync();
+        Groups = await db.Groups.Include(c => c.Members).ToListAsync();
+        return Page();
     }
 }
 
