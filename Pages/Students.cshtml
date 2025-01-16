@@ -42,6 +42,7 @@
             <tr>
                 <th>Name</th>
                 <th>Availability</th>
+                <th>Complete</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -53,8 +54,17 @@
                     <td>
                         @foreach (var member in group.Members)
                         {
-                            <p>@member.Name</p>
-                            <p>@member.Criteria.Availability</p>
+                            <p>@member.Name - @member.Criteria.Availability</p>
+                        }
+                    </td>
+                    <td>
+                        @if (group.IsComplete)
+                        {
+                            <p>@group.Members.Count / @group.GroupLimit</p>
+                        }
+                        else
+                        {
+                            <p>@group.Members.Count / @group.GroupLimit</p>
                         }
                     </td>
                     <td>

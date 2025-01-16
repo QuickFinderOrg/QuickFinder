@@ -4,17 +4,25 @@ public class Group()
 {
     public Guid Id { get; init; }
     public List<Person> Members { get; set; } = [];
-    public uint GroupLimit { get; set; } = 5;
+    public uint GroupLimit { get; set; } = 2;
 
     public bool WillAcceptNewMember(Person person)
     {
+        if (Members.Count == GroupLimit)
+        {
+            return false;
+        }
         foreach (var member in Members)
         {
             if (person.Criteria.Availability != member.Criteria.Availability)
             {
                 return false;
             }
+
         }
+
         return true;
     }
+
+    public bool IsComplete => Members.Count == GroupLimit;
 }
