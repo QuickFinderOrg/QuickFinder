@@ -49,8 +49,9 @@ public class MatchmakingService(ApplicationDbContext db)
             // remove from waiting list
 
             db.Remove(waiting);
+            await db.SaveChangesAsync(); // TODO: make more efficient
         }
-        await db.SaveChangesAsync();
+
     }
 
 }
