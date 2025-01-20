@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using group_finder.Data;
 
@@ -10,9 +11,11 @@ using group_finder.Data;
 namespace group_finder.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250120130939_RemoveWaitingPerson")]
+    partial class RemoveWaitingPerson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -158,10 +161,6 @@ namespace group_finder.Data.Migrations
                     b.Property<uint>("GroupLimit")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Members")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
@@ -173,6 +172,9 @@ namespace group_finder.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -181,6 +183,8 @@ namespace group_finder.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
 
                     b.ToTable("People");
                 });
@@ -340,6 +344,10 @@ namespace group_finder.Data.Migrations
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
                 {
+                    b.HasOne("group_finder.Domain.Matchmaking.Group", null)
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId");
+
                     b.OwnsOne("group_finder.Domain.Matchmaking.Criteria", "Criteria", b1 =>
                         {
                             b1.Property<Guid>("PersonId")
@@ -374,6 +382,11 @@ namespace group_finder.Data.Migrations
 
                     b.Navigation("Preferences")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

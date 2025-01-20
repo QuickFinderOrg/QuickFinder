@@ -10,13 +10,13 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
-    public List<WaitingPerson> Students = [];
+    public List<Person> Students = [];
     public List<Group> Groups = [];
 
     public async Task OnGet()
     {
-        Students = await db.WaitingPeople.Include(c => c.Person).ToListAsync();
-        Groups = await db.Groups.Include(c => c.Members).ToListAsync();
+        Students = await db.People.ToListAsync();
+        Groups = await db.Groups.ToListAsync();
     }
 
     public async Task<IActionResult> OnPostMatchAsync()

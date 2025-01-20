@@ -12,14 +12,14 @@ public class Person()
 }
 
 [Owned]
-public class Criteria()
+public record class Criteria()
 {
     public required Availability Availability { get; set; }
     public required string Language = "English";
 }
 
 [Owned]
-public class Preferences()
+public record class Preferences()
 {
 
 }

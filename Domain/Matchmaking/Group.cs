@@ -3,7 +3,9 @@ namespace group_finder.Domain.Matchmaking;
 public class Group()
 {
     public Guid Id { get; init; }
-    public List<Person> Members { get; set; } = [];
+    public List<Guid> Members { get; set; } = [];
+    public required Criteria Criteria { get; init; }
+    public required Preferences Preferences { get; init; }
     public uint GroupLimit { get; set; } = 2;
 
     public bool WillAcceptNewMember(Person person)
@@ -12,13 +14,9 @@ public class Group()
         {
             return false;
         }
-        foreach (var member in Members)
+        if (person.Criteria.Availability != Criteria.Availability)
         {
-            if (person.Criteria.Availability != member.Criteria.Availability)
-            {
-                return false;
-            }
-
+            return false;
         }
 
         return true;

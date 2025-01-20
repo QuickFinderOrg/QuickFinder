@@ -28,49 +28,40 @@ public class MatchmakingService(ApplicationDbContext db)
     public async Task DoMatching()
     {
         // needs a queue of people waiting to match
-        var waitlist = await db.WaitingPeople.Include(c => c.Person).ToArrayAsync() ?? throw new Exception("WAITLIST");
-        foreach (var waiting in waitlist)
+        var waitlist = await db.People.ToArrayAsync() ?? throw new Exception("WAITLIST");
+        foreach (var person in waitlist)
         {
             var groups = await db.Groups.ToArrayAsync();
-            var foundGroup = LookForMatch(waiting.Person, groups);
+            var foundGroup = LookForMatch(person, groups);
             if (foundGroup != null)
             {
                 // add to group
-                foundGroup.Members.Add(waiting.Person);
+                foundGroup.Members.Add(person.UserId);
             }
             else
             {
                 // create new group
-                var group = new Group();
-                group.Members.Add(waiting.Person);
+                var group = new Group() { Criteria = person.Criteria with { }, Preferences = person.Preferences with { } };
+                group.Members.Add(person.UserId);
                 db.Add(group);
             }
 
             // remove from waiting list
 
-            db.Remove(waiting);
+            db.Remove(person);
             await db.SaveChangesAsync(); // TODO: make more efficient
         }
 
     }
 
-    // remove all groups and put everyone back into the waitlist
     public async Task Reset()
     {
-        var waitlist = await db.WaitingPeople.ToArrayAsync();
+        var waitlist = await db.People.ToArrayAsync();
         db.RemoveRange(waitlist);
-        await db.SaveChangesAsync();
+
 
         var groups = await db.Groups.ToArrayAsync();
         db.RemoveRange(groups);
-
-        var people = await db.People.ToArrayAsync();
-
-
-        foreach (var person in people)
-        {
-            db.WaitingPeople.Add(new WaitingPerson() { Person = person });
-        }
 
         await db.SaveChangesAsync();
     }

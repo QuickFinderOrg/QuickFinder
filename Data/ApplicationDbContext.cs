@@ -8,7 +8,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Person> People { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
-    public DbSet<WaitingPerson> WaitingPeople { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -31,12 +30,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         };
 
         AddRange(people);
-
-        // add all to waitlist/matchmaking pool
-        foreach (var person in people)
-        {
-            Add(new WaitingPerson() { Id = Guid.NewGuid(), Person = person });
-        }
 
         SaveChanges();
     }
