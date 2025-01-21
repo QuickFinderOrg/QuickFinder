@@ -1,4 +1,5 @@
 ﻿using group_finder.Domain.Matchmaking;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +15,23 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         base.OnModelCreating(builder);
     }
 
-    public void SeedDB()
+    public async void SeedDB(IServiceProvider serviceProvider)
     {
-        if (People.Any())
+        var _userStore = new UserStore<User>(this);
+        if (_userStore.Users.Any())
         {
             return;
         }
+        var user = new User();
+
+
+        var _userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+
+        await _userStore.SetUserNameAsync(user, "dr.acula@bloodbank.us", CancellationToken.None);
+        await _userStore.SetEmailConfirmedAsync(user, true);
+        await _userStore.SetEmailAsync(user, "dr.acula@bloodbank.us", CancellationToken.None);
+        var result = await _userManager.CreateAsync(user, "Hema_Globin42");
+
 
         var people = new List<Person> {
             new Person() { Id = Guid.NewGuid(), Name = "Van Hellsing", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },

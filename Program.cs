@@ -29,7 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseMigrationsEndPoint();
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.SeedDB();
+    db.SeedDB(scope.ServiceProvider);
 }
 else
 {
@@ -46,5 +46,19 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.SeedDB(scope.ServiceProvider);
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
 
 app.Run();
