@@ -6,5 +6,20 @@
 
 <div class="text-center">
     <h1 class="display-4">Your Groups</h1>
+    <p>@Model.Groups.Count Groups</p>
+    <ul>
+
+        @foreach (var group in Model.Groups)
+        {
+            <li>
+                <div><span> Group</span>
+                    <ol>@foreach (var member in group.Members)
+                        {
+                           <li>Members: @member</li> 
+                        }</ol>
+                </div>
+            </li>
+        }
+    </ul>
     <a href="/Groups">Go To groups</a>
 </div>

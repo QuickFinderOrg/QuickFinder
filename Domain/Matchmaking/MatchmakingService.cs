@@ -54,6 +54,17 @@ public class MatchmakingService(ApplicationDbContext db)
 
     }
 
+    public async Task AddToWaitlist(User user)
+    {
+        db.Add(new Person() { UserId = Guid.Parse(user.Id), Name = user.UserName, Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() });
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<Group[]> GetGroups(User user)
+    {
+        return await db.Groups.Where(g => g.Members.Contains(Guid.Parse(user.Id))).ToArrayAsync();
+    }
+
     public async Task Reset()
     {
         var waitlist = await db.People.ToArrayAsync();
@@ -75,4 +86,16 @@ public class MatchmakingService(ApplicationDbContext db)
         await db.SaveChangesAsync();
     }
 
+
+
+}
+
+public record class GroupVM
+{
+    public required GroupMemberVM[] Members;
+}
+
+public record class GroupMemberVM
+{
+    public required string Name;
 }
