@@ -1,7 +1,6 @@
 
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace group_finder;
 
@@ -9,25 +8,33 @@ class SeedDB(UserService userService, ApplicationDbContext db)
 {
     public async void Seed()
     {
-        var _userStore = new UserStore<User>(db);
-        if (_userStore.Users.Any())
+        if (userService.HasUsers())
         {
             return;
         }
 
-        await userService.CreateUser();
+        var test_accounts = new List<Tester>([
+            new Tester() { Name = "Van Helsing", Email = "van.helsing@gmail.com", Password = "Password-123" },
+            new Tester() { Name = "Blade", Email = "uphill@iceskating.com", Password = "Password-123" },
+            new Tester() { Name = "Nosferatu", Email = "nosferatu1922@gmail.com", Password = "Password-123", availability=Availability.Afternoons },
+            new Tester() { Name = "Dracula", Email = "dr.acula@bloodbank.us", Password = "Password-123", availability=Availability.Afternoons },
+            new Tester() { Name = "Sylvanas", Email = "sylvanas.windrunner@aol.com", Password = "Password-123",  availability=Availability.Afternoons },
+        ]);
 
-
-        var people = new List<Person> {
-            new Person() { Id = Guid.NewGuid(), Name = "Van Hellsing", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), Name = "Blade", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), Name = "Nosferatu", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), Name = "Dracula", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } },
-            new Person() { Id = Guid.NewGuid(), Name = "Sylvanas", UserId = Guid.NewGuid(), Criteria = new Criteria() { Availability = Availability.Afternoons, Language = "en" }, Preferences = new Preferences() { } }
-        };
-
-        db.AddRange(people);
-
+        foreach (var account in test_accounts)
+        {
+            var user = await userService.CreateUser(account.Email, account.Password);
+            var ticket = new Person() { Name = account.Name, UserId = Guid.Parse(user.Id), Criteria = new Criteria() { Availability = account.availability, Language = "en" }, Preferences = new Preferences() { } };
+            db.Add(ticket); //TODO: go via matchmaking service in the future
+        }
         await db.SaveChangesAsync();
+    }
+
+    private record class Tester
+    {
+        public required string Name;
+        public required string Email;
+        public required string Password;
+        public Availability availability = Availability.Daytime;
     }
 }
