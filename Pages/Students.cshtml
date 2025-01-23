@@ -1,5 +1,6 @@
 ﻿@page
 @model StudentsModel
+@inject UserService userService;
 @{
     ViewData["Title"] = "Students";
 }
@@ -41,7 +42,7 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Availability</th>
+                <th>Members</th>
                 <th>Complete</th>
                 <th>Actions</th>
             </tr>
@@ -54,7 +55,7 @@
                     <td>
                         @foreach (var member in group.Members)
                         {
-                            <p>@member</p>
+                            <p> @await userService.GetName(member)</p>
                         }
                     </td>
                     <td>

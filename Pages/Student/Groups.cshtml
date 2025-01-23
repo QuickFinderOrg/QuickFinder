@@ -15,7 +15,7 @@
                 <div><span> Group</span>
                     <ol>@foreach (var member in group.Members)
                         {
-                           <li>Members: @member</li> 
+                           <li> @member.name (@member.email)</li> 
                         }</ol>
                 </div>
             </li>

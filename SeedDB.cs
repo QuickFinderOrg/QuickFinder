@@ -23,7 +23,7 @@ class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingServic
 
         foreach (var account in test_accounts)
         {
-            var user = await userService.CreateUser(account.Email, account.Password);
+            var user = await userService.CreateUser(account.Email, account.Name, account.Password);
             await matchmakingService.AddToWaitlist(user, new Criteria() { Availability = account.availability });
         }
         await db.SaveChangesAsync();
