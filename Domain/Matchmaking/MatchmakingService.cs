@@ -54,9 +54,9 @@ public class MatchmakingService(ApplicationDbContext db)
 
     }
 
-    public async Task AddToWaitlist(User user)
+    public async Task AddToWaitlist(User user, Criteria criteria)
     {
-        db.Add(new Person() { UserId = Guid.Parse(user.Id), Name = user.UserName, Criteria = new Criteria() { Availability = Availability.Daytime, Language = "en" }, Preferences = new Preferences() });
+        db.Add(new Person() { UserId = Guid.Parse(user.Id), Name = user.UserName, Criteria = criteria, Preferences = new Preferences() });
         await db.SaveChangesAsync();
     }
 

@@ -14,8 +14,8 @@ public class Person()
 [Owned]
 public record class Criteria()
 {
-    public required Availability Availability { get; set; }
-    public required string Language = "English";
+    public Availability Availability { get; set; } = Availability.Daytime;
+    public string Language = "English";
 }
 
 [Owned]

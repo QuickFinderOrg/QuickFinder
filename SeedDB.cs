@@ -4,7 +4,7 @@ using group_finder.Domain.Matchmaking;
 
 namespace group_finder;
 
-class SeedDB(UserService userService, ApplicationDbContext db)
+class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingService matchmakingService)
 {
     public async void Seed()
     {
@@ -24,8 +24,7 @@ class SeedDB(UserService userService, ApplicationDbContext db)
         foreach (var account in test_accounts)
         {
             var user = await userService.CreateUser(account.Email, account.Password);
-            var ticket = new Person() { Name = account.Name, UserId = Guid.Parse(user.Id), Criteria = new Criteria() { Availability = account.availability, Language = "en" }, Preferences = new Preferences() { } };
-            db.Add(ticket); //TODO: go via matchmaking service in the future
+            await matchmakingService.AddToWaitlist(user, new Criteria() { Availability = account.availability });
         }
         await db.SaveChangesAsync();
     }
