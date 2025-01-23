@@ -40,9 +40,25 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db)
     public async Task<string> GetName(Guid userId)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return "User not found";
+        }
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims);
 
-        return c.Find(c => c.Type == ClaimTypes.Name).Value;
+        if (c == null)
+        {
+            return "User not found";
+        }
+
+        var nameClaim = c.Find(c => c.Type == ClaimTypes.Name);
+
+        if (nameClaim == null)
+        {
+            return "User not found";
+        }
+
+        return nameClaim.Value;
     }
 }
