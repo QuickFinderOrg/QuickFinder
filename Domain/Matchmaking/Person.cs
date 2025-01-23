@@ -9,6 +9,20 @@ public class Person()
     public required string Name { get; set; }
     public required Criteria Criteria { get; set; }
     public required Preferences Preferences { get; set; }
+
+    public bool WillAcceptGroup(Group group)
+    {
+        if (group.IsFull)
+        {
+            return false;
+        }
+        if (group.Criteria.Availability != Criteria.Availability)
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 [Owned]

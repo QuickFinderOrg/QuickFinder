@@ -12,7 +12,7 @@ public class MatchmakingService(ApplicationDbContext db)
         foreach (var group in groups)
         {
             // is this the group for me?
-            if (group.WillAcceptNewMember(personToMatch))
+            if (personToMatch.WillAcceptGroup(group))
             {
                 return group;
             }
