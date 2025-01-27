@@ -26,6 +26,12 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Student");
 });
 
+builder.Services.AddAuthentication().AddDiscord(options =>
+{
+    options.ClientId = DiscordId;
+    options.ClientSecret = DiscordSecret;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
