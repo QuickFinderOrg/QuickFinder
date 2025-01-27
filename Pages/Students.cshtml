@@ -59,14 +59,7 @@
                         }
                     </td>
                     <td>
-                        @if (group.IsComplete)
-                        {
-                            <p>@group.Members.Count / @group.GroupLimit</p>
-                        }
-                        else
-                        {
-                            <p>@group.Members.Count / @group.GroupLimit</p>
-                        }
+                        <p>@group.Members.Count / @group.GroupLimit</p>
                     </td>
                     <td>
                         <a asp-page="/EditStudent" asp-route-id="@group.Id" class="btn btn-primary">Edit</a>

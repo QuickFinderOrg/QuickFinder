@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Pages;
 
-public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext db, MatchmakingService matchmaking) : PageModel
+public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext db, MatchmakingService matchmaking, UserService userService) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -29,6 +29,12 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
     public async Task<IActionResult> OnPostResetAsync()
     {
         await matchmaking.Reset();
+        var users = await userService.GetAllUsers();
+        foreach (var user in users)
+        {
+            await matchmaking.AddToWaitlist(user, new Criteria() { });
+        }
+
         return RedirectToPage("Students");
     }
 }

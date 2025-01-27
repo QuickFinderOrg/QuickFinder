@@ -2,6 +2,7 @@ using System.Security.Claims;
 using group_finder.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace group_finder;
 
@@ -35,6 +36,11 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db)
 
 
 
+    }
+
+    public async Task<User[]> GetAllUsers()
+    {
+        return await userStore.Users.ToArrayAsync();
     }
 
     public async Task<string> GetName(Guid userId)
