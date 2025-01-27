@@ -30,6 +30,8 @@ builder.Services.AddAuthentication().AddDiscord(options =>
 {
     options.ClientId = DiscordId;
     options.ClientSecret = DiscordSecret;
+    options.Scope.Add("identify");
+    options.Scope.Add("email");
 });
 
 var app = builder.Build();

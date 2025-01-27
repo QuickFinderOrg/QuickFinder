@@ -85,7 +85,7 @@ namespace group_finder.Areas.Identity.Pages.Account
             [EmailAddress]
             public string Email { get; set; }
         }
-        
+
         public IActionResult OnGet() => RedirectToPage("./Login");
 
         public IActionResult OnPost(string provider, string returnUrl = null)
@@ -127,13 +127,33 @@ namespace group_finder.Areas.Identity.Pages.Account
                 // If the user does not have an account, then ask the user to create an account.
                 ReturnUrl = returnUrl;
                 ProviderDisplayName = info.ProviderDisplayName;
+                _logger.LogInformation("Cliams {list}", info.Principal.Claims);
                 if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
                 {
                     Input = new InputModel
                     {
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                     };
+                    var user = CreateUser();
+
+                    await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                    await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+                    var create_result = await _userManager.CreateAsync(user);
+                    if (create_result.Succeeded)
+                    {
+                        create_result = await _userManager.AddLoginAsync(user, info);
+                        if (create_result.Succeeded)
+                        {
+                            _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+
+                            await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                            return LocalRedirect(returnUrl);
+                        }
+                    }
                 }
+
+
                 return Page();
             }
         }
