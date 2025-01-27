@@ -15,12 +15,12 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
 
     public async Task OnGet()
     {
-        var waitlist = await db.People.Include(o => o.User).ToListAsync();
+        var waitlist = await db.People.Include(p => p.User).ToListAsync();
         foreach (Person person in waitlist)
         {
             Students.Add(person.User);
         }
-        Groups = await db.Groups.ToListAsync();
+        Groups = await db.Groups.Include(g => g.Members).ToListAsync();
     }
 
     public async Task<IActionResult> OnPostMatchAsync()

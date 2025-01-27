@@ -28,7 +28,7 @@ public class MatchmakingService(ApplicationDbContext db)
     public async Task DoMatching()
     {
         // needs a queue of people waiting to match
-        var waitlist = await db.People.Include(o => o.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        var waitlist = await db.People.Include(p => p.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
         foreach (var person in waitlist)
         {
             var groups = await db.Groups.ToArrayAsync();
@@ -67,11 +67,11 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task Reset()
     {
-        var waitlist = await db.People.ToArrayAsync();
+        var waitlist = await db.People.Include(p => p.User).ToArrayAsync();
         db.RemoveRange(waitlist);
 
 
-        var groups = await db.Groups.ToArrayAsync();
+        var groups = await db.Groups.Include(g => g.Members).ToArrayAsync();
         db.RemoveRange(groups);
 
         await db.SaveChangesAsync();
