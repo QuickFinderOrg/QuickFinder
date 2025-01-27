@@ -10,12 +10,16 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
-    public List<Person> Students = [];
+    public List<User> Students = [];
     public List<Group> Groups = [];
 
     public async Task OnGet()
     {
-        Students = await db.People.ToListAsync();
+        var waitlist = await db.People.Include(o => o.User).ToListAsync();
+        foreach (Person person in waitlist)
+        {
+            Students.Add(person.User);
+        }
         Groups = await db.Groups.ToListAsync();
     }
 
@@ -32,7 +36,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
         var users = await userService.GetAllUsers();
         foreach (var user in users)
         {
-            await matchmaking.AddToWaitlist(user, new Criteria() { });
+            await matchmaking.AddToWaitlist(user);
         }
 
         return RedirectToPage("Students");

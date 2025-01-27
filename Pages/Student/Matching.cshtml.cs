@@ -19,6 +19,6 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
     public async Task OnPostAsync()
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        await matchmakingService.AddToWaitlist(user, new Criteria());
+        await matchmakingService.AddToWaitlist(user);
     }
 }

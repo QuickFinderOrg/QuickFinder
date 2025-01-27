@@ -28,7 +28,7 @@ public class MatchmakingService(ApplicationDbContext db)
     public async Task DoMatching()
     {
         // needs a queue of people waiting to match
-        var waitlist = await db.People.ToArrayAsync() ?? throw new Exception("WAITLIST");
+        var waitlist = await db.People.Include(o => o.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
         foreach (var person in waitlist)
         {
             var groups = await db.Groups.ToArrayAsync();
@@ -36,13 +36,13 @@ public class MatchmakingService(ApplicationDbContext db)
             if (foundGroup != null)
             {
                 // add to group
-                foundGroup.Members.Add(person.UserId);
+                foundGroup.Members.Add(person.User);
             }
             else
             {
                 // create new group
-                var group = new Group() { Criteria = person.Criteria with { }, Preferences = person.Preferences with { } };
-                group.Members.Add(person.UserId);
+                var group = new Group() { Criteria = person.User.Criteria, Preferences = person.User.Preferences };
+                group.Members.Add(person.User);
                 db.Add(group);
             }
 
@@ -54,15 +54,15 @@ public class MatchmakingService(ApplicationDbContext db)
 
     }
 
-    public async Task AddToWaitlist(User user, Criteria criteria)
+    public async Task AddToWaitlist(User user)
     {
-        db.Add(new Person() { UserId = Guid.Parse(user.Id), Name = user.UserName, Criteria = criteria, Preferences = new Preferences() });
+        db.Add(new Person() { User = user });
         await db.SaveChangesAsync();
     }
 
     public async Task<Group[]> GetGroups(User user)
     {
-        return await db.Groups.Where(g => g.Members.Contains(Guid.Parse(user.Id))).ToArrayAsync();
+        return await db.Groups.Where(g => g.Members.Contains(user)).ToArrayAsync();
     }
 
     public async Task Reset()
