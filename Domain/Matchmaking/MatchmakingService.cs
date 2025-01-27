@@ -62,7 +62,7 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task<Group[]> GetGroups(User user)
     {
-        return await db.Groups.Where(g => g.Members.Contains(user)).ToArrayAsync();
+        return await db.Groups.Where(g => g.Members.Contains(user)).Include(g => g.Members).ToArrayAsync();
     }
 
     public async Task Reset()

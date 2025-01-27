@@ -12,7 +12,7 @@ public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbCon
     public async Task<IActionResult> OnPostAsync(string name, Availability availability)
     {
         _logger.LogDebug(" Add {name} {availability}", name, availability);
-        var user = new User() { Name = name, Criteria = new Criteria() { Availability = availability, Language = "en" }, Preferences = new Preferences() };
+        var user = new User() { Name = name, Criteria = new Criteria() { Availability = availability, Language = "en" }, Preferences = new Preferences(), UserName = "Test@mail.com" };
         var person = new Person() { User = user};
         db.Add(person);
         await db.SaveChangesAsync();
