@@ -55,7 +55,7 @@
                     <td>
                         @foreach (var member in group.Members)
                         {
-                            <p> @await userService.GetName(member)</p>
+                            <p>@member.Name</p>
                         }
                     </td>
                     <td>
