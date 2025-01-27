@@ -7,7 +7,7 @@ using group_finder.Data;
 
 #nullable disable
 
-namespace group_finder.Data.Migrations
+namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -158,10 +158,6 @@ namespace group_finder.Data.Migrations
                     b.Property<uint>("GroupLimit")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Members")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
                     b.ToTable("Groups");
@@ -173,14 +169,12 @@ namespace group_finder.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UserId")
+                    b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("People");
                 });
@@ -204,10 +198,17 @@ namespace group_finder.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
@@ -238,6 +239,8 @@ namespace group_finder.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -302,7 +305,7 @@ namespace group_finder.Data.Migrations
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
                 {
-                    b.OwnsOne("group_finder.Domain.Matchmaking.Criteria", "Criteria", b1 =>
+                    b.OwnsOne("group_finder.Criteria", "Criteria", b1 =>
                         {
                             b1.Property<Guid>("GroupId")
                                 .HasColumnType("TEXT");
@@ -318,7 +321,7 @@ namespace group_finder.Data.Migrations
                                 .HasForeignKey("GroupId");
                         });
 
-                    b.OwnsOne("group_finder.Domain.Matchmaking.Preferences", "Preferences", b1 =>
+                    b.OwnsOne("group_finder.Preferences", "Preferences", b1 =>
                         {
                             b1.Property<Guid>("GroupId")
                                 .HasColumnType("TEXT");
@@ -340,33 +343,46 @@ namespace group_finder.Data.Migrations
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
                 {
-                    b.OwnsOne("group_finder.Domain.Matchmaking.Criteria", "Criteria", b1 =>
+                    b.HasOne("group_finder.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("group_finder.User", b =>
+                {
+                    b.HasOne("group_finder.Domain.Matchmaking.Group", null)
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId");
+
+                    b.OwnsOne("group_finder.Criteria", "Criteria", b1 =>
                         {
-                            b1.Property<Guid>("PersonId")
+                            b1.Property<string>("UserId")
                                 .HasColumnType("TEXT");
 
                             b1.Property<int>("Availability")
                                 .HasColumnType("INTEGER");
 
-                            b1.HasKey("PersonId");
+                            b1.HasKey("UserId");
 
-                            b1.ToTable("People");
+                            b1.ToTable("AspNetUsers");
 
                             b1.WithOwner()
-                                .HasForeignKey("PersonId");
+                                .HasForeignKey("UserId");
                         });
 
-                    b.OwnsOne("group_finder.Domain.Matchmaking.Preferences", "Preferences", b1 =>
+                    b.OwnsOne("group_finder.Preferences", "Preferences", b1 =>
                         {
-                            b1.Property<Guid>("PersonId")
+                            b1.Property<string>("UserId")
                                 .HasColumnType("TEXT");
 
-                            b1.HasKey("PersonId");
+                            b1.HasKey("UserId");
 
-                            b1.ToTable("People");
+                            b1.ToTable("AspNetUsers");
 
                             b1.WithOwner()
-                                .HasForeignKey("PersonId");
+                                .HasForeignKey("UserId");
                         });
 
                     b.Navigation("Criteria")
@@ -374,6 +390,11 @@ namespace group_finder.Data.Migrations
 
                     b.Navigation("Preferences")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
+                {
+                    b.Navigation("Members");
                 });
 #pragma warning restore 612, 618
         }

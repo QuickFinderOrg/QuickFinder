@@ -5,10 +5,8 @@ namespace group_finder.Domain.Matchmaking;
 public class Person()
 {
     public Guid Id { get; init; }
-    public required Guid UserId { get; set; }
-    public required string Name { get; set; }
-    public required Criteria Criteria { get; set; }
-    public required Preferences Preferences { get; set; }
+    public required User User { get; set; }
+
 
     public bool WillAcceptGroup(Group group)
     {
@@ -16,7 +14,7 @@ public class Person()
         {
             return false;
         }
-        if (group.Criteria.Availability != Criteria.Availability)
+        if (group.Criteria.Availability != User.Criteria.Availability)
         {
             return false;
         }
@@ -25,21 +23,3 @@ public class Person()
     }
 }
 
-[Owned]
-public record class Criteria()
-{
-    public Availability Availability { get; set; } = Availability.Daytime;
-    public string Language = "English";
-}
-
-[Owned]
-public record class Preferences()
-{
-
-}
-
-public enum Availability
-{
-    Daytime,
-    Afternoons
-}
