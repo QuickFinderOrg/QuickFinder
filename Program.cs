@@ -6,6 +6,9 @@ using group_finder.Domain.Matchmaking;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var DiscordId = builder.Configuration["Discord:ClientId"] ?? throw new Exception("'Discord:ClientId' is missing from configuration/env");
+var DiscordSecret = builder.Configuration["Discord:ClientSecret"] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
