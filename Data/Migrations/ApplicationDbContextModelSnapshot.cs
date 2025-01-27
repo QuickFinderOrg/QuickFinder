@@ -7,7 +7,7 @@ using group_finder.Data;
 
 #nullable disable
 
-namespace group_finder.Data.Migrations
+namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
