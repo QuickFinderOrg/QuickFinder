@@ -43,9 +43,8 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db)
         return await userStore.Users.ToArrayAsync();
     }
 
-    public async Task<string> GetName(Guid userId)
+    public async Task<string> GetName(User user)
     {
-        var user = await userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {
             return "User not found";

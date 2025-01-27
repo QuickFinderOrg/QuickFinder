@@ -21,11 +21,11 @@ class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingServic
             new Tester() { Name = "Sylvanas", Email = "sylvanas.windrunner@aol.com", Password = "Password-123",  availability=Availability.Afternoons },
         ]);
 
-        foreach (var account in test_accounts)
-        {
-            var user = await userService.CreateUser(account.Email, account.Name, account.Password);
-            await matchmakingService.AddToWaitlist(user, new Criteria() { Availability = account.availability });
-        }
+        // foreach (var account in test_accounts)
+        // {
+        //     var user = await userService.CreateUser(account.Email, account.Name, account.Password);
+        //     await matchmakingService.AddToWaitlist(user);
+        // }
         await db.SaveChangesAsync();
     }
 
