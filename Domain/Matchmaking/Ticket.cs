@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Domain.Matchmaking;
 
-public class Person()
+public class Ticket()
 {
     public Guid Id { get; init; }
     public required User User { get; set; }

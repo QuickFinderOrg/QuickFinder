@@ -6,7 +6,7 @@ namespace group_finder.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<User>(options)
 {
-    public DbSet<Person> People { get; set; } = null!;
+    public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
     public DbSet<Course> Courses { get; set; } = null!;
 

@@ -5,14 +5,14 @@ namespace group_finder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db)
 {
-    public Group? LookForMatch(Person personToMatch, Group[] groups)
+    public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
         // other groups do exist
 
         foreach (var group in groups)
         {
             // is this the group for me?
-            if (personToMatch.WillAcceptGroup(group))
+            if (ticket.WillAcceptGroup(group))
             {
                 return group;
             }
@@ -28,27 +28,27 @@ public class MatchmakingService(ApplicationDbContext db)
     public async Task DoMatching()
     {
         // needs a queue of people waiting to match
-        var waitlist = await db.People.Include(p => p.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
-        foreach (var person in waitlist)
+        var waitlist = await db.Tickets.Include(p => p.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        foreach (var ticket in waitlist)
         {
             var groups = await db.Groups.ToArrayAsync();
-            var foundGroup = LookForMatch(person, groups);
+            var foundGroup = LookForMatch(ticket, groups);
             if (foundGroup != null)
             {
                 // add to group
-                foundGroup.Members.Add(person.User);
+                foundGroup.Members.Add(ticket.User);
             }
             else
             {
                 // create new group
-                var group = new Group() { Criteria = person.User.Criteria, Preferences = person.User.Preferences };
-                group.Members.Add(person.User);
+                var group = new Group() { Criteria = ticket.User.Criteria, Preferences = ticket.User.Preferences };
+                group.Members.Add(ticket.User);
                 db.Add(group);
             }
 
             // remove from waiting list
 
-            db.Remove(person);
+            db.Remove(ticket);
             await db.SaveChangesAsync(); // TODO: make more efficient
         }
 
@@ -56,7 +56,7 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task AddToWaitlist(User user, Course course)
     {
-        db.Add(new Person() { User = user });
+        db.Add(new Ticket() { User = user });
         await db.SaveChangesAsync();
     }
 
@@ -72,7 +72,7 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task Reset()
     {
-        var waitlist = await db.People.Include(p => p.User).ToArrayAsync();
+        var waitlist = await db.Tickets.Include(p => p.User).ToArrayAsync();
         db.RemoveRange(waitlist);
 
 

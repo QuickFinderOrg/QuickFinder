@@ -11,8 +11,8 @@ using group_finder.Data;
 namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250127132428_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250128110647_Ticket")]
+    partial class Ticket
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -152,10 +152,31 @@ namespace group_finder.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Course", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<uint>("GroupSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Courses");
+                });
+
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CourseId")
                         .HasColumnType("TEXT");
 
                     b.Property<uint>("GroupLimit")
@@ -163,10 +184,12 @@ namespace group_finder.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CourseId");
+
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -179,7 +202,7 @@ namespace group_finder.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("People");
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("group_finder.User", b =>
@@ -208,10 +231,6 @@ namespace group_finder.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
@@ -308,6 +327,10 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
                 {
+                    b.HasOne("group_finder.Domain.Matchmaking.Course", null)
+                        .WithMany("Groups")
+                        .HasForeignKey("CourseId");
+
                     b.OwnsOne("group_finder.Criteria", "Criteria", b1 =>
                         {
                             b1.Property<Guid>("GroupId")
@@ -344,7 +367,7 @@ namespace group_finder.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.HasOne("group_finder.User", "User")
                         .WithMany()
@@ -393,6 +416,11 @@ namespace group_finder.Migrations
 
                     b.Navigation("Preferences")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Course", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>

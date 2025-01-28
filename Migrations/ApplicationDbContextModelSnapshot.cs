@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using group_finder.Data;
 
@@ -11,11 +10,9 @@ using group_finder.Data;
 namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250128094555_Courses")]
-    partial class Courses
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -189,7 +186,7 @@ namespace group_finder.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,7 +199,7 @@ namespace group_finder.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("People");
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("group_finder.User", b =>
@@ -231,10 +228,6 @@ namespace group_finder.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")
@@ -371,7 +364,7 @@ namespace group_finder.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.HasOne("group_finder.User", "User")
                         .WithMany()
