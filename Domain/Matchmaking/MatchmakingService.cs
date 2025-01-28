@@ -54,10 +54,15 @@ public class MatchmakingService(ApplicationDbContext db)
 
     }
 
-    public async Task AddToWaitlist(User user)
+    public async Task AddToWaitlist(User user, Course course)
     {
         db.Add(new Person() { User = user });
         await db.SaveChangesAsync();
+    }
+
+    public async Task<Course[]> GetCourses()
+    {
+        return await db.Courses.ToArrayAsync();
     }
 
     public async Task<Group[]> GetGroups(User user)

@@ -10,15 +10,24 @@ namespace group_finder.Pages.Student;
 public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager) : PageModel
 {
     private readonly ILogger<MatchingModel> _logger = logger;
+    public Course[] Courses = [];
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
-
+        await LoadAsync();
+        Courses = await matchmakingService.GetCourses();
     }
 
     public async Task OnPostAsync()
     {
+        await LoadAsync();
+        var course = Courses[0];
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        await matchmakingService.AddToWaitlist(user);
+        await matchmakingService.AddToWaitlist(user, course);
+    }
+
+    public async Task LoadAsync()
+    {
+        Courses = await matchmakingService.GetCourses();
     }
 }

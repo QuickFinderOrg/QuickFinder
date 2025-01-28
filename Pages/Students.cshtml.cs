@@ -33,10 +33,12 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
     public async Task<IActionResult> OnPostResetAsync()
     {
         await matchmaking.Reset();
+        var courses = await matchmaking.GetCourses();
+        var course = courses[0];
         var users = await userService.GetAllUsers();
         foreach (var user in users)
         {
-            await matchmaking.AddToWaitlist(user);
+            await matchmaking.AddToWaitlist(user, course);
         }
 
         return RedirectToPage("Students");
