@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Student;
 
-public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager) : PageModel
+public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager, UserService userService) : PageModel
 {
     private readonly ILogger<GroupsModel> _logger = logger;
 
@@ -28,7 +28,8 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
                 else
                 {
                     _logger.LogDebug("User {}", member.UserName);
-                    group_vm.Members.Add(new GroupMemberVM() { name = member.Name, email = member.UserName ?? throw new Exception("username not found") });
+                    var name = await userService.GetName(member);
+                    group_vm.Members.Add(new GroupMemberVM() { name = name, email = member.UserName ?? throw new Exception("username not found") });
                 }
 
             }

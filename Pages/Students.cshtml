@@ -20,7 +20,7 @@
             @foreach (var student in Model.Students)
             {
                 <tr>
-                    <td>@student.Name</td>
+                    <td>@await userService.GetName(student)</td>
                     <td>@student.Criteria.Availability</td>
                     <td>
                         <a asp-page="/EditStudent" asp-route-id="@student.Id" class="btn btn-primary">Edit</a>
@@ -55,7 +55,7 @@
                     <td>
                         @foreach (var member in group.Members)
                         {
-                            <p>@member.Name</p>
+                            <p>@await userService.GetName(member)</p>
                         }
                     </td>
                     <td>
