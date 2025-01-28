@@ -138,6 +138,7 @@ namespace group_finder.Areas.Identity.Pages.Account
 
                     await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                     await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                    await _emailStore.SetEmailConfirmedAsync(user, true, CancellationToken.None);
 
                     var create_result = await _userManager.CreateAsync(user);
                     if (create_result.Succeeded)
