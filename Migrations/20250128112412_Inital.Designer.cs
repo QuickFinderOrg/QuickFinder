@@ -11,8 +11,8 @@ using group_finder.Data;
 namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250128110529_UsersGroups")]
-    partial class UsersGroups
+    [Migration("20250128112412_Inital")]
+    partial class Inital
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -204,7 +204,7 @@ namespace group_finder.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -217,7 +217,7 @@ namespace group_finder.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("People");
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("group_finder.User", b =>
@@ -392,7 +392,7 @@ namespace group_finder.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Person", b =>
+            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.HasOne("group_finder.User", "User")
                         .WithMany()
