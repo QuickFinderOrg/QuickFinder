@@ -31,7 +31,7 @@ public class MatchmakingService(ApplicationDbContext db)
         var waitlist = await db.Tickets.Include(p => p.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
         foreach (var ticket in waitlist)
         {
-            var groups = await db.Groups.ToArrayAsync();
+            var groups = await db.Groups.Include(c => c.Members).ToArrayAsync();
             var foundGroup = LookForMatch(ticket, groups);
             if (foundGroup != null)
             {
