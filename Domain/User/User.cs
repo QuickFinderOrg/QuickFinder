@@ -1,3 +1,4 @@
+using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ public class User : IdentityUser
 {
     public Criteria Criteria { get; set; } = new Criteria();
     public Preferences Preferences { get; set; } = new Preferences();
+    public List<Group> Groups { get; } = [];
 }
 [Owned]
 public record class Criteria()

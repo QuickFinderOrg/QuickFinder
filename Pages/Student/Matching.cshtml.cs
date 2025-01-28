@@ -18,12 +18,18 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         Courses = await matchmakingService.GetCourses();
     }
 
-    public async Task OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(string CourseId)
     {
+        var course_guid = Guid.Parse(CourseId);
         await LoadAsync();
-        var course = Courses[0];
+        var course = Courses.First(c => c.Id == course_guid);
+        if (course == null)
+        {
+            return Page();
+        }
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
         await matchmakingService.AddToWaitlist(user, course);
+        return Redirect("/Student/Groups");
     }
 
     public async Task LoadAsync()

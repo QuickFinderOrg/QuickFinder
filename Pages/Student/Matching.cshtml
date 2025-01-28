@@ -10,11 +10,15 @@
     <ul>
         @foreach (var Course in Model.Courses)
         {
-            <li>@Course.Name</li>
+            <li>
+                <form method="post">
+                    <input name="CourseId" hidden value="@Course.Id">
+                    <span>@Course.Name</span>
+                    <button type="submit">Find Group</button>
+                </form>
+            </li>
         }
     </ul>
-    <form method="post">
-        <button type="">Start looking</button>
-    </form>
+
     <a href="/Student/Groups">Go To groups</a>
 </div>
