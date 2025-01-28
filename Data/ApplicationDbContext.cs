@@ -8,6 +8,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Person> People { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
+    public DbSet<Course> Courses { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
