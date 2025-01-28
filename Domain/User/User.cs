@@ -5,7 +5,6 @@ namespace group_finder;
 
 public class User : IdentityUser
 {
-    public string Name { get; set; } = "RocketRacer";
     public Criteria Criteria { get; set; } = new Criteria();
     public Preferences Preferences { get; set; } = new Preferences();
 }
