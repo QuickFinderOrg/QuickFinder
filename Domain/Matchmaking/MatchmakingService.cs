@@ -56,7 +56,14 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task AddToWaitlist(User user, Course course)
     {
-        db.Add(new Ticket() { User = user });
+        var existing = await db.Tickets.Include(c => c.User).Include(c => c.Course).Where(t => t.User == user && t.Course == course).ToArrayAsync();
+
+        if (existing.Length != 0)
+        {
+            throw new Exception("User is already queued up for this course.");
+        }
+
+        db.Add(new Ticket() { User = user, Course = course });
         await db.SaveChangesAsync();
     }
 

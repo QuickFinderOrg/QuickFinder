@@ -207,10 +207,15 @@ namespace group_finder.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("UserId");
 
@@ -391,9 +396,15 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
+                    b.HasOne("group_finder.Domain.Matchmaking.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
                     b.HasOne("group_finder.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Course");
 
                     b.Navigation("User");
                 });

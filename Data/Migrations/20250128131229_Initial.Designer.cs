@@ -11,8 +11,8 @@ using group_finder.Data;
 namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250128112412_Inital")]
-    partial class Inital
+    [Migration("20250128131229_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -210,10 +210,15 @@ namespace group_finder.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("UserId");
 
@@ -394,9 +399,15 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
+                    b.HasOne("group_finder.Domain.Matchmaking.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
                     b.HasOne("group_finder.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Course");
 
                     b.Navigation("User");
                 });
