@@ -28,7 +28,7 @@ public class MatchmakingService(ApplicationDbContext db)
     public async Task DoMatching()
     {
         // needs a queue of people waiting to match
-        var waitlist = await db.Tickets.Include(p => p.User).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        var waitlist = await db.Tickets.Include(p => p.User).Include(p => p.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
         foreach (var ticket in waitlist)
         {
             var groups = await db.Groups.Include(c => c.Members).ToArrayAsync();
@@ -41,7 +41,7 @@ public class MatchmakingService(ApplicationDbContext db)
             else
             {
                 // create new group
-                var group = new Group() { Criteria = ticket.User.Criteria, Preferences = ticket.User.Preferences };
+                var group = new Group() { Criteria = ticket.User.Criteria, Preferences = ticket.User.Preferences, Course = ticket.Course };
                 group.Members.Add(ticket.User);
                 db.Add(group);
             }

@@ -10,17 +10,17 @@ public class StudentsModel(ILogger<StudentsModel> logger, ApplicationDbContext d
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
-    public List<User> Students = [];
+    public List<Ticket> Students = [];
     public List<Group> Groups = [];
 
     public async Task OnGet()
     {
-        var waitlist = await db.Tickets.Include(p => p.User).ToListAsync();
+        var waitlist = await db.Tickets.Include(p => p.User).Include(p => p.Course).ToListAsync();
         foreach (Ticket ticket in waitlist)
         {
-            Students.Add(ticket.User);
+            Students.Add(ticket);
         }
-        Groups = await db.Groups.Include(g => g.Members).ToListAsync();
+        Groups = await db.Groups.Include(g => g.Members).Include(g => g.Course).ToListAsync();
     }
 
     public async Task<IActionResult> OnPostMatchAsync()

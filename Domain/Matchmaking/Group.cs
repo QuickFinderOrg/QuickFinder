@@ -4,7 +4,7 @@ public class Group()
 {
     public Guid Id { get; init; }
     public List<User> Members { get; } = [];
-    public Course Course = null!;
+    public required Course Course { get; init; }
     public required Criteria Criteria { get; init; }
     public required Preferences Preferences { get; init; }
     public uint GroupLimit { get; set; } = 2;
