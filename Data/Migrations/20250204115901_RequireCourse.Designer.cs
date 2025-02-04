@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using group_finder.Data;
 
@@ -10,9 +11,11 @@ using group_finder.Data;
 namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250204115901_RequireCourse")]
+    partial class RequireCourse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -397,7 +400,7 @@ namespace group_finder.Migrations
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.HasOne("group_finder.Domain.Matchmaking.Course", "Course")
-                        .WithMany("Tickets")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -452,8 +455,6 @@ namespace group_finder.Migrations
             modelBuilder.Entity("group_finder.Domain.Matchmaking.Course", b =>
                 {
                     b.Navigation("Groups");
-
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }
