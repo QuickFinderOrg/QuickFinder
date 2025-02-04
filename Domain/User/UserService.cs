@@ -54,14 +54,14 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db)
 
         if (c == null)
         {
-            return "User not found";
+            return "User claims not found";
         }
 
         var nameClaim = c.Find(c => c.Type == ClaimTypes.Name);
 
         if (nameClaim == null)
         {
-            return "User not found";
+            return "User name not found";
         }
 
         return nameClaim.Value;

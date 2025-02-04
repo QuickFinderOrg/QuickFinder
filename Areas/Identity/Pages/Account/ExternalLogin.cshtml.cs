@@ -143,6 +143,7 @@ namespace group_finder.Areas.Identity.Pages.Account
                     var create_result = await _userManager.CreateAsync(user);
                     if (create_result.Succeeded)
                     {
+                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, info.Principal.FindFirstValue(ClaimTypes.Name)));
                         create_result = await _userManager.AddLoginAsync(user, info);
                         if (create_result.Succeeded)
                         {
