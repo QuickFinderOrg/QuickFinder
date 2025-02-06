@@ -66,4 +66,26 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db)
 
         return nameClaim.Value;
     }
+    public async Task<Claim> GetNameClaim(User user)
+    {
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims);
+
+        var nameClaim = c.Find(c => c.Type == ClaimTypes.Name) ?? throw new Exception("No claim found!");
+
+        return nameClaim;
+    }
+
+    public async Task<bool> UpdateName(User user, string newName)
+    {
+        Claim oldName = await GetNameClaim(user);
+        
+        if (oldName.Value != newName)
+        {
+            await userManager.ReplaceClaimAsync(user, oldName, new Claim(ClaimTypes.Name, newName));
+            return true;
+        }
+
+        return false;
+    }
 }
