@@ -67,14 +67,43 @@ public class MatchmakingService(ApplicationDbContext db)
         await db.SaveChangesAsync();
     }
 
+    public async Task<Ticket[]> GetWaitlist()
+    {
+        return await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync();
+    }
+
+    /// <summary>
+    /// Get tickets for a particular course
+    /// </summary>
+    /// <param name="course"></param>
+    /// <returns></returns>
+    public async Task<Ticket[]> GetWaitlist(Course course)
+    {
+        return await db.Tickets.Include(t => t.User).Include(t => t.Course).Where(t => t.Course == course).ToArrayAsync();
+    }
+
     public async Task<Course[]> GetCourses()
     {
         return await db.Courses.ToArrayAsync();
     }
 
+    /// <summary>
+    /// Get all groups
+    /// </summary>
+    /// <returns></returns>
+    public async Task<Group[]> GetGroups()
+    {
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).ToArrayAsync();
+    }
+
+    /// <summary>
+    /// Get all groups the user is a part of
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public async Task<Group[]> GetGroups(User user)
     {
-        return await db.Groups.Where(g => g.Members.Contains(user)).Include(g => g.Members).ToArrayAsync();
+        return await db.Groups.Include(g => g.Members).Where(g => g.Members.Contains(user)).Include(g => g.Course).ToArrayAsync();
     }
 
     public async Task Reset()
