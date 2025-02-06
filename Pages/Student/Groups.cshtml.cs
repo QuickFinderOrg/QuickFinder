@@ -18,7 +18,7 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
 
         foreach (var g in groups)
         {
-            var group_vm = new GroupVM();
+            var group_vm = new GroupVM() { Id = g.Id.ToString() };
             foreach (var member in g.Members)
             {
                 if (member == null)
@@ -41,8 +41,20 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
         return Page();
     }
 
+    public async Task<IActionResult> OnPostLeaveAsync(string groupId)
+    {
+        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        await matchmakingService.RemoveUserFromGroup(user.Id, Guid.Parse(groupId));
+        // TODO: add load functions and model errors
+        // TODO: don't match again with a group you left
+
+        return Redirect("Groups");
+
+    }
+
     public class GroupVM
     {
+        public required string Id;
         public List<GroupMemberVM> Members = [];
     }
 

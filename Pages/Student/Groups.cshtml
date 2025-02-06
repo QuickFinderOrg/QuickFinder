@@ -15,8 +15,13 @@
                 <div><span> Group</span>
                     <ol>@foreach (var member in group.Members)
                         {
-                           <li> @member.name (@member.email)</li> 
-                        }</ol>
+                            <li> @member.name (@member.email)</li>
+                        }
+                    </ol>
+                    <form asp-page-handler="Leave">
+                        <input name="groupId" hidden value="@group.Id">
+                        <button type="submit">Leave Group</button>
+                    </form>
                 </div>
             </li>
         }

@@ -90,6 +90,15 @@ public class MatchmakingService(ApplicationDbContext db)
     }
 
 
+    public async Task<bool> RemoveUserFromGroup(string userId, Guid groupId)
+    {
+        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
+        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
+        var was_user_remvoed = group.Members.Remove(user);
+
+        await db.SaveChangesAsync();
+        return was_user_remvoed;
+    }
 
 }
 
