@@ -2,8 +2,11 @@
 @model PreferencesModel
 @{
     <div>
+
         <h1>Your Preferences</h1>
-        <form>
+        <partial name="_StatusMessage" for="StatusMessage" />
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
             <label>
                 Language
                 <select>
@@ -12,15 +15,13 @@
                 </select>
             </label>
 
-            <label>
-                Availability
-                <select>
-                    <option>Day</option>
-                    <option>Afternoon</option>
-                </select>
-            </label>
+            <label asp-for="Input.NewAvailability" class="form-label"></label>
+            <select asp-for="Input.NewAvailability" class="form-control">
+                <option value="@Availability.Daytime">Day</option>
+                <option value="@Availability.Afternoons">Afternoon</option>
+            </select>
+            <span asp-validation-for="Input.NewAvailability" class="text-danger"></span>
             <button type="submit">Submit</button>
         </form>
-        <a href="/Student/Matching">To matching</a>
     </div>
 }
