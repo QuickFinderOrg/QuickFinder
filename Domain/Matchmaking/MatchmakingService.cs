@@ -96,6 +96,13 @@ public class MatchmakingService(ApplicationDbContext db)
         return await db.Groups.Include(g => g.Members).Include(g => g.Course).ToArrayAsync();
     }
 
+    public async Task<User[]> GetGroupMembers(Guid groupId)
+    {
+        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
+        var users = group.Members.ToArray();
+        return users;
+    }
+
     /// <summary>
     /// Get all groups the user is a part of
     /// </summary>
@@ -114,6 +121,14 @@ public class MatchmakingService(ApplicationDbContext db)
 
         var groups = await db.Groups.Include(g => g.Members).ToArrayAsync();
         db.RemoveRange(groups);
+
+        await db.SaveChangesAsync();
+    }
+
+    public async Task DeleteGroup(Guid id)
+    {
+        var group = await db.Groups.FindAsync(id) ?? throw new Exception("Group not found");
+        db.Remove(group);
 
         await db.SaveChangesAsync();
     }

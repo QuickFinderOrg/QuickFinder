@@ -39,6 +39,20 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
         return Page();
     }
 
+    public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
+    {
+        var users = await matchmaking.GetGroupMembers(id);
+        await matchmaking.DeleteGroup(id);
+        var courses = await matchmaking.GetCourses();
+        var course = courses[0];
+        foreach (var user in users)
+        {
+            await matchmaking.AddToWaitlist(user, course);
+        }
+        await LoadAsync();
+        return Page();
+    }
+
     public async Task LoadAsync()
     {
         var waitlist = await matchmaking.GetWaitlist();
