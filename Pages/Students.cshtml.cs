@@ -19,15 +19,14 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
 
     public async Task<IActionResult> OnPostMatchAsync()
     {
-        await LoadAsync();
         await matchmaking.DoMatching();
+        await LoadAsync();
         return Page();
 
     }
 
     public async Task<IActionResult> OnPostResetAsync()
     {
-        await LoadAsync();
         await matchmaking.Reset();
         var courses = await matchmaking.GetCourses();
         var course = courses[0];
@@ -36,7 +35,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
         {
             await matchmaking.AddToWaitlist(user, course);
         }
-
+        await LoadAsync();
         return Page();
     }
 
