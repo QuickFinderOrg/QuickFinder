@@ -6,7 +6,6 @@ public class Group()
     public List<User> Members { get; } = [];
     public required Course Course { get; init; }
     public required Criteria Criteria { get; init; }
-    public required Preferences Preferences { get; init; }
     public uint GroupLimit { get; set; } = 2;
 
     public bool IsFull => Members.Count >= GroupLimit;

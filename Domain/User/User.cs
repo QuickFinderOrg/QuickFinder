@@ -7,7 +7,6 @@ namespace group_finder;
 public class User : IdentityUser
 {
     public Criteria Criteria { get; set; } = new Criteria();
-    public Preferences Preferences { get; set; } = new Preferences();
     public List<Group> Groups { get; } = [];
 }
 [Owned]
@@ -17,11 +16,6 @@ public record class Criteria()
     public string Language = "English";
 }
 
-[Owned]
-public record class Preferences()
-{
-
-}
 
 public enum Availability
 {

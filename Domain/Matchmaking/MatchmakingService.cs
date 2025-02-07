@@ -41,7 +41,7 @@ public class MatchmakingService(ApplicationDbContext db)
             else
             {
                 // create new group
-                var group = new Group() { Criteria = ticket.User.Criteria, Preferences = ticket.User.Preferences, Course = ticket.Course };
+                var group = new Group() { Criteria = ticket.User.Criteria, Course = ticket.Course };
                 group.Members.Add(ticket.User);
                 db.Add(group);
             }
