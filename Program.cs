@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var DiscordId = builder.Configuration["Discord:ClientId"] ?? throw new Exception("'Discord:ClientId' is missing from configuration/env");
 var DiscordSecret = builder.Configuration["Discord:ClientSecret"] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
+var DiscordBotToken = builder.Configuration["Discord:BotToken"] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
+
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -32,6 +34,13 @@ builder.Services.AddAuthentication().AddDiscord(options =>
     options.ClientSecret = DiscordSecret;
     options.Scope.Add("identify");
     options.Scope.Add("email");
+});
+
+builder.Services.AddSingleton(provider =>
+{
+    var botService = new DiscordBotService();
+    botService.StartAsync(DiscordBotToken).GetAwaiter().GetResult();
+    return botService;
 });
 
 var app = builder.Build();

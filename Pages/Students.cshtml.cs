@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages;
 
-public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, UserService userService) : PageModel
+public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, UserService userService, DiscordBotService discordBotService) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -21,6 +21,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
     {
         await matchmaking.DoMatching();
         await LoadAsync();
+        // discordBotService.SendDM(123, "TEST");
         return Page();
 
     }
