@@ -5,6 +5,7 @@ namespace group_finder.Pages.Student
 {
     public class PreferencesModel : PageModel
     {
+        public Preferences? Criteria = null;
         public void OnGet()
         {
         }

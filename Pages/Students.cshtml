@@ -23,7 +23,7 @@
                 <tr>
                     <td>@await userService.GetName(ticket.User)</td>
                     <td>@ticket.Course.Name</td>
-                    <td>@ticket.User.Criteria.Availability</td>
+                    <td>@ticket.User.Preferences.Availability</td>
                     <td>
                         <a asp-page="/EditStudent" asp-route-id="@ticket.Id" class="btn btn-primary">Edit</a>
                     </td>

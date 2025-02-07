@@ -15,7 +15,7 @@ public class Ticket()
         {
             return false;
         }
-        if (group.Criteria.Availability != User.Criteria.Availability)
+        if (group.Preferences.Availability != User.Preferences.Availability)
         {
             return false;
         }

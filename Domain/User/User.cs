@@ -6,11 +6,11 @@ namespace group_finder;
 
 public class User : IdentityUser
 {
-    public Criteria Criteria { get; set; } = new Criteria();
+    public Preferences Preferences { get; set; } = new Preferences();
     public List<Group> Groups { get; } = [];
 }
 [Owned]
-public record class Criteria()
+public record class Preferences()
 {
     public Availability Availability { get; set; } = Availability.Daytime;
     public string Language = "English";
