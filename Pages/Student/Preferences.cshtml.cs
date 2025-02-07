@@ -26,6 +26,7 @@ namespace group_finder.Pages.Student
             {
                 NewAvailability = user.Preferences.Availability,
             };
+            await Task.CompletedTask;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -56,8 +57,8 @@ namespace group_finder.Pages.Student
 
             user.Preferences.Availability = Input.NewAvailability;
 
-            StatusMessage = "Confirmation link to change email sent. Please check your email.";
-            return RedirectToPage("Matching");
+            StatusMessage = "Your preferences have been updated.";
+            return RedirectToPage();
         }
     }
 }

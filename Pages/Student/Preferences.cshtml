@@ -4,6 +4,7 @@
     <div>
 
         <h1>Your Preferences</h1>
+        <partial name="_StatusMessage" for="StatusMessage" />
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
             <label>
@@ -22,6 +23,5 @@
             <span asp-validation-for="Input.NewAvailability" class="text-danger"></span>
             <button type="submit">Submit</button>
         </form>
-        <a href="/Student/Matching">To matching</a>
     </div>
 }
