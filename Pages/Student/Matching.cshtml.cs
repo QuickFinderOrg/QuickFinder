@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Student;
 
-public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager) : PageModel
+public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager, UserService userService) : PageModel
 {
     private readonly ILogger<MatchingModel> _logger = logger;
     public Course[] Courses = [];
@@ -29,7 +29,9 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         }
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
         await matchmakingService.AddToWaitlist(user, course);
-        await matchmakingService.DoMatching();
+        var matched_users = await matchmakingService.DoMatching();
+        var notifyTasks = matched_users.Select(user => userService.NotifyUser(user, "You've got a match!"));
+        await Task.WhenAll(notifyTasks);
         return Redirect("/Student/Groups");
     }
 

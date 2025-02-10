@@ -27,28 +27,33 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task<User[]> DoMatching()
     {
-        var matched_users = new List<User>();
+        var fully_matched_users = new List<User>();
         // needs a queue of people waiting to match
         var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        var groups = await db.Groups.Include(c => c.Members).ToListAsync();
         foreach (var ticket in waitlist)
         {
-            var groups = await db.Groups.Include(c => c.Members).ToArrayAsync();
-            var group = LookForMatch(ticket, groups);
+
+            var group = LookForMatch(ticket, [.. groups]);
             if (group == null)
             {
                 group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
                 db.Add(group);
+                groups.Add(group);
             }
             group.Members.Add(ticket.User);
 
-            matched_users.Add(ticket.User);
+            if (group.IsFull)
+            {
+                fully_matched_users.AddRange(group.Members);
+            }
 
             // remove from waiting list
             db.Remove(ticket);
         }
 
         await db.SaveChangesAsync();
-        return [.. matched_users];
+        return [.. fully_matched_users];
 
     }
 
