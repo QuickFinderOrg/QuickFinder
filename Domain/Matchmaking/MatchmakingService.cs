@@ -39,14 +39,11 @@ public class MatchmakingService(ApplicationDbContext db)
                 group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
                 db.Add(group);
             }
-            else
-            {
-                // create new group
-                group.Members.Add(ticket.User);
-            }
+            group.Members.Add(ticket.User);
+
+            matched_users.Add(ticket.User);
 
             // remove from waiting list
-            matched_users.Add(ticket.User);
             db.Remove(ticket);
         }
 
