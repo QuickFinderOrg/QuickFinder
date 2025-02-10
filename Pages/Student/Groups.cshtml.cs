@@ -41,10 +41,10 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
         return Page();
     }
 
-    public async Task<IActionResult> OnPostLeaveAsync(string groupId)
+    public async Task<IActionResult> OnPostLeaveAsync(Guid groupId)
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        await matchmakingService.RemoveUserFromGroup(user.Id, Guid.Parse(groupId));
+        await matchmakingService.RemoveUserFromGroup(user.Id, groupId);
         // TODO: add load functions and model errors
         // TODO: don't match again with a group you left
 
