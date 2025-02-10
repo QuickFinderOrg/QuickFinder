@@ -3,3 +3,28 @@
 @{
     ViewData["Title"] = "Edit Page";
 }
+
+@if (Model.Group is not null && Model.Members is not null)
+{
+<div class="text-center">
+    <h1 class="display-4">Edit Group @Model.Group.Id</h1>
+    <table>
+        @foreach (var member in Model.Members)
+        {
+            <tr>
+                <td>@member.UserName</td>
+                <td>
+                    <form asp-page-handler="DeleteMember" method="post">
+                        <input hidden value="@member.Id" name="userId">
+                        <input hidden value="@Model.Group.Id" name="groupId">
+                        <button class="btn btn-danger">
+                            <i class="bi-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+
+</div>
+}

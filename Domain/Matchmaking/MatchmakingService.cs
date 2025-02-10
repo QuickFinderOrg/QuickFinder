@@ -99,6 +99,12 @@ public class MatchmakingService(ApplicationDbContext db)
         return await db.Groups.Include(g => g.Members).Include(g => g.Course).ToArrayAsync();
     }
 
+    public async Task<Group> GetGroup(Guid groupId)
+    {
+        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
+        return group;
+    }
+
     public async Task<User[]> GetGroupMembers(Guid groupId)
     {
         var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
