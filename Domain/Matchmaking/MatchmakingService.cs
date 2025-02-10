@@ -25,8 +25,9 @@ public class MatchmakingService(ApplicationDbContext db)
         return null;
     }
 
-    public async Task DoMatching()
+    public async Task<User[]> DoMatching()
     {
+        var matched_users = new List<User>();
         // needs a queue of people waiting to match
         var waitlist = await db.Tickets.Include(p => p.User).Include(p => p.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
         foreach (var ticket in waitlist)
@@ -43,14 +44,18 @@ public class MatchmakingService(ApplicationDbContext db)
                 // create new group
                 var group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
                 group.Members.Add(ticket.User);
+
                 db.Add(group);
             }
 
             // remove from waiting list
-
+            matched_users.Add(ticket.User);
             db.Remove(ticket);
             await db.SaveChangesAsync(); // TODO: make more efficient
         }
+
+
+        return [.. matched_users];
 
     }
 

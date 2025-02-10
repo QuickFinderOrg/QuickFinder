@@ -1,12 +1,13 @@
 using System.Security.Claims;
 using group_finder.Data;
+using Humanizer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace group_finder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db)
+public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
@@ -93,5 +94,22 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db)
         }
 
         return false;
+    }
+
+    public async Task<bool> NotifyUser(User user, string message)
+    {
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims);
+
+        var discordIdClaim = c.Find(c => c.Type == ClaimTypes.NameIdentifier);
+
+        if (discordIdClaim == null)
+        {
+            // might be a test user or someone without a discord attached.
+            return false;
+        }
+
+        await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
+        return true;
     }
 }

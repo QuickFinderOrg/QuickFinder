@@ -130,6 +130,7 @@ namespace group_finder.Areas.Identity.Pages.Account
                 _logger.LogInformation("Cliams {list}", info.Principal.Claims);
                 if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
                 {
+
                     Input = new InputModel
                     {
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email)
@@ -144,6 +145,8 @@ namespace group_finder.Areas.Identity.Pages.Account
                     if (create_result.Succeeded)
                     {
                         await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, info.Principal.FindFirstValue(ClaimTypes.Name)));
+                        var discordId = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.NameIdentifier, discordId));
                         create_result = await _userManager.AddLoginAsync(user, info);
                         if (create_result.Succeeded)
                         {
