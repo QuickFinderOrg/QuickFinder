@@ -20,17 +20,27 @@ public class DiscordBotService
         await _client.StartAsync();
     }
 
-    public async Task SendDM(ulong userId, string message)
+    public async Task<bool> SendDM(ulong userId, string message)
     {
         var user = await _client.GetUserAsync(userId);
-        if (user != null)
+        if (user == null)
+        {
+            Console.WriteLine("User not found.");
+            return false;
+
+        }
+
+
+        try
         {
             await user.SendMessageAsync(message);
             Console.WriteLine($"Sent DM to {user.Username}: {message}");
+            return true;
         }
-        else
+        catch (Discord.Net.HttpException e)
         {
-            Console.WriteLine("User not found.");
+            Console.WriteLine($"Failed to send DM to {user.Username}: DiscordErrorCode: {e.DiscordCode}");
+            return false;
         }
     }
 }

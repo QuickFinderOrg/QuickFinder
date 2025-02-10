@@ -29,32 +29,28 @@ public class MatchmakingService(ApplicationDbContext db)
     {
         var matched_users = new List<User>();
         // needs a queue of people waiting to match
-        var waitlist = await db.Tickets.Include(p => p.User).Include(p => p.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
         foreach (var ticket in waitlist)
         {
             var groups = await db.Groups.Include(c => c.Members).ToArrayAsync();
-            var foundGroup = LookForMatch(ticket, groups);
-            if (foundGroup != null)
+            var group = LookForMatch(ticket, groups);
+            if (group == null)
             {
-                // add to group
-                foundGroup.Members.Add(ticket.User);
+                group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
+                db.Add(group);
             }
             else
             {
                 // create new group
-                var group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
                 group.Members.Add(ticket.User);
-
-                db.Add(group);
             }
 
             // remove from waiting list
             matched_users.Add(ticket.User);
             db.Remove(ticket);
-            await db.SaveChangesAsync(); // TODO: make more efficient
         }
 
-
+        await db.SaveChangesAsync();
         return [.. matched_users];
 
     }
