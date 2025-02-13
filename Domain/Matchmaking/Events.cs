@@ -6,5 +6,20 @@ public class GroupMemberAdded : INotification
 {
     public required User UserId;
     public required Group GroupId;
-    public DateTimeOffset DateOccurred { get; protected set; } = DateTimeOffset.UtcNow;
+}
+
+public class GroupMemberLeft : INotification
+{
+    public required User User;
+    public required Group Group;
+}
+
+public class GroupDisbanded : INotification
+{
+    public required Group Group; // TODO: group won't exist anymore at this point. how to handle this?
+}
+
+public class GroupFilled : INotification
+{
+    public required Group Group;
 }
