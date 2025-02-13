@@ -138,10 +138,12 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public async Task DeleteGroup(Guid id)
     {
-        var group = await db.Groups.FindAsync(id) ?? throw new Exception("Group not found");
+        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == id) ?? throw new Exception("Group not found");
+        var disband_event = new GroupDisbanded() { GroupId = group.Id, Course = group.Course, Members = [.. group.Members] };
         db.Remove(group);
 
         await db.SaveChangesAsync();
+        await mediator.Publish(disband_event);
     }
 
 
@@ -152,6 +154,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var was_user_remvoed = group.Members.Remove(user);
 
         await db.SaveChangesAsync();
+        var disband_event = new GroupMemberLeft() { Group = group, User = user };
         return was_user_remvoed;
     }
 

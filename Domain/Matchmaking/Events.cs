@@ -16,7 +16,9 @@ public class GroupMemberLeft : INotification
 
 public class GroupDisbanded : INotification
 {
-    public required Group Group; // TODO: group won't exist anymore at this point. how to handle this?
+    public required Guid GroupId;
+    public required Course Course;
+    public required User[] Members;
 }
 
 public class GroupFilled : INotification
