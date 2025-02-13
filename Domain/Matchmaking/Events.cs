@@ -4,8 +4,8 @@ namespace group_finder.Domain.Matchmaking;
 
 public class GroupMemberAdded : INotification
 {
-    public required User UserId;
-    public required Group GroupId;
+    public required User User;
+    public required Group Group;
 }
 
 public class GroupMemberLeft : INotification

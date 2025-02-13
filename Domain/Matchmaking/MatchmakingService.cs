@@ -47,7 +47,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
             if (group.IsFull)
             {
                 fully_matched_users.AddRange(group.Members);
-                await mediator.Publish(new GroupMemberAdded() { UserId = ticket.User, GroupId = group });
+                await mediator.Publish(new GroupMemberAdded() { User = ticket.User, Group = group });
             }
 
             // remove from waiting list
