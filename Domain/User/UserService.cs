@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using group_finder.Data;
+using group_finder.Domain.Matchmaking;
 using Humanizer;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -111,5 +113,14 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
         await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
         return true;
+    }
+}
+
+public class OnGroupMemeberAdded(UserService userService) : INotificationHandler<GroupMemberAdded>
+{
+    public async Task Handle(GroupMemberAdded notification, CancellationToken cancellationToken)
+    {
+        Console.WriteLine($"{notification.UserId} added to group {notification.GroupId}");
+        await userService.NotifyUser(notification.UserId, $"Group found for {notification.GroupId.Course}");
     }
 }

@@ -19,10 +19,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
 
     public async Task<IActionResult> OnPostMatchAsync()
     {
-        var matched_users = await matchmaking.DoMatching();
-        var notifyTasks = matched_users.Select(user => userService.NotifyUser(user, "You've got a match!"));
-        await Task.WhenAll(notifyTasks);
-
+        await matchmaking.DoMatching();
         await LoadAsync();
         return Page();
 

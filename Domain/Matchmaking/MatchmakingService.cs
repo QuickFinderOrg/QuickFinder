@@ -1,9 +1,10 @@
 using group_finder.Data;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Domain.Matchmaking;
 
-public class MatchmakingService(ApplicationDbContext db)
+public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 {
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
@@ -25,7 +26,7 @@ public class MatchmakingService(ApplicationDbContext db)
         return null;
     }
 
-    public async Task<User[]> DoMatching()
+    public async Task DoMatching()
     {
         var fully_matched_users = new List<User>();
         // needs a queue of people waiting to match
@@ -46,6 +47,7 @@ public class MatchmakingService(ApplicationDbContext db)
             if (group.IsFull)
             {
                 fully_matched_users.AddRange(group.Members);
+                await mediator.Publish(new GroupMemberAdded() { UserId = ticket.User, GroupId = group });
             }
 
             // remove from waiting list
@@ -53,8 +55,6 @@ public class MatchmakingService(ApplicationDbContext db)
         }
 
         await db.SaveChangesAsync();
-        return [.. fully_matched_users];
-
     }
 
     public async Task AddToWaitlist(User user, Course course)
@@ -163,4 +163,11 @@ public record class GroupVM
 public record class GroupMemberVM
 {
     public required string Name;
+}
+
+public class GroupMemberAdded : INotification
+{
+    public required User UserId;
+    public required Group GroupId;
+    public DateTimeOffset DateOccurred { get; protected set; } = DateTimeOffset.UtcNow;
 }
