@@ -1,0 +1,62 @@
+@page
+@model CourseGroupsModel
+@inject UserService userService;
+@{
+    ViewData["Title"] = "Students";
+}
+<h4 class="text-center">Courses</h4>
+<form asp-page-handler="ChangeCourse" method="post">
+    <select asp-for="CourseName" class="form-control" onchange="this.form.submit()">
+        <option value="DAT120">DAT120</option>
+        <option value="DAT240">DAT240</option>
+        <option value="DAT1000000">DAT1000000</option>
+    </select>
+</form>
+
+<div class="text-center">
+    <h4>Groups</h4>
+    @if (Model.Groups.Count() == 0)
+    {
+        <p>No groups formed in this course</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Members</th>
+                    <th>Complete</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var group in Model.Groups)
+                {             
+                    <tr>
+                        <td>@group.Id</td>
+                        <td>@group.Course.Name</td>
+                        <td>
+                            @foreach (var member in group.Members)
+                            {
+                                <p>@await userService.GetName(member)</p>
+                            }
+                        </td>
+                        <td>
+                            <p>@group.Members.Count / @group.GroupLimit</p>
+                        </td>
+                        <td>
+                            <form asp-page-handler="DeleteGroup" asp-route-id="@group.Id"  method="post">
+                                <a asp-page="/EditGroup" asp-route-id="@group.Id" asp-page-handler="EditGroup" class="btn btn-primary"><i class="bi-pencil"></i></a>
+                                <button class="btn btn-danger">
+                                    <i class="bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
