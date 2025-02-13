@@ -17,6 +17,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
+
 builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<SeedDB>();
@@ -75,3 +77,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+public partial class Startup { }

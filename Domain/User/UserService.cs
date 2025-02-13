@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using group_finder.Data;
+using group_finder.Domain.Matchmaking;
 using Humanizer;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -111,5 +113,15 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
         await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
         return true;
+    }
+}
+
+public class OnGroupFilled(UserService userService) : INotificationHandler<GroupFilled>
+{
+    public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
+    {
+        var names = await Task.WhenAll(notification.Group.Members.Select(userService.GetName));
+        var name_list = string.Join("", names.Select(name => $"- {name}(ID)\n"));
+        await Task.WhenAll(notification.Group.Members.Select(user => userService.NotifyUser(user, $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}")));
     }
 }

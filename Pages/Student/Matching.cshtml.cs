@@ -29,9 +29,8 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         }
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
         await matchmakingService.AddToWaitlist(user, course);
-        var matched_users = await matchmakingService.DoMatching();
-        var notifyTasks = matched_users.Select(user => userService.NotifyUser(user, "You've got a match!"));
-        await Task.WhenAll(notifyTasks);
+        await matchmakingService.DoMatching();
+
         return Redirect("/Student/Groups");
     }
 

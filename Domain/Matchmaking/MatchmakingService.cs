@@ -1,9 +1,11 @@
+using System.IO.Compression;
 using group_finder.Data;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Domain.Matchmaking;
 
-public class MatchmakingService(ApplicationDbContext db)
+public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 {
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
@@ -25,15 +27,14 @@ public class MatchmakingService(ApplicationDbContext db)
         return null;
     }
 
-    public async Task<User[]> DoMatching()
+    public async Task DoMatching()
     {
-        var fully_matched_users = new List<User>();
+        var events = new List<object>();
         // needs a queue of people waiting to match
         var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
         var groups = await db.Groups.Include(c => c.Members).ToListAsync();
         foreach (var ticket in waitlist)
         {
-
             var group = LookForMatch(ticket, [.. groups]);
             if (group == null)
             {
@@ -41,11 +42,13 @@ public class MatchmakingService(ApplicationDbContext db)
                 db.Add(group);
                 groups.Add(group);
             }
+
             group.Members.Add(ticket.User);
+            events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
 
             if (group.IsFull)
             {
-                fully_matched_users.AddRange(group.Members);
+                events.Add(new GroupFilled() { Group = group });
             }
 
             // remove from waiting list
@@ -53,8 +56,7 @@ public class MatchmakingService(ApplicationDbContext db)
         }
 
         await db.SaveChangesAsync();
-        return [.. fully_matched_users];
-
+        await Task.WhenAll(events.Select(e => mediator.Publish(e))); // Only publish after save
     }
 
     public async Task AddToWaitlist(User user, Course course)
@@ -141,10 +143,12 @@ public class MatchmakingService(ApplicationDbContext db)
 
     public async Task DeleteGroup(Guid id)
     {
-        var group = await db.Groups.FindAsync(id) ?? throw new Exception("Group not found");
+        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == id) ?? throw new Exception("Group not found");
+        var disband_event = new GroupDisbanded() { GroupId = group.Id, Course = group.Course, Members = [.. group.Members] };
         db.Remove(group);
 
         await db.SaveChangesAsync();
+        await mediator.Publish(disband_event);
     }
 
 
@@ -155,6 +159,7 @@ public class MatchmakingService(ApplicationDbContext db)
         var was_user_remvoed = group.Members.Remove(user);
 
         await db.SaveChangesAsync();
+        var disband_event = new GroupMemberLeft() { Group = group, User = user };
         return was_user_remvoed;
     }
 
