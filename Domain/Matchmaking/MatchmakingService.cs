@@ -164,10 +164,3 @@ public record class GroupMemberVM
 {
     public required string Name;
 }
-
-public class GroupMemberAdded : INotification
-{
-    public required User UserId;
-    public required Group GroupId;
-    public DateTimeOffset DateOccurred { get; protected set; } = DateTimeOffset.UtcNow;
-}
