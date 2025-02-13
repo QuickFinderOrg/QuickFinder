@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using group_finder.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public async Task DoMatching()
     {
-        var fully_matched_users = new List<User>();
+        var events = new List<GroupMemberAdded>();
         // needs a queue of people waiting to match
         var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
         var groups = await db.Groups.Include(c => c.Members).ToListAsync();
@@ -46,8 +47,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
             if (group.IsFull)
             {
-                fully_matched_users.AddRange(group.Members);
-                await mediator.Publish(new GroupMemberAdded() { User = ticket.User, Group = group });
+                events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
             }
 
             // remove from waiting list
@@ -55,6 +55,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         }
 
         await db.SaveChangesAsync();
+        await Task.WhenAll(events.Select(e => mediator.Publish(e))); // Only publish after save
     }
 
     public async Task AddToWaitlist(User user, Course course)
