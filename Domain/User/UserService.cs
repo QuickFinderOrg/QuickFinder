@@ -121,6 +121,6 @@ public class OnGroupMemeberAdded(UserService userService) : INotificationHandler
     public async Task Handle(GroupMemberAdded notification, CancellationToken cancellationToken)
     {
         Console.WriteLine($"{notification.UserId} added to group {notification.GroupId}");
-        await userService.NotifyUser(notification.UserId, $"Group found for {notification.GroupId.Course}");
+        await userService.NotifyUser(notification.UserId, $"Group found for {notification.GroupId.Course.Name}");
     }
 }
