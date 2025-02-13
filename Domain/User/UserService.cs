@@ -116,11 +116,12 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
     }
 }
 
-public class OnGroupMemeberAdded(UserService userService) : INotificationHandler<GroupMemberAdded>
+public class OnGroupFilled(UserService userService) : INotificationHandler<GroupFilled>
 {
-    public async Task Handle(GroupMemberAdded notification, CancellationToken cancellationToken)
+    public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"{notification.User} added to group {notification.Group}");
-        await userService.NotifyUser(notification.User, $"Group found for {notification.Group.Course.Name}");
+        var names = await Task.WhenAll(notification.Group.Members.Select(userService.GetName));
+        var name_list = string.Join("", names.Select(name => $"- {name}(ID)\n"));
+        await Task.WhenAll(notification.Group.Members.Select(user => userService.NotifyUser(user, $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}")));
     }
 }

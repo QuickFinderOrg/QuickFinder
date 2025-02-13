@@ -29,13 +29,12 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public async Task DoMatching()
     {
-        var events = new List<GroupMemberAdded>();
+        var events = new List<object>();
         // needs a queue of people waiting to match
         var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
         var groups = await db.Groups.Include(c => c.Members).ToListAsync();
         foreach (var ticket in waitlist)
         {
-
             var group = LookForMatch(ticket, [.. groups]);
             if (group == null)
             {
@@ -43,11 +42,13 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
                 db.Add(group);
                 groups.Add(group);
             }
+
             group.Members.Add(ticket.User);
+            events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
 
             if (group.IsFull)
             {
-                events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
+                events.Add(new GroupFilled() { Group = group });
             }
 
             // remove from waiting list
