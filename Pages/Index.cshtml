@@ -8,9 +8,9 @@
     <h1 class="display-4">Find groups</h1>
     <nav>
         <ul class="list-group">
-            <li class="list-group-item"><a asp-page="/Student/Preferences">Choose Preferences</a></li>
-            <li class="list-group-item"><a asp-page="/Student/Matching">View available courses</a></li>
-            <li class="list-group-item"><a asp-page="/Student/Groups">My groups</a></li>
+            <li class="list-group-item"><a asp-page="@StudentRoutes.Preferences()">Choose Preferences</a></li>
+            <li class="list-group-item"><a asp-page="@StudentRoutes.Matching()">View available courses</a></li>
+            <li class="list-group-item"><a asp-page="@StudentRoutes.Groups()">My groups</a></li>
         </ul>
     </nav>
 </div>

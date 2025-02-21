@@ -31,7 +31,7 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         await matchmakingService.AddToWaitlist(user, course);
         await matchmakingService.DoMatching();
 
-        return Redirect("/Student/Groups");
+        return Redirect(StudentRoutes.Groups());
     }
 
     public async Task LoadAsync()

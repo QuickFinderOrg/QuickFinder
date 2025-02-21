@@ -16,7 +16,7 @@ public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbCon
         var user = await userService.CreateUser("Test@mail.com", name, "Lego1!");
         await matchmakingService.AddToWaitlist(user, course);
         await db.SaveChangesAsync();
-        return RedirectToPage("Students");
+        return RedirectToPage(AdminRoutes.Students());
     }
 }
 
