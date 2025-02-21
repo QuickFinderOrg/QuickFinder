@@ -2,7 +2,7 @@ using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages;
+namespace group_finder.Pages.Admin;
 
 public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, UserService userService) : PageModel
 {

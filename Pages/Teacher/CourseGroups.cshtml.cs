@@ -3,7 +3,7 @@ using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages;
+namespace group_finder.Pages.Teacher;
 
 public class CourseGroupsModel(ILogger<CourseGroupsModel> logger, MatchmakingService matchmaking) : PageModel
 {
