@@ -73,13 +73,25 @@ else
     app.UseHsts();
 }
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Scheme != "https")
+    {
+        var httpsUrl = "https://" + context.Request.Host + context.Request.Path + context.Request.QueryString;
+        context.Response.Redirect(httpsUrl);
+    }
+    else
+    {
+        await next();
+    }
+});
+
 // Configure forwarded headers
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
