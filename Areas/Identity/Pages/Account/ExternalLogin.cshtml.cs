@@ -95,7 +95,7 @@ namespace group_finder.Areas.Identity.Pages.Account
             // Request a redirect to the external login provider.
             var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-            properties.RedirectUri = $"https://{domain}{properties.RedirectUri}";
+            properties.RedirectUri = $"https://example.com/{properties.RedirectUri}";
             return new ChallengeResult(provider, properties);
         }
 
