@@ -90,9 +90,12 @@ namespace group_finder.Areas.Identity.Pages.Account
 
         public IActionResult OnPost(string provider, string returnUrl = null)
         {
+            var domain = HttpContext.Request.Host.Value;
+            _logger.LogInformation("Current domain: {Domain}", domain);
             // Request a redirect to the external login provider.
             var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            properties.RedirectUri = $"https://{domain}{properties.RedirectUri}";
             return new ChallengeResult(provider, properties);
         }
 
