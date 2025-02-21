@@ -75,15 +75,11 @@ else
 
 app.Use(async (context, next) =>
 {
-    if (context.Request.Scheme != "https")
+    if (context.Request.Scheme == "http")
     {
-        var httpsUrl = "https://" + context.Request.Host + context.Request.Path + context.Request.QueryString;
-        context.Response.Redirect(httpsUrl);
+        context.Request.Scheme = "https";
     }
-    else
-    {
-        await next();
-    }
+    await next();
 });
 
 // Configure forwarded headers
