@@ -26,9 +26,22 @@ builder.Services.AddScoped<SeedDB>();
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.AddAuthorization(options =>
+{
+    // TODO: add claim based policy
+    options.AddPolicy("Student", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("Teacher", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy("Admin", policy => policy.RequireAuthenticatedUser());
+});
+
 builder.Services.AddRazorPages(options =>
 {
-    options.Conventions.AuthorizeFolder("/Student");
+    options.Conventions.AuthorizeFolder("/Student", policy: "Student");
+
+    options.Conventions.AuthorizeFolder("/Teacher", policy: "Teacher");
+
+    options.Conventions.AuthorizeFolder("/Admin", policy: "Admin");
 });
 
 builder.Services.AddAuthentication().AddDiscord(options =>
