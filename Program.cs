@@ -73,14 +73,14 @@ else
     app.UseHsts();
 }
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Scheme == "http")
-    {
-        context.Request.Scheme = "https";
-    }
-    await next();
-});
+// app.Use(async (context, next) =>
+// {
+//     if (context.Request.Scheme == "http")
+//     {
+//         context.Request.Scheme = "https";
+//     }
+//     await next();
+// });
 
 // Configure forwarded headers
 app.UseForwardedHeaders(new ForwardedHeadersOptions
