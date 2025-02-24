@@ -22,6 +22,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<St
 
 builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)

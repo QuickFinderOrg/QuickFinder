@@ -41,6 +41,11 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
     }
 
+    public async Task<User> GetUser(string userId)
+    {
+        return await db.Users.FindAsync(userId) ?? throw new Exception("User not found!");
+    }
+
     public async Task<User[]> GetAllUsers()
     {
         return await userStore.Users.ToArrayAsync();

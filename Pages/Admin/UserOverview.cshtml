@@ -1,0 +1,58 @@
+@page
+@model UserOverviewModel
+@inject UserService userService;
+@{
+    ViewData["Title"] = "Students";
+}
+@* //TODO: make available only to admins *@
+<div class="text-center">
+    <h1 class="display-4">Users</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@await userService.GetName(user)</td>
+                    <td>
+                        <form asp-page-handler="MakeTeacher" method="post">
+                            <input hidden value="@user.Id" name="userId">
+                            <button class="btn btn-primary">
+                                <i class="bi-check"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h1 class="display-4">Teachers</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Teachers)
+            {
+                <tr>
+                    <td>@await userService.GetName(user)</td>
+                    <td>
+                        <form asp-page-handler="RemoveTeacher" asp-route-id="@user" method="post">
+                            <button class="btn btn-danger">
+                                <i class="bi-x"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>

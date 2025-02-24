@@ -18,4 +18,5 @@ public static class AdminRoutes
 {
     public static string AddStudent() => "/Admin/AddStudents";
     public static string Students() => "/Admin/Students";
+    public static string UserOverview() => "/Admin/UserOverview";
 }
