@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using group_finder.Data;
 using group_finder;
@@ -72,15 +71,6 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
-// app.Use(async (context, next) =>
-// {
-//     if (context.Request.Scheme == "http")
-//     {
-//         context.Request.Scheme = "https";
-//     }
-//     await next();
-// });
 
 // Configure forwarded headers
 app.UseForwardedHeaders(new ForwardedHeadersOptions
