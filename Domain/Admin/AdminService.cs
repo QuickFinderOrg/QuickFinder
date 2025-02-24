@@ -9,4 +9,9 @@ public class AdminService(UserManager<User> userManager)
     {
         await userManager.AddClaimAsync(user, new Claim("IsTeacher", true.ToString()));      
     }
+
+    public async Task RemoveTeacher(User user)
+    {
+        await userManager.RemoveClaimAsync(user, new Claim("IsTeacher", true.ToString()));
+    }
 }

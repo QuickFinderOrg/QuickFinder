@@ -25,6 +25,14 @@ public class UserOverviewModel(UserManager<User> userManager, ILogger<StudentsMo
         await LoadAsync();
         return Page();
     }
+
+    public async Task<IActionResult> OnPostRemoveTeacherAsync(string userId)
+    {
+        var user = await userService.GetUser(userId);
+        await adminService.RemoveTeacher(user);
+        await LoadAsync();
+        return Page();
+    }
     public async Task LoadAsync()
     {
         var users = await userService.GetAllUsers();

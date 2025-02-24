@@ -46,7 +46,8 @@
                 <tr>
                     <td>@await userService.GetName(user)</td>
                     <td>
-                        <form asp-page-handler="RemoveTeacher" asp-route-id="@user" method="post">
+                        <form asp-page-handler="RemoveTeacher" method="post">
+                            <input hidden value="@user.Id" name="userId">
                             <button class="btn btn-danger">
                                 <i class="bi-x"></i>
                             </button>
