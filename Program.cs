@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using group_finder.Data;
 using group_finder;
@@ -74,19 +73,10 @@ else
     app.UseHsts();
 }
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Scheme == "http")
-    {
-        context.Request.Scheme = "https";
-    }
-    await next();
-});
-
 // Configure forwarded headers
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
 });
 
 app.UseStaticFiles();

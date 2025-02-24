@@ -1,0 +1,17 @@
+@page
+@{
+    ViewData["Title"] = "Login";
+    var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
+}
+
+<h2>Test</h2>
+@($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}")
+
+<details title="Headers">
+    <summary>Headers</summary>
+
+    @foreach (var val in headers)
+    {
+        <p>@val</p>
+    }
+</details>
