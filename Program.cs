@@ -29,10 +29,16 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 
 builder.Services.AddAuthorization(options =>
 {
-    // TODO: add claim based policy
     options.AddPolicy("Student", policy => policy.RequireAuthenticatedUser());
     options.AddPolicy("Teacher", policy => policy.RequireAuthenticatedUser());
     options.AddPolicy("Admin", policy => policy.RequireAuthenticatedUser());
+
+    // options.AddPolicy("Teacher", policy =>
+    // policy.RequireAssertion(context =>
+    //     context.User.HasClaim(c =>
+    //         (c.Type == "IsTeacher" ||
+    //          c.Type == "IsAdmin"))));
+    // options.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin"));
 });
 
 builder.Services.AddRazorPages(options =>
