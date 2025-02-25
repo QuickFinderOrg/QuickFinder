@@ -27,4 +27,17 @@ public class AdminService(UserManager<User> userManager)
         
         return false;
     }
+
+    public async Task<bool> IsAdmin(User user)
+    {
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims);
+        var isAdmin = c.Find(c => c.Type == "IsAdmin");
+        if (isAdmin is not null)
+        {
+            return true;
+        }
+        
+        return false;
+    }
 }

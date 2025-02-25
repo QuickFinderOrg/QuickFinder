@@ -2,6 +2,7 @@
 @inject UserManager<User> userManager
 @{
     var isTeacher = false;
+    var isAdmin = false;
     var userContext = Context.User;
     if (userContext is not null)
     {
@@ -9,6 +10,7 @@
         if (user is not null)
         {
             isTeacher = await adminService.IsTeacher(user);
+            isAdmin = await adminService.IsAdmin(user);
         }
     }
 }
@@ -40,17 +42,20 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.Students()">Students</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.UserOverview()">User overview</a>
-                        </li>
-                        @if(isTeacher)
+                        @if(isAdmin)
                         {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="@TeacherRoutes.CourseGroups()">Course overview</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.Students()">Students</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.UserOverview()">User overview</a>
+                            </li>
+                        }
+                        @if(isTeacher || isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-page="@TeacherRoutes.CourseGroups()">Course overview</a>
+                            </li>
                         }
                     </ul>
                     <partial name="_LoginPartial" />
