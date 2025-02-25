@@ -53,7 +53,10 @@ namespace group_finder.Pages
             }
 
             var token = await ExchangeCodeAsync(code!);
-            Console.WriteLine($"Discord Token: {token}");
+            Console.WriteLine($"Discord Token Recieved");
+
+            var UserInfo = await GetUserInformationAsync(token);
+            Console.WriteLine($"User info for {UserInfo.DisplayName} ({UserInfo.Username}) got");
             return Redirect("/");
         }
 
@@ -89,5 +92,38 @@ namespace group_finder.Pages
 
             return accessToken;
         }
+
+        public async Task<DiscordUserVM> GetUserInformationAsync(string token)
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            HttpResponseMessage response = await client.GetAsync(UserInformationEndpoint);
+            response.EnsureSuccessStatusCode();
+
+            var response_json_string = await response.Content.ReadAsStringAsync();
+
+            var user = System.Text.Json.JsonDocument.Parse(response_json_string);
+
+            return new DiscordUserVM()
+            {
+                Id = user.RootElement.GetProperty("id").GetString()!,
+                Username = user.RootElement.GetProperty("username").GetString()!,
+                DisplayName = user.RootElement.GetProperty("global_name").GetString(),
+                Email = user.RootElement.GetProperty("email").GetString(),
+                IsEmailVerified = user.RootElement.GetProperty("verified").GetBoolean()
+            };
+        }
+
+        public record class DiscordUserVM
+        {
+            public required string Id;
+            public required string Username;
+            public required string? DisplayName;
+            public required string? Email;
+            public required bool? IsEmailVerified;
+        }
     }
+
 }
