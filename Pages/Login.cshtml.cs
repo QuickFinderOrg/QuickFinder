@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages
 {
-    public class LoginModel : PageModel
+    public class LoginModel(IConfiguration configuration) : PageModel
     {
         /// <summary>
         /// Default value for <see cref="AuthenticationScheme.DisplayName"/>.
@@ -45,7 +45,7 @@ namespace group_finder.Pages
         {
             var query = new QueryBuilder();
             var url = new UriBuilder(AuthorizationEndpoint);
-            query.Add("client_id", "1328341129078505499");
+            query.Add("client_id", configuration[Constants.DiscordClientIdKey] ?? throw new Exception(Constants.DiscordClientIdKey));
             query.Add("response_type", "code");
             query.Add("scope", "identify email");
             query.Add("redirect_uri", $"{Request.Scheme}://{Request.Host}{CallbackPath}");

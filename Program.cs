@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var DiscordId = builder.Configuration["Discord:ClientId"] ?? throw new Exception("'Discord:ClientId' is missing from configuration/env");
-var DiscordSecret = builder.Configuration["Discord:ClientSecret"] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
-var DiscordBotToken = builder.Configuration["Discord:BotToken"] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
+var DiscordId = builder.Configuration[Constants.DiscordClientIdKey] ?? throw new Exception("'Discord:ClientId' is missing from configuration/env");
+var DiscordSecret = builder.Configuration[Constants.DiscordClientSecretKey] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
+var DiscordBotToken = builder.Configuration[Constants.DiscordBotTokenKey] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
 
 
 // Add services to the container.
