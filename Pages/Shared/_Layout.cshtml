@@ -1,4 +1,19 @@
-﻿<!DOCTYPE html>
+﻿@inject AdminService adminService
+@inject UserManager<User> userManager
+@{
+    var isTeacher = false;
+    var userContext = Context.User;
+    if (userContext is not null)
+    {
+        var user = await userManager.GetUserAsync(userContext);
+        if (user is not null)
+        {
+            isTeacher = await adminService.IsTeacher(user);
+        }
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -31,9 +46,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.UserOverview()">User overview</a>
                         </li>
+                        @if(isTeacher)
+                        {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="@TeacherRoutes.CourseGroups()">Course overview</a>
                         </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

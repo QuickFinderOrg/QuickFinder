@@ -14,4 +14,17 @@ public class AdminService(UserManager<User> userManager)
     {
         await userManager.RemoveClaimAsync(user, new Claim("IsTeacher", true.ToString()));
     }
+
+    public async Task<bool> IsTeacher(User user)
+    {
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims);
+        var isTeacher = c.Find(c => c.Type == "IsTeacher");
+        if (isTeacher is not null)
+        {
+            return true;
+        }
+        
+        return false;
+    }
 }
