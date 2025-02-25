@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Admin;
 
-public class UserOverviewModel(UserManager<User> userManager, ILogger<StudentsModel> logger, UserService userService, AdminService adminService) : PageModel
+public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userService, AdminService adminService) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -39,10 +39,8 @@ public class UserOverviewModel(UserManager<User> userManager, ILogger<StudentsMo
         
         foreach (User user in users)
         {
-            var claims = await userManager.GetClaimsAsync(user);
-            var c = new List<Claim>(claims);
-            var isTeacher = c.Find(c => c.Type == "IsTeacher");
-            if(isTeacher is not null && isTeacher.Value is not null)
+            var isTeacher = await adminService.IsTeacher(user);
+            if(isTeacher)
             {
                 Teachers.Add(user);
             }
