@@ -1,10 +1,12 @@
 
+using System.Security.Claims;
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
+using Microsoft.AspNetCore.Identity;
 
 namespace group_finder;
 
-class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingService matchmakingService)
+class SeedDB(UserService userService, UserManager<User> userManager, ApplicationDbContext db, MatchmakingService matchmakingService)
 {
     public async void Seed()
     {
@@ -21,6 +23,10 @@ class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingServic
             new Tester() { Name = "Sylvanas", Email = "sylvanas.windrunner@aol.com", Password = "Password-123",  availability=Availability.Afternoons },
         ]);
 
+        var admin_accounts = new List<Admin>([
+            new Admin() { Name = "Admin", Email = "admin@quickfinder.no", Password = "FerretEnjoyer-123", IsAdmin = new Claim("IsAdmin", true.ToString())}
+        ]);
+
         var TestCourse1 = new Course() { Name = "DAT120" };
         var TestCourse2 = new Course() { Name = "DAT240" };
 
@@ -32,6 +38,13 @@ class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingServic
             var user = await userService.CreateUser(account.Email, account.Name, account.Password);
             await matchmakingService.AddToWaitlist(user, TestCourse1);
         }
+
+        foreach (var account in admin_accounts)
+        {
+            var user = await userService.CreateUser(account.Email, account.Name, account.Password);
+            await userManager.AddClaimAsync(user, account.IsAdmin);  
+        }
+
         await db.SaveChangesAsync();
     }
 
@@ -41,5 +54,12 @@ class SeedDB(UserService userService, ApplicationDbContext db, MatchmakingServic
         public required string Email;
         public required string Password;
         public Availability availability = Availability.Daytime;
+    }
+    private record class Admin
+    {
+        public required string Name;
+        public required string Email;
+        public required string Password;
+        public required Claim IsAdmin;
     }
 }
