@@ -156,11 +156,16 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
     {
         var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
-        var was_user_remvoed = group.Members.Remove(user);
+        var was_user_removed = group.Members.Remove(user);
 
         await db.SaveChangesAsync();
         var disband_event = new GroupMemberLeft() { Group = group, User = user };
-        return was_user_remvoed;
+        if(group.Members.Count == 0)
+        {
+            await mediator.Publish(new GroupEmpty() { GroupId = group.Id });
+            await DeleteGroup(group.Id);
+        }
+        return was_user_removed;
     }
 
 }

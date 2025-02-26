@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Student;
 
-public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager, UserService userService) : PageModel
+public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager) : PageModel
 {
     private readonly ILogger<MatchingModel> _logger = logger;
     public Course[] Courses = [];

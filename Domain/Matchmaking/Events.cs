@@ -25,3 +25,8 @@ public class GroupFilled : INotification
 {
     public required Group Group;
 }
+
+public class GroupEmpty : INotification
+{
+    public required Guid GroupId;
+}

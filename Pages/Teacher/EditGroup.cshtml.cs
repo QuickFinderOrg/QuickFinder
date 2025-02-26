@@ -20,6 +20,10 @@ public class EditGroupModel(MatchmakingService matchmaking) : PageModel
         if (Group is not null)
         {
             await matchmaking.RemoveUserFromGroup(userId, Group.Id);
+            if (Members.Length == 1)
+            {
+                return RedirectToPage(TeacherRoutes.CourseGroups());
+            }
             await LoadAsync(groupId);   
         }
         return Page();
