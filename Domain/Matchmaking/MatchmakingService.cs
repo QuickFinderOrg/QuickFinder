@@ -35,7 +35,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var groups = await db.Groups.Include(c => c.Members).ToListAsync();
         foreach (var ticket in waitlist)
         {
-            var group = LookForMatch(ticket, [.. groups]);
+            var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
             if (group == null)
             {
                 group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
