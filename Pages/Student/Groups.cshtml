@@ -12,7 +12,7 @@
         @foreach (var group in Model.Groups)
         {
             <li>
-                <div><span> Group</span>
+                <div><span> Group @group.Course</span>
                     <ol>@foreach (var member in group.Members)
                         {
                             <li> @member.name (@member.email)</li>
