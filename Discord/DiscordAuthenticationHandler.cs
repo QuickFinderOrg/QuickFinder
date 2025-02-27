@@ -38,6 +38,8 @@ public partial class DiscordAuthenticationHandler : OAuthHandler<DiscordAuthenti
             challengeUrl = QueryHelpers.AddQueryString(challengeUrl, "prompt", Options.Prompt);
         }
 
+        Console.WriteLine(challengeUrl);
+
         return challengeUrl;
     }
 
