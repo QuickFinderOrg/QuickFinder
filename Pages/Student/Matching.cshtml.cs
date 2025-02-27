@@ -15,7 +15,6 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
     public async Task OnGetAsync()
     {
         await LoadAsync();
-        Courses = await matchmakingService.GetCourses();
     }
 
     public async Task<IActionResult> OnPostAsync(string CourseId)
@@ -36,6 +35,7 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
 
     public async Task LoadAsync()
     {
-        Courses = await matchmakingService.GetCourses();
+        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        Courses = await matchmakingService.GetCourses(user);  
     }
 }

@@ -92,6 +92,19 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return await db.Courses.ToArrayAsync();
     }
 
+    public async Task<Course[]> GetCourses(User user)
+    {
+        var groups = await GetGroups(user);
+        var courses = await db.Courses.ToListAsync();
+
+        foreach(Group group in groups)
+        {
+            courses.Remove(group.Course);
+        }
+
+        return [.. courses];
+    }
+
     /// <summary>
     /// Get all groups
     /// </summary>
