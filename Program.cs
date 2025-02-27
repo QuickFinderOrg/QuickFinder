@@ -69,6 +69,7 @@ var app = builder.Build();
 
 
 app.UseHeaderLogging();
+app.UseHttpLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
