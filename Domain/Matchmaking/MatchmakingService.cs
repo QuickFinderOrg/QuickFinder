@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Domain.Matchmaking;
 
-public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
+public class MatchmakingService(ApplicationDbContext db, IMediator mediator, UserService userService)
 {
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
@@ -97,7 +97,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var groups = await GetGroups(user);
         var courses = await db.Courses.ToListAsync();
 
-        foreach(Group group in groups)
+        foreach (Group group in groups)
         {
             courses.Remove(group.Course);
         }
@@ -173,7 +173,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
         await db.SaveChangesAsync();
         var disband_event = new GroupMemberLeft() { Group = group, User = user };
-        if(group.Members.Count == 0)
+        if (group.Members.Count == 0)
         {
             await mediator.Publish(new GroupEmpty() { GroupId = group.Id });
             await DeleteGroup(group.Id);

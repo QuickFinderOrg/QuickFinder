@@ -2,14 +2,17 @@ using System.Security.Claims;
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
 using Humanizer;
+using Mailjet.Client;
+using Mailjet.Client.Resources;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace group_finder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord)
+public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord, MailjetClient email, IConfiguration configuration)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
@@ -32,13 +35,8 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
             throw new Exception("User creation failed");
         }
 
-
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
-
         return user;
-
-
-
     }
 
     public async Task<User> GetUser(string userId)
@@ -105,15 +103,47 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
     public async Task<bool> NotifyUser(User user, string message)
     {
+        var logins = await userManager.GetLoginsAsync(user);
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims);
 
         var discordIdClaim = c.Find(c => c.Type == ClaimTypes.NameIdentifier);
-
+        discordIdClaim = null;
+        var sender_email = configuration.GetValue<string>(Constants.SenderEmailKey);
+        Console.WriteLine($"sender: {sender_email}");
         if (discordIdClaim == null)
         {
             // might be a test user or someone without a discord attached.
-            return false;
+            var request = new MailjetRequest { Resource = Send.Resource }
+            .Property(Send.FromEmail, sender_email)
+            .Property(Send.FromName, "QuickFinder NOREPLY")
+            .Property(Send.Subject, "Test message")
+            .Property(Send.TextPart, message)
+            .Property(Send.To, $"Name <sturle@spetland.no>")
+            .Property(Send.Recipients, new JArray {
+                new JObject {
+                 {"Email", "sturle@spetland.no"}
+                 }
+            });
+
+            var response = await email.PostAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine(string.Format("Total: {0}, Count: {1}\n", response.GetTotal(), response.GetCount()));
+                Console.WriteLine(response.GetData());
+
+                return true;
+            }
+            else
+            {
+                Console.WriteLine(string.Format("StatusCode: {0}\n", response.StatusCode));
+                Console.WriteLine(string.Format("ErrorInfo: {0}\n", response.GetErrorInfo()));
+                Console.WriteLine(string.Format("ErrorMessage: {0}\n", response.GetErrorMessage()));
+
+                return false;
+            }
+
         }
 
         await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
