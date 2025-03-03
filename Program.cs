@@ -67,9 +67,6 @@ builder.Services.AddSingleton(provider =>
 
 var app = builder.Build();
 
-
-app.UseHeaderLogging();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -107,34 +104,3 @@ if (app.Environment.IsDevelopment())
 app.Run();
 
 public partial class Startup { }
-
-public class HeaderLoggingMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly ILogger<HeaderLoggingMiddleware> _logger;
-
-    public HeaderLoggingMiddleware(RequestDelegate next, ILogger<HeaderLoggingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        _logger.LogInformation("Request Headers:");
-        foreach (var header in context.Request.Headers)
-        {
-            _logger.LogInformation($"{header.Key}: {string.Join(", ", header.Value)}");
-        }
-
-        await _next(context);
-    }
-}
-
-public static class HeaderLoggingMiddlewareExtensions
-{
-    public static IApplicationBuilder UseHeaderLogging(this IApplicationBuilder builder)
-    {
-        return builder.UseMiddleware<HeaderLoggingMiddleware>();
-    }
-}
