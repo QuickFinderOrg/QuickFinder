@@ -28,7 +28,8 @@ builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddUserManager<CustomUserManager>();
 
 builder.Services.AddAuthorization(options =>
 {
