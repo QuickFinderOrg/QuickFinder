@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using group_finder.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -97,7 +96,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var groups = await GetGroups(user);
         var courses = await db.Courses.ToListAsync();
 
-        foreach(Group group in groups)
+        foreach (Group group in groups)
         {
             courses.Remove(group.Course);
         }
@@ -178,20 +177,35 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
     }
 
 
-    public async Task<bool> RemoveUserFromGroup(string userId, Guid groupId)
+    public async Task<bool> RemoveUserFromGroup(string userId, Guid groupId, GroupMemberRemovedReason reason = GroupMemberRemovedReason.None)
     {
         var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
         var was_user_removed = group.Members.Remove(user);
 
         await db.SaveChangesAsync();
-        var disband_event = new GroupMemberLeft() { Group = group, User = user };
-        if(group.Members.Count == 0)
+
+        if (group.Members.Count == 0)
         {
             await mediator.Publish(new GroupEmpty() { GroupId = group.Id });
             await DeleteGroup(group.Id);
         }
+        else
+        {
+            await mediator.Publish(new GroupMemberLeft() { Group = group, User = user });
+        }
         return was_user_removed;
+    }
+
+    public async Task<bool> RemoveUserFromWaitlist(string userId)
+    {
+        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
+        var tickets = await db.Tickets.Include(g => g.User).Where(t => t.User == user).ToArrayAsync();
+        db.Tickets.RemoveRange(tickets);
+
+        await db.SaveChangesAsync();
+
+        return true;
     }
 
 }
@@ -204,4 +218,25 @@ public record class GroupVM
 public record class GroupMemberVM
 {
     public required string Name;
+}
+
+public enum GroupMemberRemovedReason
+{
+    None,
+    UserChoice,
+    UserAccountDeleted,
+    UserRemovedByAdmin
+}
+
+public class OnBeforeUserDelete(MatchmakingService matchmakingService) : INotificationHandler<UserToBeDeleted>
+{
+    public async Task Handle(UserToBeDeleted notification, CancellationToken cancellationToken)
+    {
+        var user = notification.User;
+
+        await matchmakingService.RemoveUserFromWaitlist(user.Id);
+
+        var groups = await matchmakingService.GetGroups(user);
+        await Task.WhenAll(groups.Select(group => matchmakingService.RemoveUserFromGroup(user.Id, group.Id, GroupMemberRemovedReason.UserAccountDeleted)));
+    }
 }

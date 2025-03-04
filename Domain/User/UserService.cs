@@ -2,14 +2,17 @@ using System.Security.Claims;
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
 using Humanizer;
+using Mailjet.Client;
+using Mailjet.Client.Resources;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace group_finder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord)
+public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord, IEmailSender emailSender, IConfiguration configuration)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
@@ -32,13 +35,8 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
             throw new Exception("User creation failed");
         }
 
-
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
-
         return user;
-
-
-
     }
 
     public async Task<User> GetUser(string userId)
@@ -105,18 +103,29 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
     public async Task<bool> NotifyUser(User user, string message)
     {
+        var logins = await userManager.GetLoginsAsync(user);
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims);
 
         var discordIdClaim = c.Find(c => c.Type == ClaimTypes.NameIdentifier);
-
-        if (discordIdClaim == null)
+        var sendToEmailClaim = c.Find(c => c.Type == ClaimTypes.Email);
+        if (discordIdClaim != null)
         {
-            // might be a test user or someone without a discord attached.
+            await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
+
+
+        }
+        else if (sendToEmailClaim != null)
+        {
+            await emailSender.SendEmailAsync(sendToEmailClaim.Value, "Group Found", message);
+        }
+        else
+        {
+            Console.WriteLine($"Could not notify user ${user.UserName} ({user.Id})");
             return false;
         }
 
-        await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
+
         return true;
     }
 }

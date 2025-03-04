@@ -3,6 +3,7 @@ using group_finder.Data;
 using group_finder;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.HttpOverrides;
+using Mailjet.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ var DiscordId = builder.Configuration[Constants.DiscordClientIdKey] ?? throw new
 var DiscordSecret = builder.Configuration[Constants.DiscordClientSecretKey] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
 var DiscordBotToken = builder.Configuration[Constants.DiscordBotTokenKey] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
 
+var MailjetKey = builder.Configuration[Constants.MailjetIdKey] ?? throw new Exception($"'{Constants.MailjetIdKey}' is missing from configuration/env");
+var MailjetSecret = builder.Configuration[Constants.MailjetSecretKey] ?? throw new Exception($"'{Constants.MailjetSecretKey}' is missing from configuration/env"); ;
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -25,7 +28,8 @@ builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddUserManager<CustomUserManager>();
 
 builder.Services.AddAuthorization(options =>
 {
@@ -64,6 +68,8 @@ builder.Services.AddSingleton(provider =>
     botService.StartAsync(DiscordBotToken).GetAwaiter().GetResult();
     return botService;
 });
+
+builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 
 var app = builder.Build();
 
