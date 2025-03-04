@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -12,7 +13,8 @@ public class CustomUserManager(
     ILookupNormalizer keyNormalizer,
     IdentityErrorDescriber errors,
     IServiceProvider services,
-    ILogger<CustomUserManager> logger) : UserManager<User>(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) // Replace User with your user type
+    ILogger<CustomUserManager> logger,
+    IMediator mediator) : UserManager<User>(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) // Replace User with your user type
 {
     private readonly ILogger<CustomUserManager> _logger = logger;
 
@@ -25,6 +27,8 @@ public class CustomUserManager(
         // - Deleting related data from other tables
         // - Sending a notification email
         // - Logging the deletion event
+
+        await mediator.Publish(new UserToBeDeleted() { User = user });
 
         // Call the base class's DeleteAsync method to actually delete the user
         var result = await base.DeleteAsync(user);

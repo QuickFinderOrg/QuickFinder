@@ -192,3 +192,16 @@ public record class GroupMemberVM
 {
     public required string Name;
 }
+
+public class OnUserDeleted(MatchmakingService matchmakingService) : INotificationHandler<UserToBeDeleted>
+{
+    public async Task Handle(UserToBeDeleted notification, CancellationToken cancellationToken)
+    {
+        // TODO: remove tickets from waitlists
+
+        // remove user from all groups
+        var user = notification.User;
+        var groups = await matchmakingService.GetGroups(user);
+        await Task.WhenAll(groups.Select(group => matchmakingService.RemoveUserFromGroup(user.Id, group.Id)));
+    }
+}
