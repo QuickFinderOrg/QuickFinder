@@ -105,6 +105,19 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return [.. courses];
     }
 
+    public async Task<Course> GetCourse(Guid courseId)
+    {
+        return await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
+    }
+
+    public async Task ChangeGroupSize(Guid courseId, uint newSize)
+    {
+        var course = await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
+        course.GroupSize = newSize;
+        await db.SaveChangesAsync();        
+    }
+
+
     /// <summary>
     /// Get all groups
     /// </summary>
@@ -114,9 +127,9 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return await db.Groups.Include(g => g.Members).Include(g => g.Course).ToArrayAsync();
     }
 
-    public async Task<Group[]> GetGroups(string courseName)
+    public async Task<Group[]> GetGroups(Guid id)
     {
-        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Course.Name == courseName).ToArrayAsync();
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Course.Id == id).ToArrayAsync();
     }
 
     public async Task<Group> GetGroup(Guid groupId)

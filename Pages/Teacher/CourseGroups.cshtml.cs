@@ -8,21 +8,22 @@ namespace group_finder.Pages.Teacher;
 public class CourseGroupsModel(ILogger<CourseGroupsModel> logger, MatchmakingService matchmaking) : PageModel
 {
     private readonly ILogger<CourseGroupsModel> _logger = logger;
-
     public List<Group> Groups = [];
-    
+    public Course[] Courses = [];
     [BindProperty]
-    public string CourseName { get; set; } = "DAT120";
+    public Course Course {get; set;} = default!;
+
 
     public async Task<IActionResult> OnGetAsync()
     {
-        await LoadAsync(CourseName);
+        await LoadAsync();
         return Page();
     }
 
     public async Task<IActionResult> OnPostChangeCourseAsync()
     {
-        await LoadAsync(CourseName);
+        Course = await matchmaking.GetCourse(Course.Id);
+        await LoadAsync();
         return Page();
     }
 
@@ -30,21 +31,30 @@ public class CourseGroupsModel(ILogger<CourseGroupsModel> logger, MatchmakingSer
     {
         var users = await matchmaking.GetGroupMembers(id);
         await matchmaking.DeleteGroup(id);
-        var courses = await matchmaking.GetCourses();
-        var course = courses[0];
+        Courses = await matchmaking.GetCourses();
+        var course = Courses[0];
         foreach (var user in users)
         {
             await matchmaking.AddToWaitlist(user, course);
         }
-        await LoadAsync(CourseName);
+        await LoadAsync();
         return Page();
     }
 
-    public async Task LoadAsync(string courseName)
+    public async Task<IActionResult> OnPostChangeGroupSIzeAsync()
+    {        
+        await matchmaking.ChangeGroupSize(Course.Id, Course.GroupSize);
+        await LoadAsync();
+        return Page();
+    }
+
+    public async Task LoadAsync()
     {
-        var grouplist = await matchmaking.GetGroups(courseName);
+        Courses = await matchmaking.GetCourses();
+        Course ??= Courses[0];
+        var grouplist = await matchmaking.GetGroups(Course.Id);
         Groups = grouplist.ToList();
-        _logger.LogInformation("LoadAsync");
+        _logger.LogInformation("LoadGroups");
     }
 }
 
