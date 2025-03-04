@@ -185,6 +185,17 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, Use
         return was_user_removed;
     }
 
+    public async Task<bool> RemoveUserFromWaitlist(string userId)
+    {
+        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
+        var tickets = await db.Tickets.Include(g => g.User).Where(t => t.User == user).ToArrayAsync();
+        db.Tickets.RemoveRange(tickets);
+
+        await db.SaveChangesAsync();
+
+        return true;
+    }
+
 }
 
 public record class GroupVM
@@ -205,14 +216,14 @@ public enum GroupMemberRemovedReason
     UserRemovedByAdmin
 }
 
-public class OnUserDeleted(MatchmakingService matchmakingService) : INotificationHandler<UserToBeDeleted>
+public class OnBeforeUserDelete(MatchmakingService matchmakingService) : INotificationHandler<UserToBeDeleted>
 {
     public async Task Handle(UserToBeDeleted notification, CancellationToken cancellationToken)
     {
-        // TODO: remove tickets from waitlists
-
-        // remove user from all groups
         var user = notification.User;
+
+        await matchmakingService.RemoveUserFromWaitlist(user.Id);
+
         var groups = await matchmakingService.GetGroups(user);
         await Task.WhenAll(groups.Select(group => matchmakingService.RemoveUserFromGroup(user.Id, group.Id, GroupMemberRemovedReason.UserAccountDeleted)));
     }
