@@ -17,15 +17,15 @@ public class MailJetEmailSender : IEmailSender
     public async Task SendEmailAsync(string email, string subject, string body)
     {
         var client = new MailjetClient(
-            _configuration["Mailjet:ApiKey"],
-            _configuration["Mailjet:ApiSecret"]
+            _configuration[Constants.MailjetIdKey],
+            _configuration[Constants.MailjetSecretKey]
         );
 
         var request = new MailjetRequest
         {
             Resource = Send.Resource
         }
-        .Property(Send.FromEmail, _configuration["EmailSender"])
+        .Property(Send.FromEmail, _configuration[Constants.SenderEmailKey] ?? "quickfinder@example.com")
         .Property(Send.FromName, "QuickFinder")
         .Property(Send.Subject, subject)
         .Property(Send.HtmlPart, body)
