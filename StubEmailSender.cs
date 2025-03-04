@@ -1,6 +1,6 @@
 namespace group_finder;
 
-public class StubEmailSender(ILogger logger) : IEmailSender
+public class StubEmailSender(ILogger<StubEmailSender> logger) : IEmailSender
 {
 
     public async Task SendEmailAsync(string email, string subject, string body)
