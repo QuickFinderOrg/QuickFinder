@@ -1,11 +1,10 @@
-using System.IO.Compression;
 using group_finder.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Domain.Matchmaking;
 
-public class MatchmakingService(ApplicationDbContext db, IMediator mediator, UserService userService)
+public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 {
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
