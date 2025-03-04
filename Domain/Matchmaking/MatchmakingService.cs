@@ -165,18 +165,22 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, Use
     }
 
 
-    public async Task<bool> RemoveUserFromGroup(string userId, Guid groupId)
+    public async Task<bool> RemoveUserFromGroup(string userId, Guid groupId, GroupMemberRemovedReason reason = GroupMemberRemovedReason.None)
     {
         var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
         var was_user_removed = group.Members.Remove(user);
 
         await db.SaveChangesAsync();
-        var disband_event = new GroupMemberLeft() { Group = group, User = user };
+
         if (group.Members.Count == 0)
         {
             await mediator.Publish(new GroupEmpty() { GroupId = group.Id });
             await DeleteGroup(group.Id);
+        }
+        else
+        {
+            await mediator.Publish(new GroupMemberLeft() { Group = group, User = user });
         }
         return was_user_removed;
     }
@@ -193,6 +197,14 @@ public record class GroupMemberVM
     public required string Name;
 }
 
+public enum GroupMemberRemovedReason
+{
+    None,
+    UserChoice,
+    UserAccountDeleted,
+    UserRemovedByAdmin
+}
+
 public class OnUserDeleted(MatchmakingService matchmakingService) : INotificationHandler<UserToBeDeleted>
 {
     public async Task Handle(UserToBeDeleted notification, CancellationToken cancellationToken)
@@ -202,6 +214,6 @@ public class OnUserDeleted(MatchmakingService matchmakingService) : INotificatio
         // remove user from all groups
         var user = notification.User;
         var groups = await matchmakingService.GetGroups(user);
-        await Task.WhenAll(groups.Select(group => matchmakingService.RemoveUserFromGroup(user.Id, group.Id)));
+        await Task.WhenAll(groups.Select(group => matchmakingService.RemoveUserFromGroup(user.Id, group.Id, GroupMemberRemovedReason.UserAccountDeleted)));
     }
 }
