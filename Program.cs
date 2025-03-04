@@ -68,11 +68,7 @@ builder.Services.AddSingleton(provider =>
     return botService;
 });
 
-builder.Services.AddSingleton(provider =>
-{
-    var client = new MailjetClient(MailjetKey, MailjetSecret);
-    return client;
-});
+builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 
 var app = builder.Build();
 

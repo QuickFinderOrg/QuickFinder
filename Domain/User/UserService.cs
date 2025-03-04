@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace group_finder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord, MailjetClient email, IConfiguration configuration)
+public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord, IEmailSender emailSender, IConfiguration configuration)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
@@ -108,45 +108,24 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         var c = new List<Claim>(claims);
 
         var discordIdClaim = c.Find(c => c.Type == ClaimTypes.NameIdentifier);
-        discordIdClaim = null;
-        var sender_email = configuration.GetValue<string>(Constants.SenderEmailKey);
-        Console.WriteLine($"sender: {sender_email}");
-        if (discordIdClaim == null)
+        var sendToEmailClaim = c.Find(c => c.Type == ClaimTypes.Email);
+        if (discordIdClaim != null)
         {
-            // might be a test user or someone without a discord attached.
-            var request = new MailjetRequest { Resource = Send.Resource }
-            .Property(Send.FromEmail, sender_email)
-            .Property(Send.FromName, "QuickFinder NOREPLY")
-            .Property(Send.Subject, "Test message")
-            .Property(Send.TextPart, message)
-            .Property(Send.To, $"Name <sturle@spetland.no>")
-            .Property(Send.Recipients, new JArray {
-                new JObject {
-                 {"Email", "sturle@spetland.no"}
-                 }
-            });
+            await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
 
-            var response = await email.PostAsync(request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine(string.Format("Total: {0}, Count: {1}\n", response.GetTotal(), response.GetCount()));
-                Console.WriteLine(response.GetData());
-
-                return true;
-            }
-            else
-            {
-                Console.WriteLine(string.Format("StatusCode: {0}\n", response.StatusCode));
-                Console.WriteLine(string.Format("ErrorInfo: {0}\n", response.GetErrorInfo()));
-                Console.WriteLine(string.Format("ErrorMessage: {0}\n", response.GetErrorMessage()));
-
-                return false;
-            }
 
         }
+        else if (sendToEmailClaim != null)
+        {
+            await emailSender.SendEmailAsync(sendToEmailClaim.Value, "Group Found", message);
+        }
+        else
+        {
+            Console.WriteLine($"Could not notify user ${user.UserName} ({user.Id})");
+            return false;
+        }
 
-        await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
+
         return true;
     }
 }
