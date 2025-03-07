@@ -52,4 +52,43 @@ public class DiscordBotService(ulong serverId, ulong groupChannelId)
         Console.WriteLine(channel.ToString());
         return channel.Id;
     }
+
+    public async Task<ulong?> DeleteChannel(ulong channelId)
+    {
+        var server = _client.GetGuild(serverId);
+        if (server == null)
+        {
+            return null;
+        }
+
+        var channel = server.GetChannel(channelId);
+        if (channel == null)
+        {
+            return null;
+        }
+
+        await channel.DeleteAsync(new RequestOptions() { AuditLogReason = "DeleteChannel" });
+        return channel.Id;
+    }
+
+    public DiscordChannel[] GetChannels()
+    {
+        var server = _client.GetGuild(serverId);
+        if (server == null)
+        {
+            return [];
+        }
+
+        var channels = server.TextChannels.ToList();
+
+        var discord_channels = channels.Select(channel => new DiscordChannel() { Id = channel.Id, Name = channel.Name }).ToArray();
+
+        return discord_channels;
+    }
+}
+
+public record class DiscordChannel
+{
+    public required ulong Id { get; init; }
+    public required string Name { get; init; }
 }

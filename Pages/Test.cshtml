@@ -1,7 +1,8 @@
 @page
 @model TestModel
+@inject DiscordBotService discord
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Test";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
 }
 
@@ -22,3 +23,8 @@
 </form>
 <p>@Model.TestResult</p>
 <p>Current Timestamp: @DateTime.Now</p>
+
+@foreach (var channel in discord.GetChannels())
+{
+    <p>@channel.Name (@channel.Id)</p>
+}
