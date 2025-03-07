@@ -1,4 +1,5 @@
 @page
+@model TestModel
 @{
     ViewData["Title"] = "Login";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
@@ -15,3 +16,9 @@
         <p>@val</p>
     }
 </details>
+
+<form method="post">
+    <button type="submit">TEST</button>
+</form>
+<p>@Model.TestResult</p>
+<p>Current Timestamp: @DateTime.Now</p>
