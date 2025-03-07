@@ -87,6 +87,14 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return await db.Tickets.Include(t => t.User).Include(t => t.Course).Where(t => t.Course == course).ToArrayAsync();
     }
 
+    public async Task<Course> CreateCourse(string name, uint groupSize, bool allowCustomSize)
+    {
+        var course = new Course() { Name = name, GroupSize = groupSize, AllowCustomSize = allowCustomSize };
+        db.Add(course);
+        await db.SaveChangesAsync();
+        return course;
+    }
+
     public async Task<Course[]> GetCourses()
     {
         return await db.Courses.ToArrayAsync();

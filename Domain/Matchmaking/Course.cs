@@ -7,4 +7,5 @@ public class Course()
     public List<Group> Groups { get; set; } = [];
     public List<Ticket> Tickets { get; set; } = [];
     public uint GroupSize { get; set; } = 2;
+    public bool AllowCustomSize { get; set; } = false;
 }
