@@ -45,8 +45,9 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
             group.Members.Add(ticket.User);
             events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
 
-            if (group.IsFull)
+            if (group.IsFull && group.IsComplete == false)
             {
+                group.IsComplete = true;
                 events.Add(new GroupFilled() { Group = group });
             }
 
@@ -113,7 +114,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
     {
         var course = await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
         course.GroupSize = newSize;
-        await db.SaveChangesAsync();        
+        await db.SaveChangesAsync();
     }
 
 

@@ -8,5 +8,8 @@ public class Group()
     public required Preferences Preferences { get; init; }
     public uint GroupLimit { get; set; } = 2;
 
+    // Set after the group has achived it's desired amount of members. Never reset.
+    public bool IsComplete { get; set; } = false;
+
     public bool IsFull => Members.Count >= GroupLimit;
 }
