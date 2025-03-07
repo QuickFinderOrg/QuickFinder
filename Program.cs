@@ -11,6 +11,9 @@ var DiscordId = builder.Configuration[Constants.DiscordClientIdKey] ?? throw new
 var DiscordSecret = builder.Configuration[Constants.DiscordClientSecretKey] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
 var DiscordBotToken = builder.Configuration[Constants.DiscordBotTokenKey] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
 
+var serverId = builder.Configuration[Constants.DiscordServerId] ?? throw new Exception($"'{Constants.DiscordServerId}' is missing from configuration/env");
+var groupChannelId = builder.Configuration[Constants.DiscordGroupChannelCategoryId] ?? throw new Exception($"'{Constants.DiscordGroupChannelCategoryId}' is missing from configuration/env");
+
 var MailjetKey = builder.Configuration[Constants.MailjetIdKey] ?? throw new Exception($"'{Constants.MailjetIdKey}' is missing from configuration/env");
 var MailjetSecret = builder.Configuration[Constants.MailjetSecretKey] ?? throw new Exception($"'{Constants.MailjetSecretKey}' is missing from configuration/env"); ;
 
@@ -64,7 +67,8 @@ builder.Services.AddAuthentication().AddDiscord(options =>
 
 builder.Services.AddSingleton(provider =>
 {
-    var botService = new DiscordBotService();
+
+    var botService = new DiscordBotService(serverId: ulong.Parse(serverId), ulong.Parse(groupChannelId));
     botService.StartAsync(DiscordBotToken).GetAwaiter().GetResult();
     return botService;
 });
