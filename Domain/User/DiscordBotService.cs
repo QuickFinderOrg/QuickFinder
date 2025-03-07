@@ -66,7 +66,7 @@ public class DiscordBotService(ulong serverId, ulong groupChannelId)
         {
             return null;
         }
-
+        // TODO: limit to only delete within the category.
         await channel.DeleteAsync(new RequestOptions() { AuditLogReason = "DeleteChannel" });
         return channel.Id;
     }
@@ -81,7 +81,7 @@ public class DiscordBotService(ulong serverId, ulong groupChannelId)
 
         var channels = server.TextChannels.ToList();
 
-        var discord_channels = channels.Select(channel => new DiscordChannel() { Id = channel.Id, Name = channel.Name }).ToArray();
+        var discord_channels = channels.Select(channel => new DiscordChannel() { Id = channel.Id, Name = channel.Name, Category = channel.Category?.Name }).ToArray();
 
         return discord_channels;
     }
@@ -91,4 +91,5 @@ public record class DiscordChannel
 {
     public required ulong Id { get; init; }
     public required string Name { get; init; }
+    public string? Category { get; init; }
 }

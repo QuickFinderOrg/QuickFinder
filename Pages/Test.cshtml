@@ -26,5 +26,10 @@
 
 @foreach (var channel in discord.GetChannels())
 {
-    <p>@channel.Name (@channel.Id)</p>
+    <form method="post" asp-page-handler="DeleteChannel" asp-route-id="@channel.Id">
+        <button type="submit">
+            @channel.Name (@channel.Id) @channel.Category
+        </button>
+    </form>
+
 }

@@ -30,5 +30,22 @@ public class TestModel(ILogger<TestModel> logger, DiscordBotService discordBotSe
         TestResult = $"channel {channelId}";
         return RedirectToPage();
     }
+    public async Task<IActionResult> OnPostDeleteChannelAsync(string id)
+    {
+        if (environment.IsDevelopment() == false)
+        {
+            return Redirect("/");
+        }
+
+        if (string.IsNullOrWhiteSpace("id"))
+        {
+            return RedirectToPage();
+        }
+
+        _logger.LogInformation("POST: test");
+        var channelId = await discordBotService.DeleteChannel(ulong.Parse(id));
+        TestResult = $"channel {channelId}";
+        return RedirectToPage();
+    }
 }
 
