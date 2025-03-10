@@ -33,9 +33,15 @@ builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
-if (builder.Environment.IsProduction())
+if (builder.Environment.IsProduction() && builder.Configuration["RAILWAY_PROJECT_NAME"])
 {
     builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/app/dpkeys"));
+}
+
+// UNIX ENV
+if (builder.Environment.IsProduction() && !builder.Configuration["RAILWAY_PROJECT_NAME"])
+{
+    builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("./dpkeys"));
 }
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
