@@ -78,7 +78,7 @@ builder.Services.AddAuthentication()
 {
     options.ClientId = GitHubId;
     options.ClientSecret = GitHubSecret;
-    options.CallbackPath = "/signin-github";
+    options.CallbackPath = "https://group-finder-production.up.railway.app/signin-github";
 });
 
 builder.Services.AddSingleton(provider =>
