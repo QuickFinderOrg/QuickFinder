@@ -11,5 +11,6 @@ RUN dotnet publish -c release -o /app
 # final stage/image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
+VOLUME /app/dpkeys
 COPY --from=build /app ./
 ENTRYPOINT ["dotnet", "group-finder.dll"]

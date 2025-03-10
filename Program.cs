@@ -4,6 +4,7 @@ using group_finder;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.HttpOverrides;
 using Mailjet.Client;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,10 @@ builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/app/dpkeys"));
+}
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
