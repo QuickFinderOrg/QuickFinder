@@ -109,7 +109,7 @@ else
 // Configure forwarded headers
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
 });
 
 app.UseStaticFiles();
