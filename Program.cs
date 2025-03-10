@@ -70,6 +70,7 @@ builder.Services.AddAuthentication()
 {
     options.ClientId = DiscordId;
     options.ClientSecret = DiscordSecret;
+    options.CallbackPath = "/signin-discord";
     options.Scope.Add("identify");
     options.Scope.Add("email");
 })
@@ -77,6 +78,7 @@ builder.Services.AddAuthentication()
 {
     options.ClientId = GitHubId;
     options.ClientSecret = GitHubSecret;
+    options.CallbackPath = "/signin-github";
 });
 
 builder.Services.AddSingleton(provider =>
