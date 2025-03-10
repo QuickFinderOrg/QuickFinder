@@ -17,6 +17,9 @@ var groupChannelId = builder.Configuration[Constants.DiscordGroupChannelCategory
 var MailjetKey = builder.Configuration[Constants.MailjetIdKey] ?? throw new Exception($"'{Constants.MailjetIdKey}' is missing from configuration/env");
 var MailjetSecret = builder.Configuration[Constants.MailjetSecretKey] ?? throw new Exception($"'{Constants.MailjetSecretKey}' is missing from configuration/env"); ;
 
+var GitHubId = builder.Configuration[Constants.GitHubIdKey] ?? throw new Exception($"'{Constants.GitHubIdKey}' is missing from configuration/env");
+var GitHubSecret = builder.Configuration[Constants.GitHubSecretKey] ?? throw new Exception($"'{Constants.GitHubSecretKey}' is missing from configuration/env"); ;
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -57,12 +60,18 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Admin", policy: "Admin");
 });
 
-builder.Services.AddAuthentication().AddDiscord(options =>
+builder.Services.AddAuthentication()
+.AddDiscord(options =>
 {
     options.ClientId = DiscordId;
     options.ClientSecret = DiscordSecret;
     options.Scope.Add("identify");
     options.Scope.Add("email");
+})
+.AddGitHub(options =>
+{
+    options.ClientId = GitHubId;
+    options.ClientSecret = GitHubSecret;
 });
 
 builder.Services.AddSingleton(provider =>

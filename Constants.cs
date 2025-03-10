@@ -10,4 +10,6 @@ public static class Constants
     public const string MailjetIdKey = "Mailjet:Id";
     public const string MailjetSecretKey = "Mailjet:Secret";
     public const string SenderEmailKey = "SenderEmail";
+    public const string GitHubIdKey = "GitHub:Id";
+    public const string GitHubSecretKey = "GitHub:Secret";
 }
