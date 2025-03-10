@@ -12,4 +12,5 @@ public static class Constants
     public const string SenderEmailKey = "SenderEmail";
     public const string GitHubIdKey = "GitHub:Id";
     public const string GitHubSecretKey = "GitHub:Secret";
+    public const string DPKeysDirKey = "dpkeys";
 }
