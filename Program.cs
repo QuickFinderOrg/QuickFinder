@@ -107,10 +107,14 @@ else
 }
 
 // Configure forwarded headers
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
+
+app.UseForwardedHeaders();
 
 app.UseStaticFiles();
 
