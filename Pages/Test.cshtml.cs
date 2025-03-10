@@ -11,11 +11,6 @@ public class TestModel(ILogger<TestModel> logger, DiscordBotService discordBotSe
 
     public IActionResult OnGet()
     {
-        if (environment.IsDevelopment() == false)
-        {
-            return Redirect("/");
-        }
-
         return Page();
     }
 
