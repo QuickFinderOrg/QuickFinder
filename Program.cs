@@ -109,9 +109,7 @@ else
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
 });
 
 app.UseForwardedHeaders();
