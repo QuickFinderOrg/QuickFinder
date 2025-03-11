@@ -2,6 +2,8 @@ namespace group_finder;
 
 public static class Constants
 {
+    public static readonly string UserSessionKey = "user-session";
+    public static readonly string AdminSessionKey = "admin-session";
     public const string DiscordClientIdKey = "Discord:ClientId";
     public const string DiscordClientSecretKey = "Discord:ClientSecret";
     public const string DiscordBotTokenKey = "Discord:BotToken";

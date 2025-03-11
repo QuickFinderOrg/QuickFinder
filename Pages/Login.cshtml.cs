@@ -9,7 +9,12 @@ namespace group_finder.Pages
 
         public IActionResult OnGet()
         {
+        var user_session = HttpContext.GetUserId();
+        if (user_session is null)
+        {
             return Page();
+        }
+        return Redirect(StudentRoutes.Home());
         }
 
         public IActionResult OnPost()
