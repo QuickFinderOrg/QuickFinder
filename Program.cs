@@ -27,11 +27,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddSession(options =>
-{
-    options.Cookie.IsEssential = true;
-});
-
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
 
 builder.Services.AddScoped<MatchmakingService>();
@@ -126,8 +121,6 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
-app.UseSession();
 
 app.MapRazorPages();
 

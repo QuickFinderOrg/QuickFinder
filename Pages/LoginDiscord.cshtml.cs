@@ -35,21 +35,17 @@ public class DiscordModel(IConfiguration configuration, UserService userService,
 
             var identityDict = JsonSerializer.Deserialize<Dictionary<string, object>>(identityJSON) ?? throw new Exception("responseJSON");
 
-            // var user = await mediator.Send(new RegisterDiscordUser.Request()
-            // {
-            //     DiscordId = identityDict["id"].ToString() ?? throw new Exception("id"),
-            //     Email = identityDict["email"].ToString() ?? throw new Exception("email"),
-            //     Username = identityDict["username"].ToString() ?? throw new Exception("username"),
-            // });
-            var user = await userService.CreateDiscordUser(
-                identityDict["email"].ToString() ?? throw new Exception("email"),
-                identityDict["username"].ToString() ?? throw new Exception("username"),
-                identityDict["id"].ToString() ?? throw new Exception("id")
-            );
+            var user = await userService.GetUserByDiscordId(identityDict["email"].ToString() ?? throw new Exception("email"), 
+                                                            identityDict["id"].ToString() ?? throw new Exception("id"));
+
+            user ??= await userService.CreateDiscordUser(
+                    identityDict["email"].ToString() ?? throw new Exception("email"),
+                    identityDict["username"].ToString() ?? throw new Exception("username"),
+                    identityDict["id"].ToString() ?? throw new Exception("id")
+                );
 
             if (user is not null)
             {
-                HttpContext.SetUserId(user.Id!);
                 await signInManager.SignInAsync(user, true);
                 TempData["AlertSuccess"] = "You have been logged in.";
                 // Redirect to the home page or another page

@@ -63,6 +63,25 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         return await db.Users.FindAsync(userId) ?? throw new Exception("User not found!");
     }
 
+    public async Task<User?> GetUserByDiscordId(string email, string discordId)
+    {
+        var user = await db.Users.SingleOrDefaultAsync(u => u.Email == email);
+        if (user == null)
+        {
+            return null;
+        }
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
+        var discordIdClaim = c.Find(c => c.Type == "DiscordId") ?? throw new Exception("User already exists without Discord ID");
+        if (discordIdClaim.Value != discordId)
+        {
+            throw new Exception("Discord ID mismatch");
+        }
+        else{
+            return user;
+        }
+    }
+
     public async Task<User[]> GetAllUsers()
     {
         return await userStore.Users.ToArrayAsync();
