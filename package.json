@@ -1,11 +1,12 @@
 {
-  "name": "name",
+  "name": "quickfinder",
   "description": "description",
   "authors": "author",
   "version": "1.0.0",
   "main": "pathToMain",
   "dependencies": {},
   "scripts": {
-    "publish": "powershell.exe ./publish.ps1"
+    "publish": "dotnet publish -c Release -r linux-x64",
+    "postpublish": "wsl ./publish.sh"
   }
 }
