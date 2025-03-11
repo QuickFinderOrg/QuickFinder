@@ -6,7 +6,7 @@
   "main": "pathToMain",
   "dependencies": {},
   "scripts": {
-    "publish": "dotnet publish -c Release -r linux-x64",
+    "publish": "dotnet publish -c Release -r linux-x64 -o publish",
     "postpublish": "wsl ./publish.sh"
   }
 }
