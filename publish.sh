@@ -1,3 +1,4 @@
+#!/bin/bash
 QUICKFINDER_DIR="/local/home/quickfinder/"
 LOGIN_SERVER="sturlen@ssh4.ux.uis.no"
 UNIX_SERVER="sturlen@gorina3.ux.uis.no"
