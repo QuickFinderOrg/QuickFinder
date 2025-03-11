@@ -39,6 +39,25 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         return user;
     }
 
+    public async Task<User> CreateDiscordUser(string email, string name, string discordId)
+    {
+        var user = new User();
+            
+        await userStore.SetUserNameAsync(user, email, CancellationToken.None);
+        await userStore.SetEmailConfirmedAsync(user, true);
+        await userStore.SetEmailAsync(user, email, CancellationToken.None);
+        var result = await userManager.CreateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            throw new Exception("User creation failed");
+        }
+
+        await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
+        await userManager.AddClaimAsync(user, new Claim("DiscordId", discordId));
+        return user;
+    }
+
     public async Task<User> GetUser(string userId)
     {
         return await db.Users.FindAsync(userId) ?? throw new Exception("User not found!");
