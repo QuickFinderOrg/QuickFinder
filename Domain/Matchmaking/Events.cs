@@ -21,6 +21,9 @@ public class GroupDisbanded : INotification
     public required User[] Members;
 }
 
+/// <summary>
+/// Fired only the first time a group is filled
+/// </summary>
 public class GroupFilled : INotification
 {
     public required Group Group;
