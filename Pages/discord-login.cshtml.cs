@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Options;
 
 namespace group_finder.Pages
 {
-    public class DiscordLoginModel(IConfiguration configuration) : PageModel
+    public class DiscordLoginModel(IOptions<DiscordServiceOptions> options) : PageModel
     {
         /// <summary>
         /// Default value for <see cref="AuthenticationScheme.DisplayName"/>.
@@ -70,7 +71,7 @@ namespace group_finder.Pages
                 new KeyValuePair<string, string>("redirect_uri", $"{Request.Scheme}://{Request.Host}{CallbackPath}")
             ]);
 
-            var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{configuration[Constants.DiscordClientIdKey]}:{configuration[Constants.DiscordClientSecretKey]}"));
+            var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{options.Value.ClientId}:{options.Value.ClientSecret}"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authValue);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
 

@@ -12,9 +12,6 @@ builder.Services.Configure<DiscordServiceOptions>(builder.Configuration.GetSecti
 
 builder.Services.Configure<MailjetOptions>(builder.Configuration.GetSection(MailjetOptions.Mailjet));
 
-var GitHubId = builder.Configuration[Constants.GitHubIdKey] ?? throw new Exception($"'{Constants.GitHubIdKey}' is missing from configuration/env");
-var GitHubSecret = builder.Configuration[Constants.GitHubSecretKey] ?? throw new Exception($"'{Constants.GitHubSecretKey}' is missing from configuration/env"); ;
-
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
