@@ -1,5 +1,7 @@
-﻿@inject AdminService adminService
+﻿@using Microsoft.AspNetCore.Authorization
+@inject AdminService adminService
 @inject UserManager<User> userManager
+@inject IAuthorizationService authorizationService
 @{
     var isTeacher = false;
     var isAdmin = false;
@@ -9,8 +11,8 @@
         var user = await userManager.GetUserAsync(userContext);
         if (user is not null)
         {
-            isTeacher = await adminService.IsTeacher(user);
-            isAdmin = await adminService.IsAdmin(user);
+            isTeacher = (await authorizationService.AuthorizeAsync(User, "Teacher")).Succeeded;
+            isAdmin = (await authorizationService.AuthorizeAsync(User, "Admin")).Succeeded;
         }
     }
 }
