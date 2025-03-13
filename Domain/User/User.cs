@@ -14,6 +14,7 @@ public record class Preferences()
 {
     public Availability Availability { get; set; } = Availability.Daytime;
     public string Language = "English";
+    public uint GroupSize { get; set; } = 2;
 }
 
 

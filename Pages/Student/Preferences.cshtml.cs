@@ -18,6 +18,10 @@ namespace group_finder.Pages.Student
             [Required]
             [Display(Name = "Availability")]
             public Availability NewAvailability { get; set; }
+
+            [Required]
+            [Display(Name = "Group Size")]
+            public uint GroupSize { get; set; }            
         }
 
         public async Task LoadAsync(User user)
@@ -25,6 +29,7 @@ namespace group_finder.Pages.Student
             Input = new InputModel
             {
                 NewAvailability = user.Preferences.Availability,
+                GroupSize = user.Preferences.GroupSize
             };
             await Task.CompletedTask;
         }
@@ -56,6 +61,8 @@ namespace group_finder.Pages.Student
             }
 
             user.Preferences.Availability = Input.NewAvailability;
+            user.Preferences.GroupSize = Input.GroupSize;
+            await userManager.UpdateAsync(user);
 
             StatusMessage = "Your preferences have been updated.";
             return RedirectToPage();

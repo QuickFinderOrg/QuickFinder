@@ -37,9 +37,18 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
             var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
             if (group == null)
             {
-                group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course, GroupLimit = ticket.Course.GroupSize };
-                db.Add(group);
-                groups.Add(group);
+                if(ticket.Course.AllowCustomSize)
+                {
+                    group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course, GroupLimit = ticket.User.Preferences.GroupSize };
+                    db.Add(group);
+                    groups.Add(group);                    
+                }
+                else
+                {
+                    group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course, GroupLimit = ticket.Course.GroupSize };
+                    db.Add(group);
+                    groups.Add(group);
+                }
             }
 
             group.Members.Add(ticket.User);
