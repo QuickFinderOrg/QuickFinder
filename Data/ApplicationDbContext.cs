@@ -9,6 +9,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
     public DbSet<Course> Courses { get; set; } = null!;
+    public DbSet<Channel> DiscordChannels { get; set; } = null!;
+    public DbSet<Channel> DiscordServers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
