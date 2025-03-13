@@ -69,9 +69,8 @@ builder.Services.AddRazorPages(options =>
 
 builder.Services.AddSingleton(provider =>
 {
-
-    var botService = new DiscordService(serverId: ulong.Parse(serverId), ulong.Parse(groupChannelId));
-    botService.StartAsync(DiscordBotToken).GetAwaiter().GetResult();
+    var botService = ActivatorUtilities.CreateInstance<DiscordService>(provider);
+    botService.StartAsync(serverId: ulong.Parse(serverId), groupChannelId: ulong.Parse(groupChannelId), token: DiscordBotToken).GetAwaiter().GetResult();
     return botService;
 });
 

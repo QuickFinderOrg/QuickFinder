@@ -1,18 +1,24 @@
-using System;
-using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 
 namespace group_finder;
 
-public class DiscordService(ulong serverId, ulong groupChannelId)
+public class DiscordService(ILogger<DiscordService> logger)
 {
     private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
-    public async Task StartAsync(string token)
+    private ulong serverId;
+    private ulong groupChannelId;
+
+    public async Task StartAsync(ulong serverId, ulong groupChannelId, string token)
     {
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
+
+        this.serverId = serverId;
+        this.groupChannelId = groupChannelId;
+
+        _client.MessageReceived += a => { logger.LogInformation("Discord bot recieved message {msg}", a.Content); return Task.CompletedTask; };
     }
 
     public async Task<bool> SendDM(ulong userId, string message)
