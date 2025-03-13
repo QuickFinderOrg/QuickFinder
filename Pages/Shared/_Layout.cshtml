@@ -39,9 +39,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="@StudentRoutes.Home()">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
                         @if(isAdmin)
                         {
                             <li class="nav-item">
@@ -75,6 +72,7 @@
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - group_finder - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            - <a asp-area="Identity" asp-page="/Account/Login">Admin</a>
         </div>
     </footer>
 
