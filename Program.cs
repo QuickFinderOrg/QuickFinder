@@ -10,15 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DiscordServiceOptions>(builder.Configuration.GetSection(DiscordServiceOptions.Discord));
 
-var DiscordId = builder.Configuration[Constants.DiscordClientIdKey] ?? throw new Exception("'Discord:ClientId' is missing from configuration/env");
-var DiscordSecret = builder.Configuration[Constants.DiscordClientSecretKey] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
-var DiscordBotToken = builder.Configuration[Constants.DiscordBotTokenKey] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
-
-var serverId = builder.Configuration[Constants.DiscordServerId] ?? throw new Exception($"'{Constants.DiscordServerId}' is missing from configuration/env");
-var groupChannelId = builder.Configuration[Constants.DiscordGroupChannelCategoryId] ?? throw new Exception($"'{Constants.DiscordGroupChannelCategoryId}' is missing from configuration/env");
-
-var MailjetKey = builder.Configuration[Constants.MailjetIdKey] ?? throw new Exception($"'{Constants.MailjetIdKey}' is missing from configuration/env");
-var MailjetSecret = builder.Configuration[Constants.MailjetSecretKey] ?? throw new Exception($"'{Constants.MailjetSecretKey}' is missing from configuration/env"); ;
+builder.Services.Configure<MailjetOptions>(builder.Configuration.GetSection(MailjetOptions.Mailjet));
 
 var GitHubId = builder.Configuration[Constants.GitHubIdKey] ?? throw new Exception($"'{Constants.GitHubIdKey}' is missing from configuration/env");
 var GitHubSecret = builder.Configuration[Constants.GitHubSecretKey] ?? throw new Exception($"'{Constants.GitHubSecretKey}' is missing from configuration/env"); ;

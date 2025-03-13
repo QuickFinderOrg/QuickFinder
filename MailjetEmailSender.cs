@@ -1,31 +1,26 @@
 using Mailjet.Client;
 using Mailjet.Client.Resources;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace group_finder;
 
-public class MailJetEmailSender : IEmailSender
+public class MailJetEmailSender(IOptions<MailjetOptions> options) : IEmailSender
 {
-    private readonly IConfiguration _configuration;
-
-    public MailJetEmailSender(IConfiguration configuration)
-    {
-        _configuration = configuration;
-
-    }
+    private readonly MailjetOptions _options = options.Value;
 
     public async Task SendEmailAsync(string email, string subject, string body)
     {
         var client = new MailjetClient(
-            _configuration[Constants.MailjetIdKey],
-            _configuration[Constants.MailjetSecretKey]
+            _options.Id,
+            _options.Secret
         );
 
         var request = new MailjetRequest
         {
             Resource = Send.Resource
         }
-        .Property(Send.FromEmail, _configuration[Constants.SenderEmailKey] ?? "quickfinder@example.com")
+        .Property(Send.FromEmail, _options.SenderEmail ?? "quickfinder@example.com")
         .Property(Send.FromName, "QuickFinder")
         .Property(Send.Subject, subject)
         .Property(Send.HtmlPart, body)
@@ -37,4 +32,13 @@ public class MailJetEmailSender : IEmailSender
 
         await client.PostAsync(request);
     }
+}
+
+public class MailjetOptions
+{
+    public const string Mailjet = "Mailjet";
+
+    public string Id { get; set; } = string.Empty;
+    public string Secret { get; set; } = string.Empty;
+    public string SenderEmail { get; set; } = string.Empty;
 }
