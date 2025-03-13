@@ -65,22 +65,7 @@ builder.Services.AddRazorPages(options =>
 
     options.Conventions.AuthorizeFolder("/Admin", policy: "Admin");
 });
-
-builder.Services.AddAuthentication()
-.AddDiscord(options =>
-{
-    options.ClientId = DiscordId;
-    options.ClientSecret = DiscordSecret;
-    options.CallbackPath = "/signin-discord";
-    options.Scope.Add("identify");
-    options.Scope.Add("email");
-})
-.AddGitHub(options =>
-{
-    options.ClientId = GitHubId;
-    options.ClientSecret = GitHubSecret;
-    options.CallbackPath = "/signin-github";
-});
+    
 
 builder.Services.AddSingleton(provider =>
 {
