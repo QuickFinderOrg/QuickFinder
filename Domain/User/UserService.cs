@@ -169,7 +169,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
     }
 }
 
-public class NotifyUsersOnGroupFilled(UserService userService, DiscordBotService discordBot, Logger<NotifyUsersOnGroupFilled> logger) : INotificationHandler<GroupFilled>
+public class NotifyUsersOnGroupFilled(UserService userService, DiscordBotService discordBot, ILogger<NotifyUsersOnGroupFilled> logger) : INotificationHandler<GroupFilled>
 {
     public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
     {
