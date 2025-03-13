@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages;
 
-public class TestModel(ILogger<TestModel> logger, DiscordBotService discordBotService, IWebHostEnvironment environment) : PageModel
+public class TestModel(ILogger<TestModel> logger, DiscordService discordBotService, IWebHostEnvironment environment) : PageModel
 {
     private readonly ILogger<TestModel> _logger = logger;
 

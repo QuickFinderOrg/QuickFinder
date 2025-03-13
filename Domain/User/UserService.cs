@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace group_finder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordBotService discord, IEmailSender emailSender, IConfiguration configuration)
+public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordService discord, IEmailSender emailSender, IConfiguration configuration)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
@@ -169,7 +169,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
     }
 }
 
-public class NotifyUsersOnGroupFilled(UserService userService, DiscordBotService discordBot, ILogger<NotifyUsersOnGroupFilled> logger) : INotificationHandler<GroupFilled>
+public class NotifyUsersOnGroupFilled(UserService userService, DiscordService discordBot, ILogger<NotifyUsersOnGroupFilled> logger) : INotificationHandler<GroupFilled>
 {
     public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
     {

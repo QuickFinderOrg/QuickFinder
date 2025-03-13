@@ -65,12 +65,12 @@ builder.Services.AddRazorPages(options =>
 
     options.Conventions.AuthorizeFolder("/Admin", policy: "Admin");
 });
-    
+
 
 builder.Services.AddSingleton(provider =>
 {
 
-    var botService = new DiscordBotService(serverId: ulong.Parse(serverId), ulong.Parse(groupChannelId));
+    var botService = new DiscordService(serverId: ulong.Parse(serverId), ulong.Parse(groupChannelId));
     botService.StartAsync(DiscordBotToken).GetAwaiter().GetResult();
     return botService;
 });

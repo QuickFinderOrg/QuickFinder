@@ -5,7 +5,7 @@ using Discord.WebSocket;
 
 namespace group_finder;
 
-public class DiscordBotService(ulong serverId, ulong groupChannelId)
+public class DiscordService(ulong serverId, ulong groupChannelId)
 {
     private readonly DiscordSocketClient _client = new DiscordSocketClient();
 
