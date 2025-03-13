@@ -1,12 +1,9 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Admin;
 
-public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userService, AdminService adminService, IAuthorizationService authorizationService) : PageModel
+public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userService, AdminService adminService) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
