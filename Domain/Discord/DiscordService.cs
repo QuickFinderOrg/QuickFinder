@@ -1,22 +1,18 @@
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Options;
 
 namespace group_finder;
 
-public class DiscordService(ILogger<DiscordService> logger)
+public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<DiscordService> logger)
 {
     private readonly DiscordSocketClient _client = new DiscordSocketClient();
+    private readonly DiscordServiceOptions _options = options.Value;
 
-    private ulong serverId;
-    private ulong groupChannelId;
-
-    public async Task StartAsync(ulong serverId, ulong groupChannelId, string token)
+    public async Task StartAsync()
     {
-        await _client.LoginAsync(TokenType.Bot, token);
+        await _client.LoginAsync(TokenType.Bot, _options.BotToken);
         await _client.StartAsync();
-
-        this.serverId = serverId;
-        this.groupChannelId = groupChannelId;
 
         _client.MessageReceived += a => { logger.LogInformation("Discord bot recieved message {msg}", a.Content); return Task.CompletedTask; };
     }
@@ -47,21 +43,21 @@ public class DiscordService(ILogger<DiscordService> logger)
 
     public async Task<ulong?> CreateChannel(string channelName)
     {
-        var server = _client.GetGuild(serverId);
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return null;
         }
-        Console.WriteLine($"groupChannelId {groupChannelId}");
+        Console.WriteLine($"groupChannelId {_options.GroupChannelCategoryId}");
 
-        var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = groupChannelId);
+        var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId));
         Console.WriteLine(channel.ToString());
         return channel.Id;
     }
 
     public async Task<ulong?> DeleteChannel(ulong channelId)
     {
-        var server = _client.GetGuild(serverId);
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return null;
@@ -79,7 +75,7 @@ public class DiscordService(ILogger<DiscordService> logger)
 
     public DiscordChannel[] GetChannels()
     {
-        var server = _client.GetGuild(serverId);
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return [];
@@ -98,4 +94,15 @@ public record class DiscordChannel
     public required ulong Id { get; init; }
     public required string Name { get; init; }
     public string? Category { get; init; }
+}
+
+public class DiscordServiceOptions
+{
+    public const string Discord = "Discord";
+
+    public string BotToken { get; set; } = String.Empty;
+    public string ClientSecret { get; set; } = String.Empty;
+    public string ClientId { get; set; } = String.Empty;
+    public string ServerId { get; set; } = String.Empty;
+    public string GroupChannelCategoryId { get; set; } = String.Empty;
 }

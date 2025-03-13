@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<DiscordServiceOptions>(builder.Configuration.GetSection(DiscordServiceOptions.Discord));
+
 var DiscordId = builder.Configuration[Constants.DiscordClientIdKey] ?? throw new Exception("'Discord:ClientId' is missing from configuration/env");
 var DiscordSecret = builder.Configuration[Constants.DiscordClientSecretKey] ?? throw new Exception("'Discord:ClientSecret' is missing from configuration/env"); ;
 var DiscordBotToken = builder.Configuration[Constants.DiscordBotTokenKey] ?? throw new Exception("'Discord:BotToken' is missing from configuration/env"); ;
@@ -69,7 +71,7 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddSingleton(provider =>
 {
     var botService = ActivatorUtilities.CreateInstance<DiscordService>(provider);
-    botService.StartAsync(serverId: ulong.Parse(serverId), groupChannelId: ulong.Parse(groupChannelId), token: DiscordBotToken).GetAwaiter().GetResult();
+    botService.StartAsync().GetAwaiter().GetResult();
     return botService;
 });
 
