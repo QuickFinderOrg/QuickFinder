@@ -1,6 +1,6 @@
 @page
 @model TestModel
-@inject DiscordBotService discord
+@inject DiscordService discord
 @{
     ViewData["Title"] = "Test";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
