@@ -41,7 +41,8 @@ public class DiscordModel(IConfiguration configuration, UserService userService,
             user ??= await userService.CreateDiscordUser(
                     identityDict["email"].ToString() ?? throw new Exception("email"),
                     identityDict["username"].ToString() ?? throw new Exception("username"),
-                    identityDict["id"].ToString() ?? throw new Exception("id")
+                    identityDict["id"].ToString() ?? throw new Exception("id"),
+                    identityDict["global_name"].ToString() ?? throw new Exception("display name")
                 );
 
             if (user is not null)

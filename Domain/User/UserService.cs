@@ -39,11 +39,11 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         return user;
     }
 
-    public async Task<User> CreateDiscordUser(string email, string name, string discordId)
+    public async Task<User> CreateDiscordUser(string email, string username, string discordId, string name)
     {
         var user = new User();
 
-        await userStore.SetUserNameAsync(user, email, CancellationToken.None);
+        await userStore.SetUserNameAsync(user, username, CancellationToken.None);
         await userStore.SetEmailConfirmedAsync(user, true);
         await userStore.SetEmailAsync(user, email, CancellationToken.None);
         var result = await userManager.CreateAsync(user);
