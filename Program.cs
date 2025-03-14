@@ -61,11 +61,11 @@ builder.Services.AddRazorPages(options =>
 
 builder.Services.AddSingleton(provider =>
 {
-    var botService = ActivatorUtilities.CreateInstance<DiscordService>(provider);
-    botService.StartAsync().GetAwaiter().GetResult();
-    return botService;
+    var botClient = ActivatorUtilities.CreateInstance<DiscordClient>(provider);
+    botClient.StartClientAsync().GetAwaiter().GetResult();
+    return botClient;
 });
-
+builder.Services.AddScoped<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 
 

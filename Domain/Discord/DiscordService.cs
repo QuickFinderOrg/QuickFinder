@@ -1,28 +1,21 @@
 using Discord;
-using Discord.WebSocket;
+using group_finder.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace group_finder;
 
-public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<DiscordService> logger)
+public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<DiscordService> logger, ApplicationDbContext db, DiscordClient client)
 {
-    private readonly DiscordSocketClient _client = new DiscordSocketClient();
     private readonly DiscordServiceOptions _options = options.Value;
 
-    public async Task StartAsync()
-    {
-        await _client.LoginAsync(TokenType.Bot, _options.BotToken);
-        await _client.StartAsync();
-
-        _client.MessageReceived += a => { logger.LogInformation("Discord bot recieved message {msg}", a.Content); return Task.CompletedTask; };
-    }
 
     public async Task<bool> SendDM(ulong userId, string message)
     {
-        var user = await _client.GetUserAsync(userId);
+        var user = await client.GetUserAsync(userId);
         if (user == null)
         {
-            Console.WriteLine("User not found.");
+            logger.LogError("User {userId} not found.", userId);
             return false;
 
         }
@@ -31,33 +24,32 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         try
         {
             await user.SendMessageAsync(message);
-            Console.WriteLine($"Sent DM to {user.Username}: {message}");
+            logger.LogInformation("Sent DM to {username} ({userid}): {message}", user.Username, userId, message);
             return true;
         }
         catch (Discord.Net.HttpException e)
         {
-            Console.WriteLine($"Failed to send DM to {user.Username}: DiscordErrorCode: {e.DiscordCode}");
+            logger.LogError(e, "Failed to send DM to {username}: DiscordErrorCode: {DiscordErrorCode}", user.Username, e.DiscordCode);
             return false;
         }
     }
 
     public async Task<ulong?> CreateChannel(string channelName)
     {
-        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return null;
         }
-        Console.WriteLine($"groupChannelId {_options.GroupChannelCategoryId}");
 
         var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId));
-        Console.WriteLine(channel.ToString());
+        logger.LogTrace("Created Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
         return channel.Id;
     }
 
     public async Task<ulong?> DeleteChannel(ulong channelId)
     {
-        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return null;
@@ -70,12 +62,13 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         }
         // TODO: limit to only delete within the category.
         await channel.DeleteAsync(new RequestOptions() { AuditLogReason = "DeleteChannel" });
+        logger.LogTrace("Deleted Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
         return channel.Id;
     }
 
     public DiscordChannel[] GetChannels()
     {
-        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return [];
@@ -87,9 +80,22 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
 
         return discord_channels;
     }
+
+    public async Task<DiscordServerItem[]> GetServerList()
+    {
+        var servers = await db.DiscordServers.ToArrayAsync();
+        return servers.Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name }).ToArray();
+    }
 }
 
 public record class DiscordChannel
+{
+    public required ulong Id { get; init; }
+    public required string Name { get; init; }
+    public string? Category { get; init; }
+}
+
+public record class DiscordServerItem
 {
     public required ulong Id { get; init; }
     public required string Name { get; init; }
