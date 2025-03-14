@@ -1,4 +1,5 @@
-﻿using group_finder.Domain.Matchmaking;
+﻿using group_finder.Domain.DiscordDomain;
+using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

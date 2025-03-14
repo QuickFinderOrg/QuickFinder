@@ -4,7 +4,7 @@ using group_finder.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace group_finder;
+namespace group_finder.Domain.DiscordDomain;
 
 public class DiscordClient(IOptions<DiscordServiceOptions> options, ILogger<DiscordClient> logger) : DiscordSocketClient
 {

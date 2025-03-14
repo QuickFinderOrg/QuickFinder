@@ -3,7 +3,7 @@ using group_finder.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace group_finder;
+namespace group_finder.Domain.DiscordDomain;
 
 public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<DiscordService> logger, ApplicationDbContext db, DiscordClient client)
 {

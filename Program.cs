@@ -5,6 +5,7 @@ using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.HttpOverrides;
 using Mailjet.Client;
 using Microsoft.AspNetCore.DataProtection;
+using group_finder.Domain.DiscordDomain;
 
 var builder = WebApplication.CreateBuilder(args);
 

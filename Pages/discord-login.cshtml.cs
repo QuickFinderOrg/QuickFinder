@@ -2,6 +2,7 @@ using System.Configuration;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using group_finder.Domain.DiscordDomain;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

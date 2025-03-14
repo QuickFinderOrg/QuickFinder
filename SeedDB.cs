@@ -1,6 +1,7 @@
 
 using System.Security.Claims;
 using group_finder.Data;
+using group_finder.Domain.DiscordDomain;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
