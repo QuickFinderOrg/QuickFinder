@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordService discord, IEmailSender emailSender, IConfiguration configuration)
+public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordService discord, IEmailSender emailSender)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
