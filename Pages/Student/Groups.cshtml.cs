@@ -18,7 +18,7 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
 
         foreach (var g in groups)
         {
-            var group_vm = new GroupVM() { Id = g.Id.ToString(), Course = g.Course.Name };
+            var group_vm = new GroupVM() { Id = g.Id.ToString(), Course = g.Course.Name, GroupLimit = g.Course.GroupSize };
             foreach (var member in g.Members)
             {
                 if (member == null)
@@ -57,6 +57,7 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
         public required string Id;
         public List<GroupMemberVM> Members = [];
         public string Course = "";
+        public uint GroupLimit = 2;
     }
 
     public class GroupMemberVM
