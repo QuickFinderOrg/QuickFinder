@@ -134,6 +134,13 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         await db.SaveChangesAsync();
     }
 
+    public async Task ChangeCustomGroupSize(Guid courseId, bool allowCustomSize)
+    {
+        var course = await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
+        course.AllowCustomSize = allowCustomSize;
+        await db.SaveChangesAsync();
+    }    
+
 
     /// <summary>
     /// Get all groups

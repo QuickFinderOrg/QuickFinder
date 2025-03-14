@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Teacher;
 
-public class CreateCourseModel(ILogger<CourseGroupsModel> logger, MatchmakingService matchmakingService) : PageModel
+public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingService matchmakingService) : PageModel
 {
-    private readonly ILogger<CourseGroupsModel> _logger = logger;
+    private readonly ILogger<CreateCourseModel> _logger = logger;
     
     [BindProperty]
     public required string Name { get; set; }

@@ -1,5 +1,5 @@
 @page
-@model CourseGroupsModel
+@model CourseOverviewModel
 @inject UserService userService;
 @{
     ViewData["Title"] = "Course Overview";
@@ -20,6 +20,12 @@
         <input asp-for="Course.GroupSize" class="form-control" type="number" min="2" max="20" />
         <input asp-for="Course.Id" hidden />
         <button class="btn btn-primary">Submit</button>
+    </form>
+
+    <form asp-page-handler="ChangeCustomGroupSize" method="post" >
+        <label asp-for="AllowCustomSize">Allow Custom Group Sizes?</label>
+        <input asp-for="Course.Id" hidden />
+        <input asp-for="AllowCustomSize" class="form-check-input" onchange="this.form.submit()" />
     </form>
 
     <h4>Groups</h4>

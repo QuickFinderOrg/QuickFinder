@@ -5,13 +5,15 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Teacher;
 
-public class CourseGroupsModel(ILogger<CourseGroupsModel> logger, MatchmakingService matchmaking) : PageModel
+public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, MatchmakingService matchmaking) : PageModel
 {
-    private readonly ILogger<CourseGroupsModel> _logger = logger;
+    private readonly ILogger<CourseOverviewModel> _logger = logger;
     public List<Group> Groups = [];
     public Course[] Courses = [];
     [BindProperty]
     public Course Course {get; set;} = default!;
+    [BindProperty]
+    public bool AllowCustomSize { get; set; }
 
 
     public async Task<IActionResult> OnGetAsync()
@@ -48,12 +50,20 @@ public class CourseGroupsModel(ILogger<CourseGroupsModel> logger, MatchmakingSer
         return Page();
     }
 
+    public async Task<IActionResult> OnPostChangeCustomGroupSizeAsync()
+    {
+        await matchmaking.ChangeCustomGroupSize(Course.Id, AllowCustomSize);
+        await LoadAsync();
+        return Page();
+    }
+
     public async Task LoadAsync()
     {
         Courses = await matchmaking.GetCourses();
         Course ??= Courses[0];
         var grouplist = await matchmaking.GetGroups(Course.Id);
         Groups = grouplist.ToList();
+        AllowCustomSize = Course.AllowCustomSize;
         _logger.LogInformation("LoadGroups");
     }
 }
