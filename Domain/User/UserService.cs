@@ -1,14 +1,10 @@
 using System.Security.Claims;
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
-using Humanizer;
-using Mailjet.Client;
-using Mailjet.Client.Resources;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 
 namespace group_finder;
 

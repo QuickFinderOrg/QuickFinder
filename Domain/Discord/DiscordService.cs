@@ -1,5 +1,4 @@
 using Discord;
-using Discord.WebSocket;
 using group_finder.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,7 +15,7 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         var user = await client.GetUserAsync(userId);
         if (user == null)
         {
-            Console.WriteLine("User not found.");
+            logger.LogError("User {userId} not found.", userId);
             return false;
 
         }
@@ -25,12 +24,12 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         try
         {
             await user.SendMessageAsync(message);
-            Console.WriteLine($"Sent DM to {user.Username}: {message}");
+            logger.LogInformation("Sent DM to {username} ({userid}): {message}", user.Username, userId, message);
             return true;
         }
         catch (Discord.Net.HttpException e)
         {
-            Console.WriteLine($"Failed to send DM to {user.Username}: DiscordErrorCode: {e.DiscordCode}");
+            logger.LogError(e, "Failed to send DM to {username}: DiscordErrorCode: {DiscordErrorCode}", user.Username, e.DiscordCode);
             return false;
         }
     }
@@ -42,10 +41,9 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         {
             return null;
         }
-        Console.WriteLine($"groupChannelId {_options.GroupChannelCategoryId}");
 
         var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId));
-        Console.WriteLine(channel.ToString());
+        logger.LogTrace("Created Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
         return channel.Id;
     }
 
@@ -64,6 +62,7 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         }
         // TODO: limit to only delete within the category.
         await channel.DeleteAsync(new RequestOptions() { AuditLogReason = "DeleteChannel" });
+        logger.LogTrace("Deleted Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
         return channel.Id;
     }
 
