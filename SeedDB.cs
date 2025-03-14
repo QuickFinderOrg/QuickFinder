@@ -3,10 +3,11 @@ using System.Security.Claims;
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace group_finder;
 
-class SeedDB(UserService userService, UserManager<User> userManager, ApplicationDbContext db, MatchmakingService matchmakingService)
+class SeedDB(UserService userService, UserManager<User> userManager, ApplicationDbContext db, MatchmakingService matchmakingService, IOptions<DiscordServiceOptions> discordOptions)
 {
     public async void Seed()
     {
@@ -30,8 +31,13 @@ class SeedDB(UserService userService, UserManager<User> userManager, Application
         var TestCourse1 = new Course() { Name = "DAT120" };
         var TestCourse2 = new Course() { Name = "DAT240" };
 
+        var TestServer = new Server() { Id = ulong.Parse(discordOptions.Value.ServerId), Name = "QuickFinder Discord" };
+        TestServer.Courses.Add(TestCourse1);
+
         db.Add(TestCourse1);
         db.Add(TestCourse2);
+
+        db.Add(TestServer);
 
         foreach (var account in test_accounts)
         {
@@ -42,7 +48,7 @@ class SeedDB(UserService userService, UserManager<User> userManager, Application
         foreach (var account in admin_accounts)
         {
             var user = await userService.CreateUser(account.Email, account.Name, account.Password);
-            await userManager.AddClaimAsync(user, account.IsAdmin);  
+            await userManager.AddClaimAsync(user, account.IsAdmin);
         }
 
         await db.SaveChangesAsync();
