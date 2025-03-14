@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

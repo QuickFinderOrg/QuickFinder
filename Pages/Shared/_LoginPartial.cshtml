@@ -4,7 +4,11 @@
 @inject UserService UserService
 @{
     var user = await UserManager.GetUserAsync(User);
-    var Name = await UserService.GetName(user);
+    var Name = "Not logged in";
+    if (user is not null)
+    {
+        Name = await UserService.GetName(user);
+    }
 }
 
 <ul class="navbar-nav">

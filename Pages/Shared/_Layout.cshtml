@@ -5,6 +5,7 @@
 @{
     var isTeacher = false;
     var isAdmin = false;
+    var isStudent = false;
     var userContext = Context.User;
     if (userContext is not null)
     {
@@ -13,6 +14,7 @@
         {
             isTeacher = (await authorizationService.AuthorizeAsync(User, "Teacher")).Succeeded;
             isAdmin = (await authorizationService.AuthorizeAsync(User, "Admin")).Succeeded;
+            isStudent = (await authorizationService.AuthorizeAsync(User, "Student")).Succeeded;
         }
     }
 }
@@ -39,24 +41,33 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="@StudentRoutes.Home()">Home</a>
+                            <a class="nav-link text-dark" asp-page="@StudentRoutes.Home()">Home</a>
                         </li>
+                        @if(isStudent)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="@StudentRoutes.Profile()">Profile</a>
+                            </li>  
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"  asp-page="@StudentRoutes.Preferences()">Preferences</a>
+                            </li>                          
+                        }
                         @if(isAdmin)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.Students()">Students</a>
+                                <a class="nav-link text-dark" asp-page="@AdminRoutes.Students()">Students</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="@AdminRoutes.UserOverview()">User overview</a>
+                                <a class="nav-link text-dark" asp-page="@AdminRoutes.UserOverview()">User overview</a>
                             </li>
                         }
                         @if(isTeacher || isAdmin)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="@TeacherRoutes.CourseGroups()">Course overview</a>
+                                <a class="nav-link text-dark" asp-page="@TeacherRoutes.CourseGroups()">Course overview</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="@TeacherRoutes.CreateCourse()">Create new Course</a>
+                                <a class="nav-link text-dark" asp-page="@TeacherRoutes.CreateCourse()">Create new Course</a>
                             </li>
                         }
                     </ul>
@@ -73,7 +84,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - group_finder - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2025 - group_finder - <a asp-page="/Privacy">Privacy</a>
             - <a asp-area="Identity" asp-page="/Account/Login">Admin</a>
         </div>
     </footer>

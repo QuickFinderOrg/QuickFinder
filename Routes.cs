@@ -6,19 +6,20 @@ public static class StudentRoutes
     public static string Login() => "/Login";
     public static string Groups() => "/Student/Groups";
     public static string Matching() => "/Student/Matching";
+    public static string Profile() => "/Account/Manage/Index";
     public static string Preferences() => "/Student/Preferences";
 }
 
 public static class TeacherRoutes
 {
-    public static string CourseGroups() => "/Teacher/CourseOverview";
     public static string EditGroup() => "/Teacher/EditGroup";
     public static string CreateCourse() => "/Teacher/CreateCourse";
+    public static string CourseGroups() => "/Teacher/CourseOverview";
 }
 
 public static class AdminRoutes
 {
-    public static string AddStudent() => "/Admin/AddStudents";
     public static string Students() => "/Admin/Students";
+    public static string AddStudent() => "/Admin/AddStudents";
     public static string UserOverview() => "/Admin/UserOverview";
 }
