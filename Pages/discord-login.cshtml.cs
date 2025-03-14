@@ -10,36 +10,6 @@ namespace group_finder.Pages
 {
     public class DiscordLoginModel(IOptions<DiscordServiceOptions> options) : PageModel
     {
-        /// <summary>
-        /// Default value for <see cref="AuthenticationScheme.DisplayName"/>.
-        /// </summary>
-        public static readonly string DisplayName = "Discord";
-
-        /// <summary>
-        /// Default value for <see cref="AuthenticationSchemeOptions.ClaimsIssuer"/>.
-        /// </summary>
-        public static readonly string Issuer = "Discord";
-
-        /// <summary>
-        /// Default value for <see cref="RemoteAuthenticationOptions.CallbackPath"/>.
-        /// </summary>
-        public static readonly string CallbackPath = "/discord-login";
-
-        /// <summary>
-        /// Default value for <see cref="OAuthOptions.AuthorizationEndpoint"/>.
-        /// </summary>
-        public static readonly string AuthorizationEndpoint = "https://discord.com/api/oauth2/authorize";
-
-        /// <summary>
-        /// Default value for <see cref="OAuthOptions.TokenEndpoint"/>.
-        /// </summary>
-        public static readonly string TokenEndpoint = "https://discord.com/api/oauth2/token";
-
-        /// <summary>
-        /// Default value for <see cref="OAuthOptions.UserInformationEndpoint"/>.
-        /// </summary>
-        public static readonly string UserInformationEndpoint = "https://discord.com/api/users/@me";
-
         public async Task<IActionResult> OnGetAsync()
         {
             var url = HttpContext.Request.GetDisplayUrl();
@@ -67,14 +37,14 @@ namespace group_finder.Pages
             [
                 new KeyValuePair<string, string>("grant_type", "authorization_code"),
                 new KeyValuePair<string, string>("code", code),
-                new KeyValuePair<string, string>("redirect_uri", $"{Request.Scheme}://{Request.Host}{CallbackPath}")
+                new KeyValuePair<string, string>("redirect_uri", $"{Request.Scheme}://{Request.Host}{DiscordServiceOptions.CallbackPath}")
             ]);
 
             var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{options.Value.ClientId}:{options.Value.ClientSecret}"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authValue);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
 
-            HttpResponseMessage response = await client.PostAsync(TokenEndpoint, data);
+            HttpResponseMessage response = await client.PostAsync(DiscordServiceOptions.TokenEndpoint, data);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
             response.EnsureSuccessStatusCode();
 
@@ -99,7 +69,7 @@ namespace group_finder.Pages
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            HttpResponseMessage response = await client.GetAsync(UserInformationEndpoint);
+            HttpResponseMessage response = await client.GetAsync(DiscordServiceOptions.UserInformationEndpoint);
             response.EnsureSuccessStatusCode();
 
             var response_json_string = await response.Content.ReadAsStringAsync();
