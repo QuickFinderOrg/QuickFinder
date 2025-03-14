@@ -1,5 +1,7 @@
 using Discord;
 using group_finder.Data;
+using group_finder.Domain.Matchmaking;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -34,16 +36,21 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         }
     }
 
-    public async Task<ulong?> CreateChannel(string channelName)
+    public async Task<ulong?> CreateChannel(ulong serverId, string channelName, ulong? categoryId)
     {
-        var server = client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = client.GetGuild(serverId);
         if (server == null)
         {
             return null;
         }
+        var serverDB = await db.DiscordServers.FirstAsync(s => s.Id == serverId) ?? throw new Exception($"Server {_options.ServerId} not in db");
 
         var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId));
-        logger.LogTrace("Created Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
+        var channelDB = new Channel() { Id = channel.Id, CategoryId = ulong.Parse(_options.GroupChannelCategoryId), Server = serverDB };
+        db.Add(channelDB);
+        // await channel.SendMessageAsync("@everyone");
+
+        logger.LogInformation("Created Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
         return channel.Id;
     }
 
@@ -116,4 +123,24 @@ public class DiscordServiceOptions
     public string AuthorizationEndpoint = String.Empty;
     public string TokenEndpoint = String.Empty;
     public string UserInformationEndpoint = String.Empty;
+}
+
+public class CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> options, DiscordService discord, ILogger<NotifyUsersOnGroupFilled> logger) : INotificationHandler<GroupFilled>
+{
+    public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
+    {
+        var defaultServerId = ulong.Parse(options.Value.ServerId);
+        var defaultCategoryId = ulong.Parse(options.Value.GroupChannelCategoryId);
+        var channelName = notification.Group.Id.ToString();
+
+        try
+        {
+            var new_channel_id = await discord.CreateChannel(defaultServerId, channelName, defaultCategoryId);
+        }
+        catch (System.Exception e)
+        {
+            logger.LogError(e, "Error creating Discord channel for group {GroupId}", notification.Group.Id);
+        }
+
+    }
 }

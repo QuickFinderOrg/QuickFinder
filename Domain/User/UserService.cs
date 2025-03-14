@@ -172,14 +172,6 @@ public class NotifyUsersOnGroupFilled(UserService userService, DiscordService di
     {
         var names = await Task.WhenAll(notification.Group.Members.Select(userService.GetName));
         var name_list = string.Join("", names.Select(name => $"- {name}(ID)\n"));
-        try
-        {
-            var new_channel_id = discordBot.CreateChannel(notification.Group.Id.ToString());
-        }
-        catch (System.Exception e)
-        {
-            logger.LogError(e, "Error creating Discord channel for group {GroupId}", notification.Group.Id);
-        }
 
         await Task.WhenAll(notification.Group.Members.Select(user => userService.NotifyUser(user, $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}")));
     }

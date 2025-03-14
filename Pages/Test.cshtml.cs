@@ -22,8 +22,8 @@ public class TestModel(ILogger<TestModel> logger, DiscordService discordBotServi
             return Redirect("/");
         }
         _logger.LogInformation("POST: test");
-        var channelId = await discordBotService.CreateChannel("channel-5");
-        TestResult = $"channel {channelId}";
+        // var channelId = await discordBotService.CreateChannel("channel-5");
+        // TestResult = $"channel {channelId}";
         return RedirectToPage();
     }
     public async Task<IActionResult> OnPostDeleteChannelAsync(string id)
