@@ -47,6 +47,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin"));
 });
 
+builder.Services.ConfigureApplicationCookie(options => options.LoginPath = StudentRoutes.Login());
+
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/Student", policy: "Student");
