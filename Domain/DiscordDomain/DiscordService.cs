@@ -112,8 +112,8 @@ public class DiscordServiceOptions
     public string ServerId { get; set; } = String.Empty;
     public string GroupChannelCategoryId { get; set; } = String.Empty;
 
-    public string CallbackPath = "/discord-login";
-    public string AuthorizationEndpoint = "https://discord.com/api/oauth2/authorize";
-    public string TokenEndpoint = "https://discord.com/api/oauth2/token";
-    public string UserInformationEndpoint = "https://discord.com/api/users/@me";
+    public string CallbackPath = String.Empty;
+    public string AuthorizationEndpoint = String.Empty;
+    public string TokenEndpoint = String.Empty;
+    public string UserInformationEndpoint = String.Empty;
 }
