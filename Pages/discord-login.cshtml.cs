@@ -37,14 +37,14 @@ namespace group_finder.Pages
             [
                 new KeyValuePair<string, string>("grant_type", "authorization_code"),
                 new KeyValuePair<string, string>("code", code),
-                new KeyValuePair<string, string>("redirect_uri", $"{Request.Scheme}://{Request.Host}{DiscordServiceOptions.CallbackPath}")
+                new KeyValuePair<string, string>("redirect_uri", $"{Request.Scheme}://{Request.Host}{options.Value.CallbackPath}")
             ]);
 
             var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{options.Value.ClientId}:{options.Value.ClientSecret}"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authValue);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
 
-            HttpResponseMessage response = await client.PostAsync(DiscordServiceOptions.TokenEndpoint, data);
+            HttpResponseMessage response = await client.PostAsync(options.Value.TokenEndpoint, data);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
             response.EnsureSuccessStatusCode();
 
@@ -69,7 +69,7 @@ namespace group_finder.Pages
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            HttpResponseMessage response = await client.GetAsync(DiscordServiceOptions.UserInformationEndpoint);
+            HttpResponseMessage response = await client.GetAsync(options.Value.UserInformationEndpoint);
             response.EnsureSuccessStatusCode();
 
             var response_json_string = await response.Content.ReadAsStringAsync();
