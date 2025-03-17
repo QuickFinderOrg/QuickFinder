@@ -38,13 +38,21 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Student", policy => policy.RequireAuthenticatedUser());
 
-    options.AddPolicy("Teacher", policy =>
-    policy.RequireAssertion(context =>
-        context.User.HasClaim(c =>
-            c.Type == "IsTeacher" ||
-            c.Type == "IsAdmin")));
+    if (builder.Environment.IsDevelopment())
+    {
+        options.AddPolicy("Teacher", policy => policy.RequireAuthenticatedUser());
+        options.AddPolicy("Admin", policy => policy.RequireAuthenticatedUser());
+    }
+    else
+    {
+        options.AddPolicy("Teacher", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c =>
+                c.Type == "IsTeacher" ||
+                c.Type == "IsAdmin")));
 
-    options.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin"));
+        options.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin"));
+    }
 });
 
 builder.Services.ConfigureApplicationCookie(options => options.LoginPath = StudentRoutes.Login());
