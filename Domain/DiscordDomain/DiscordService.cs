@@ -173,14 +173,11 @@ public class CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> o
     }
 }
 
-public class DeleteDiscordChannelOnGroupDisbanded(IOptions<DiscordServiceOptions> options, DiscordService discord, ILogger<DeleteDiscordChannelOnGroupDisbanded> logger) : INotificationHandler<GroupDisbanded>
+public class DeleteDiscordChannelOnGroupDisbanded(DiscordService discord, ILogger<DeleteDiscordChannelOnGroupDisbanded> logger) : INotificationHandler<GroupDisbanded>
 {
     public async Task Handle(GroupDisbanded notification, CancellationToken cancellationToken)
     {
         logger.LogInformation("Group disbanded {groupId}", notification.GroupId.ToString());
-        var defaultServerId = ulong.Parse(options.Value.ServerId);
-        var defaultCategoryId = ulong.Parse(options.Value.GroupChannelCategoryId);
-        var channelName = notification.GroupId.ToString();
 
         try
         {
