@@ -36,7 +36,7 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         }
     }
 
-    public async Task<ulong?> CreateChannel(ulong serverId, string channelName, ulong? categoryId)
+    public async Task<ulong?> CreateChannel(ulong serverId, string channelName, ulong? categoryId, Guid? owningGroup)
     {
         var server = client.GetGuild(serverId);
         if (server == null)
@@ -46,11 +46,12 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         var serverDB = await db.DiscordServers.FirstAsync(s => s.Id == serverId) ?? throw new Exception($"Server {_options.ServerId} not in db");
 
         var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId));
-        var channelDB = new Channel() { Id = channel.Id, CategoryId = ulong.Parse(_options.GroupChannelCategoryId), Server = serverDB };
+        var channelDB = new Channel() { Id = channel.Id, CategoryId = ulong.Parse(_options.GroupChannelCategoryId), Server = serverDB, OwningGroupId = owningGroup };
         db.Add(channelDB);
         // await channel.SendMessageAsync("@everyone");
 
         logger.LogInformation("Created Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
+        await db.SaveChangesAsync();
         return channel.Id;
     }
 
@@ -70,6 +71,7 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
         // TODO: limit to only delete within the category.
         await channel.DeleteAsync(new RequestOptions() { AuditLogReason = "DeleteChannel" });
         logger.LogTrace("Deleted Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
+        await db.SaveChangesAsync();
         return channel.Id;
     }
 
@@ -92,6 +94,24 @@ public class DiscordService(IOptions<DiscordServiceOptions> options, ILogger<Dis
     {
         var servers = await db.DiscordServers.ToArrayAsync();
         return servers.Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name }).ToArray();
+    }
+
+    public async Task DeleteGroupChannels(Guid groupId)
+    {
+        var server = client.GetGuild(ulong.Parse(_options.ServerId));
+        if (server == null)
+        {
+            return;
+        }
+
+        var channels = await db.DiscordChannels
+        .Where(ch => ch.OwningGroupId == groupId)
+        .ToArrayAsync();
+
+        foreach (var channel in channels)
+        {
+            await DeleteChannel(channel.Id);
+        }
     }
 }
 
@@ -136,7 +156,7 @@ public class CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> o
 
         try
         {
-            var new_channel_id = await discord.CreateChannel(defaultServerId, channelName, defaultCategoryId);
+            var new_channel_id = await discord.CreateChannel(defaultServerId, channelName, defaultCategoryId, notification.Group.Id);
             if (new_channel_id == null)
             {
                 logger.LogError("Could not create channel on {ServerId}.", defaultServerId);
@@ -149,6 +169,26 @@ public class CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> o
         catch (System.Exception e)
         {
             logger.LogError(e, "Error creating Discord channel for group {GroupId}", notification.Group.Id);
+        }
+    }
+}
+
+public class DeleteDiscordChannelOnGroupDisbanded(IOptions<DiscordServiceOptions> options, DiscordService discord, ILogger<DeleteDiscordChannelOnGroupDisbanded> logger) : INotificationHandler<GroupDisbanded>
+{
+    public async Task Handle(GroupDisbanded notification, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Group disbanded {groupId}", notification.GroupId.ToString());
+        var defaultServerId = ulong.Parse(options.Value.ServerId);
+        var defaultCategoryId = ulong.Parse(options.Value.GroupChannelCategoryId);
+        var channelName = notification.GroupId.ToString();
+
+        try
+        {
+            await discord.DeleteGroupChannels(notification.GroupId);
+        }
+        catch (System.Exception e)
+        {
+            logger.LogError(e, "Error deleting Discord channels for group {GroupId}", notification.GroupId);
         }
 
     }

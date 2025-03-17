@@ -8,5 +8,5 @@ public class Channel
     public required Server Server { get; init; }
     public ulong CategoryId { get; init; }
 
-    public Group? OwningGroup { get; init; }
+    public Guid? OwningGroupId { get; init; }
 }

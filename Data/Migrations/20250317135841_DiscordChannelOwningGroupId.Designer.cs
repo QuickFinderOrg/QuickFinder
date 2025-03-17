@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using group_finder.Data;
 
@@ -10,9 +11,11 @@ using group_finder.Data;
 namespace group_finder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250317135841_DiscordChannelOwningGroupId")]
+    partial class DiscordChannelOwningGroupId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -173,7 +176,7 @@ namespace group_finder.Migrations
                     b.Property<ulong>("CategoryId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid?>("OwningGroupId")
+                    b.Property<Guid>("OwningGroupId")
                         .HasColumnType("TEXT");
 
                     b.Property<ulong>("ServerId")
