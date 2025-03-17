@@ -1,4 +1,6 @@
 ﻿@page
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService authorizationService
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -13,4 +15,8 @@
             <li class="list-group-item"><a asp-page="@StudentRoutes.Groups()">My groups</a></li>
         </ul>
     </nav>
+    @if ((await authorizationService.AuthorizeAsync(User, "Student")).Succeeded)
+    {
+        <a href="https://discord.gg/W8twZqauKf" class="btn btn-primary mt-3">Join the QuickFinder Discord Server</a>
+    }
 </div>
