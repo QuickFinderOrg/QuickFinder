@@ -30,14 +30,8 @@ public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, Matchmakin
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
-        var users = await matchmaking.GetGroupMembers(id);
         await matchmaking.DeleteGroup(id);
-        Courses = await matchmaking.GetCourses();
-        var course = Courses[0];
-        foreach (var user in users)
-        {
-            await matchmaking.AddToWaitlist(user, course);
-        }
+        Course = await matchmaking.GetCourse(Course.Id);
         await LoadAsync();
         return Page();
     }
