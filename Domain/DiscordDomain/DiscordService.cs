@@ -129,6 +129,7 @@ public class CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> o
 {
     public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Group filled {groupId}", notification.Group.Id);
         var defaultServerId = ulong.Parse(options.Value.ServerId);
         var defaultCategoryId = ulong.Parse(options.Value.GroupChannelCategoryId);
         var channelName = notification.Group.Id.ToString();
@@ -136,6 +137,14 @@ public class CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> o
         try
         {
             var new_channel_id = await discord.CreateChannel(defaultServerId, channelName, defaultCategoryId);
+            if (new_channel_id == null)
+            {
+                logger.LogError("Could not create channel on {ServerId}.", defaultServerId);
+                return;
+            }
+
+            logger.LogInformation("Created new Discord channel {channelId} for group {groupId} in server {ServerId}", new_channel_id, notification.Group.Id, defaultServerId);
+
         }
         catch (System.Exception e)
         {
