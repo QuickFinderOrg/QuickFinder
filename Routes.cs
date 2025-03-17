@@ -14,7 +14,7 @@ public static class TeacherRoutes
 {
     public static string EditGroup() => "/Teacher/EditGroup";
     public static string CreateCourse() => "/Teacher/CreateCourse";
-    public static string CourseGroups() => "/Teacher/CourseOverview";
+    public static string CourseOverview() => "/Teacher/CourseOverview";
 }
 
 public static class AdminRoutes

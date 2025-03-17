@@ -15,45 +15,48 @@ public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, Matchmakin
     public bool AllowCustomSize { get; set; }
 
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(Guid id)
     {
-        await LoadAsync();
+        await LoadAsync(id);
         return Page();
     }
 
     public async Task<IActionResult> OnPostChangeCourseAsync()
     {
         Course = await matchmaking.GetCourse(Course.Id);
-        await LoadAsync();
-        return Page();
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
         await matchmaking.DeleteGroup(id);
         Course = await matchmaking.GetCourse(Course.Id);
-        await LoadAsync();
-        return Page();
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostChangeGroupSIzeAsync()
     {        
         await matchmaking.ChangeGroupSize(Course.Id, Course.GroupSize);
-        await LoadAsync();
-        return Page();
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostChangeCustomGroupSizeAsync()
     {
         await matchmaking.ChangeCustomGroupSize(Course.Id, AllowCustomSize);
-        await LoadAsync();
-        return Page();
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
-    public async Task LoadAsync()
+    public async Task LoadAsync(Guid courseId)
     {
         Courses = await matchmaking.GetCourses();
-        Course ??= Courses[0];
+        if (courseId == Guid.Empty)
+        {
+            Course = Courses[0];
+        }
+        else
+        {
+            Course = await matchmaking.GetCourse(courseId);
+        }
         var grouplist = await matchmaking.GetGroups(Course.Id);
         Groups = grouplist.ToList();
         AllowCustomSize = Course.AllowCustomSize;

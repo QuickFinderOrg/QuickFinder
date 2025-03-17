@@ -20,16 +20,14 @@ public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userSe
     {
         var user = await userService.GetUser(userId);
         await adminService.MakeTeacher(user);
-        await LoadAsync();
-        return Page();
+        return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostRemoveTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
         await adminService.RemoveTeacher(user);
-        await LoadAsync();
-        return Page();
+        return RedirectToPage();
     }
     public async Task LoadAsync()
     {

@@ -22,11 +22,11 @@ public class EditGroupModel(MatchmakingService matchmaking) : PageModel
             await matchmaking.RemoveUserFromGroup(userId, Group.Id);
             if (Members.Length == 1)
             {
-                return RedirectToPage(TeacherRoutes.CourseGroups());
+                return RedirectToPage(TeacherRoutes.CourseOverview());
             }
             await LoadAsync(groupId);   
         }
-        return Page();
+        return RedirectToPage(TeacherRoutes.EditGroup(), new { id = groupId });
     }
 
     public async Task LoadAsync(Guid id)

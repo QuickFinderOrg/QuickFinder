@@ -20,8 +20,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
     public async Task<IActionResult> OnPostMatchAsync()
     {
         await matchmaking.DoMatching();
-        await LoadAsync();
-        return Page();
+        return RedirectToPage();
 
     }
 
@@ -35,8 +34,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
         {
             await matchmaking.AddToWaitlist(user, course);
         }
-        await LoadAsync();
-        return Page();
+        return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
@@ -49,8 +47,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
         {
             await matchmaking.AddToWaitlist(user, course);
         }
-        await LoadAsync();
-        return Page();
+        return RedirectToPage();
     }
 
     public async Task LoadAsync()
