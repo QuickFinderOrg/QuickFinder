@@ -20,3 +20,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.show-on-hover:hover > .dropdown-menu {
+    display: block;
+}
+.show-on-hover > .dropdown-toggle::after {
+    pointer-events: none; /* Prevent accidental clicks on the toggle arrow */
+}

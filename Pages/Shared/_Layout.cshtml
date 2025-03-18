@@ -45,29 +45,50 @@
                         </li>
                         @if(isStudent)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Identity" asp-page="@StudentRoutes.Profile()">Profile</a>
-                            </li>  
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="@StudentRoutes.Preferences()">Preferences</a>
-                            </li>                          
-                        }
-                        @if(isAdmin)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="@AdminRoutes.Students()">Students</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="@AdminRoutes.UserOverview()">User overview</a>
+                            <li class="nav-item dropdown show-on-hover">
+                                <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" role="button" aria-expanded="false">
+                                    Student pages
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Identity" asp-page="@StudentRoutes.Profile()">Profile</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-page="@StudentRoutes.Preferences()">Preferences</a>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         @if(isTeacher || isAdmin)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="@TeacherRoutes.CourseOverview()">Course overview</a>
+                            <li class="nav-item dropdown show-on-hover">
+                                <a class="nav-link dropdown-toggle text-dark" id="teacherDropdown" role="button" aria-expanded="false">
+                                    Teacher pages
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-page="@TeacherRoutes.CourseOverview()">Course overview</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"  asp-page="@TeacherRoutes.CreateCourse()">Create new Course</a>
+                                    </li>
+                                </ul>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="@TeacherRoutes.CreateCourse()">Create new Course</a>
+                        }
+                        @if(isAdmin)
+                        {
+                            <li class="nav-item dropdown show-on-hover">
+                                <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" role="button" aria-expanded="false">
+                                    Admin pages
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <a class="dropdown-item"  asp-page="@AdminRoutes.Students()">Students</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"  asp-page="@AdminRoutes.UserOverview()">User overview</a>
+                                    </li>
+                                </ul>
                             </li>
                         }
                     </ul>
