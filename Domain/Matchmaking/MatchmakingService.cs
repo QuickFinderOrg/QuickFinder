@@ -26,30 +26,35 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return null;
     }
 
+    public Group CreateGroup(Ticket ticket, List<Group> groups)
+    {
+        var group = new Group(){ Preferences = ticket.User.Preferences, Course = ticket.Course };
+        if(ticket.Course.AllowCustomSize)
+        {
+            group.GroupLimit = ticket.User.Preferences.GroupSize;
+            db.Add(group);
+            groups.Add(group);                    
+        }
+        else
+        {
+            group.GroupLimit = ticket.Course.GroupSize;
+            db.Add(group);
+            groups.Add(group);
+        }
+        return group;
+    }
+
     public async Task DoMatching()
     {
         var events = new List<object>();
         // needs a queue of people waiting to match
-        var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
-        var groups = await db.Groups.Include(c => c.Members).Where(c => c.IsFull == false).ToListAsync();
+        var waitlist = await GetWaitlist();
+        var groups = await GetAvailableGroups();
+
         foreach (var ticket in waitlist)
         {
             var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
-            if (group == null)
-            {
-                if(ticket.Course.AllowCustomSize)
-                {
-                    group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course, GroupLimit = ticket.User.Preferences.GroupSize };
-                    db.Add(group);
-                    groups.Add(group);                    
-                }
-                else
-                {
-                    group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course, GroupLimit = ticket.Course.GroupSize };
-                    db.Add(group);
-                    groups.Add(group);
-                }
-            }
+            group ??= CreateGroup(ticket, groups);
 
             group.Members.Add(ticket.User);
             events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
@@ -83,7 +88,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public async Task<Ticket[]> GetWaitlist()
     {
-        return await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync();
+        return await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
     }
 
     /// <summary>
@@ -154,6 +159,11 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
     public async Task<Group[]> GetGroups(Guid id)
     {
         return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Course.Id == id).ToArrayAsync();
+    }
+
+    public async Task<List<Group>> GetAvailableGroups()
+    {
+        return await db.Groups.Include(c => c.Members).Where(c => c.IsFull == false).ToListAsync();
     }
 
     public async Task<Group> GetGroup(Guid groupId)
