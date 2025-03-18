@@ -16,7 +16,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
             if (ticket.WillAcceptGroup(group))
             {
                 var potentialGroup = new PotentialGroupVM() { Group = group };
-                foreach( var preference in group.Preferences )
+                foreach (var preference in group.Preferences)
                 {
                     if (ticket.User.Preferences.Contains(preference))
                     {
@@ -42,12 +42,12 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public Group AddGroup(Ticket ticket, List<Group> groups)
     {
-        var group = new Group(){ Preferences = ticket.User.Preferences, Course = ticket.Course };
-        if(ticket.Course.AllowCustomSize)
+        var group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
+        if (ticket.Course.AllowCustomSize)
         {
             group.GroupLimit = ticket.User.Preferences.GroupSize;
             db.Add(group);
-            groups.Add(group);                    
+            groups.Add(group);
         }
         else
         {
@@ -164,7 +164,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var course = await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
         course.AllowCustomSize = allowCustomSize;
         await db.SaveChangesAsync();
-    }    
+    }
 
 
     /// <summary>
@@ -214,9 +214,11 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var waitlist = await db.Tickets.Include(p => p.User).ToArrayAsync();
         db.RemoveRange(waitlist);
 
-
         var groups = await db.Groups.Include(g => g.Members).ToArrayAsync();
-        db.RemoveRange(groups);
+        foreach (var group in groups)
+        {
+            await QueueDeleteGroup(group);
+        }
 
         await db.SaveChangesAsync();
     }
@@ -224,10 +226,15 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
     public async Task DeleteGroup(Guid id)
     {
         var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == id) ?? throw new Exception("Group not found");
+        await QueueDeleteGroup(group);
+        await db.SaveChangesAsync();
+    }
+
+    private async Task QueueDeleteGroup(Group group)
+    {
         var disband_event = new GroupDisbanded() { GroupId = group.Id, Course = group.Course, Members = [.. group.Members] };
         db.Remove(group);
 
-        await db.SaveChangesAsync();
         await mediator.Publish(disband_event);
     }
 
