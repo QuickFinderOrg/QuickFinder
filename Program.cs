@@ -67,9 +67,12 @@ builder.Services.AddRazorPages(options =>
 });
 
 
-builder.Services.AddHostedService<DiscordClient>(); // handles starting and stopping the client
-builder.Services.AddSingleton<DiscordClient>();
-
+builder.Services.AddSingleton(provider =>
+{
+    var botClient = ActivatorUtilities.CreateInstance<DiscordClient>(provider);
+    botClient.StartClientAsync().GetAwaiter().GetResult();
+    return botClient;
+});
 builder.Services.AddScoped<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 
