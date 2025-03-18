@@ -80,6 +80,24 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         }
     }
 
+    public async Task<ulong?> GetDiscordId(string userId)
+    {
+        var user = await db.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return null;
+        }
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
+        var discordIdClaim = c.Find(c => c.Type == "DiscordId");
+        if (discordIdClaim == null)
+        {
+            return null;
+        }
+
+        return ulong.Parse(discordIdClaim.Value);
+    }
+
     public async Task<User[]> GetAllUsers()
     {
         return await userStore.Users.ToArrayAsync();
