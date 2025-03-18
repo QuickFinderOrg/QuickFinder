@@ -3,7 +3,6 @@ using group_finder.Data;
 using group_finder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace group_finder.Domain.DiscordDomain;
@@ -12,7 +11,7 @@ public class DiscordService
 {
     private readonly DiscordServiceOptions _options;
     private readonly ILogger<DiscordService> _logger;
-    private readonly IServiceProvider _serviceProvider; // Inject IServiceProvider
+    private readonly IServiceProvider _serviceProvider;
 
     public DiscordService(
         IOptions<DiscordServiceOptions> options,
@@ -26,7 +25,7 @@ public class DiscordService
         Client = client;
     }
 
-    public DiscordClient Client { get; } //No longer relies on injection
+    public DiscordClient Client { get; }
 
     public async Task<bool> SendDM(ulong userId, string message)
     {
