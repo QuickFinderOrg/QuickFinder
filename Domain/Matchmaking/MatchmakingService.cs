@@ -31,7 +31,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         var events = new List<object>();
         // needs a queue of people waiting to match
         var waitlist = await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
-        var groups = await db.Groups.Include(c => c.Members).ToListAsync();
+        var groups = await db.Groups.Include(c => c.Members).Where(c => c.IsFull == false).ToListAsync();
         foreach (var ticket in waitlist)
         {
             var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
