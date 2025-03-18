@@ -26,7 +26,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return null;
     }
 
-    public Group CreateGroup(Ticket ticket, List<Group> groups)
+    public Group AddGroup(Ticket ticket, List<Group> groups)
     {
         var group = new Group(){ Preferences = ticket.User.Preferences, Course = ticket.Course };
         if(ticket.Course.AllowCustomSize)
@@ -44,6 +44,22 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return group;
     }
 
+    public Task AddToGroup(Ticket ticket, Group group, List<object> events)
+    {
+        group.Members.Add(ticket.User);
+        events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
+
+        if (group.IsFull && group.IsComplete == false)
+        {
+            group.IsComplete = true;
+            events.Add(new GroupFilled() { Group = group });
+        }
+
+        // remove from waiting list
+        db.Remove(ticket);
+        return Task.CompletedTask;
+    }
+
     public async Task DoMatching()
     {
         var events = new List<object>();
@@ -54,19 +70,9 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         foreach (var ticket in waitlist)
         {
             var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
-            group ??= CreateGroup(ticket, groups);
+            group ??= AddGroup(ticket, groups);
 
-            group.Members.Add(ticket.User);
-            events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
-
-            if (group.IsFull && group.IsComplete == false)
-            {
-                group.IsComplete = true;
-                events.Add(new GroupFilled() { Group = group });
-            }
-
-            // remove from waiting list
-            db.Remove(ticket);
+            await AddToGroup(ticket, group, events);
         }
 
         await db.SaveChangesAsync();
@@ -163,7 +169,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public async Task<List<Group>> GetAvailableGroups()
     {
-        return await db.Groups.Include(c => c.Members).Where(c => c.IsFull == false).ToListAsync();
+        return await db.Groups.Include(c => c.Members).Where(c => c.IsComplete == false).ToListAsync();
     }
 
     public async Task<Group> GetGroup(Guid groupId)
