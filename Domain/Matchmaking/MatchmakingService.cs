@@ -8,19 +8,33 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 {
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
+        var potentialGroups = new List<PotentialGroupVM>();
         // other groups do exist
-
         foreach (var group in groups)
         {
             // is this the group for me?
             if (ticket.WillAcceptGroup(group))
             {
-                return group;
+                var potentialGroup = new PotentialGroupVM() { Group = group };
+                foreach( var preference in group.Preferences )
+                {
+                    if (ticket.User.Preferences.Contains(preference))
+                    {
+                        potentialGroup.Score++;
+                    }
+                }
+                potentialGroups.Add(potentialGroup);
             }
 
             // no: keep looking
         }
 
+        if (potentialGroups.Count > 0)
+        {
+            // sort by score
+            potentialGroups.Sort((a, b) => b.Score.CompareTo(a.Score));
+            return potentialGroups[0].Group;
+        }
         // no groups, make a new one.
         // or could not fit into any groups, make new one.
         return null;
@@ -259,6 +273,12 @@ public record class GroupVM
 public record class GroupMemberVM
 {
     public required string Name;
+}
+
+public record class PotentialGroupVM
+{
+    public required Group Group;
+    public int Score = 0;
 }
 
 public enum GroupMemberRemovedReason
