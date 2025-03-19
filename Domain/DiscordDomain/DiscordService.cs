@@ -1,4 +1,5 @@
 using Discord;
+using Discord.WebSocket;
 using group_finder.Data;
 using group_finder.Domain.Matchmaking;
 using MediatR;
@@ -7,29 +8,47 @@ using Microsoft.Extensions.Options;
 
 namespace group_finder.Domain.DiscordDomain;
 
-public class DiscordService
+public class DiscordService : IHostedService
 {
     private readonly DiscordServiceOptions _options;
     private readonly ILogger<DiscordService> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly DiscordSocketClient _client;
 
     public DiscordService(
         IOptions<DiscordServiceOptions> options,
         ILogger<DiscordService> logger,
         IServiceProvider serviceProvider,
-        DiscordClient client)
+        DiscordSocketClient client)
     {
         _options = options.Value;
         _logger = logger;
         _serviceProvider = serviceProvider;
-        Client = client;
+        _client = client;
+        client.MessageReceived += a => { logger.LogInformation("Discord bot recieved message {msg}", a.Content); return Task.CompletedTask; };
     }
 
-    public DiscordClient Client { get; }
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogTrace("Starting DiscordService.");
+        await _client.LoginAsync(TokenType.Bot, _options.BotToken);
+        _logger.LogTrace("Logged in to DiscordService.");
+        await _client.StartAsync();
+        _logger.LogInformation("DiscordService started.");
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogTrace("Stopping DiscordService.");
+        await _client.LogoutAsync();
+        _logger.LogTrace("Logged out of DiscordService.");
+        await _client.StopAsync();
+        _logger.LogInformation("DiscordService stopped.");
+    }
 
     public async Task<bool> SendDM(ulong userId, string message)
     {
-        var user = await Client.GetUserAsync(userId);
+        var user = await _client.GetUserAsync(userId);
         if (user == null)
         {
             _logger.LogError("User {userId} not found.", userId);
@@ -51,7 +70,7 @@ public class DiscordService
 
     public async Task<ulong?> CreateChannel(ulong serverId, string channelName, ulong? categoryId, Guid? owningGroup)
     {
-        var server = Client.GetGuild(serverId);
+        var server = _client.GetGuild(serverId);
         if (server == null)
         {
             return null;
@@ -77,7 +96,7 @@ public class DiscordService
 
     public async Task<ulong?> SetUserPermissionsOnChannel(ulong channelId, ulong userId)
     {
-        var server = Client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             _logger.LogError("Server not found '{userId}'", userId);
@@ -106,7 +125,7 @@ public class DiscordService
 
     public async Task<ulong?> DeleteChannel(ulong channelId)
     {
-        var server = Client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return null;
@@ -133,7 +152,7 @@ public class DiscordService
 
     public DiscordChannel[] GetChannels()
     {
-        var server = Client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return [];
@@ -159,7 +178,7 @@ public class DiscordService
 
     public async Task DeleteGroupChannels(Guid groupId)
     {
-        var server = Client.GetGuild(ulong.Parse(_options.ServerId));
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
             return;

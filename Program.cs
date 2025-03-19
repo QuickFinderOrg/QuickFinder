@@ -5,6 +5,7 @@ using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.DataProtection;
 using group_finder.Domain.DiscordDomain;
+using Discord.WebSocket;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,13 +68,9 @@ builder.Services.AddRazorPages(options =>
 });
 
 
-builder.Services.AddSingleton(provider =>
-{
-    var botClient = ActivatorUtilities.CreateInstance<DiscordClient>(provider);
-    botClient.StartClientAsync().GetAwaiter().GetResult();
-    return botClient;
-});
+builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddScoped<DiscordService>();
+builder.Services.AddHostedService<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 
 
