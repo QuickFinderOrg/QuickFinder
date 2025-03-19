@@ -25,7 +25,6 @@ public class DiscordService : IHostedService
         _logger = logger;
         _serviceProvider = serviceProvider;
         _client = client;
-        client.MessageReceived += a => { logger.LogInformation("Discord bot recieved message {msg}", a.Content); return Task.CompletedTask; };
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -35,6 +34,7 @@ public class DiscordService : IHostedService
         _logger.LogTrace("Logged in to DiscordService.");
         await _client.StartAsync();
         _logger.LogInformation("DiscordService started.");
+        _client.MessageReceived += OnMessageRecieved;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -44,6 +44,19 @@ public class DiscordService : IHostedService
         _logger.LogTrace("Logged out of DiscordService.");
         await _client.StopAsync();
         _logger.LogInformation("DiscordService stopped.");
+        _client.MessageReceived -= OnMessageRecieved;
+    }
+
+    private Task OnMessageRecieved(SocketMessage message)
+    {
+        if (message.Author.IsBot || message.Author.IsWebhook)
+        {
+            return Task.CompletedTask;
+        }
+
+        _logger.LogInformation("Discord bot recieved message from {name} ({id}) in {channel}\n {msg}", message.Author.GlobalName, message.Author.Id, message.Channel.Name, message.Content);
+
+        return Task.CompletedTask;
     }
 
     public async Task<bool> SendDM(ulong userId, string message)
