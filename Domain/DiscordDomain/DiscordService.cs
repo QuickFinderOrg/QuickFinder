@@ -190,6 +190,53 @@ public class DiscordService : IHostedService
         }
     }
 
+    public async Task<DiscordServerItem[]> GetCourseServer(Guid courseId)
+    {
+        // Create a new scope to resolve the DbContext
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var course = await dbContext.Courses.FindAsync(courseId);
+            if (course == null)
+            {
+                _logger.LogError("Course {courseId} not found", courseId);
+                return [];
+            }
+
+            var servers = await dbContext.DiscordServers.Include(server => server.Courses).Where(server => server.Courses.Contains(course)).ToArrayAsync();
+            return servers.Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name }).ToArray();
+        }
+    }
+
+    public async Task<bool> AddCourseServer(Guid courseId, ulong serverId)
+    {
+        // Create a new scope to resolve the DbContext
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var course = await dbContext.Courses.FindAsync(courseId);
+            if (course == null)
+            {
+                _logger.LogError("Course {courseId} not found", courseId);
+                return false;
+            }
+
+            var server = await dbContext.DiscordServers.Include(server => server.Courses).FirstOrDefaultAsync(server => server.Id == serverId);
+            if (server == null)
+            {
+                _logger.LogError("Server {serverId} not found", serverId);
+                return false;
+            }
+
+            server.Courses.Add(course);
+            await dbContext.SaveChangesAsync();
+
+            _logger.LogInformation("Added server {serverId} to course {courseId}", serverId, courseId);
+            return true;
+        }
+    }
+
     public async Task DeleteGroupChannels(Guid groupId)
     {
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
