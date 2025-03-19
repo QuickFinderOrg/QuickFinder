@@ -72,5 +72,19 @@ public class TestModel(ILogger<TestModel> logger, DiscordService discordBotServi
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostAddServerAsync(string serverId)
+    {
+
+
+        if (string.IsNullOrWhiteSpace("id"))
+        {
+            return RedirectToPage();
+        }
+
+        _logger.LogInformation("POST: test");
+        await discordBotService.AddServer(ulong.Parse(serverId));
+        return RedirectToPage();
+    }
+
 }
 

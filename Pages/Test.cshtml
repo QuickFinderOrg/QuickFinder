@@ -30,6 +30,13 @@
     <p>@server.Name (@server.Id)</p>
 }
 
+<form method="post" asp-page-handler="AddServer">
+    <input id="serverId" name="serverId" />
+    <button type="submit">
+        X
+    </button>
+</form>
+
 
 @foreach (var channel in discord.GetChannels())
 {

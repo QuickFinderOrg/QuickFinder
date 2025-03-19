@@ -237,6 +237,33 @@ public class DiscordService : IHostedService
         }
     }
 
+    public async Task AddServer(ulong serverId)
+    {
+        using var scope = _serviceProvider.CreateScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var existingServer = await dbContext.DiscordServers.FindAsync(serverId);
+        if (existingServer != null)
+        {
+            throw new InvalidOperationException($"Server {serverId} already exists in the database.");
+        }
+
+        var socket_server = _client.GetGuild(serverId) ?? throw new Exception($"Server {serverId} not found in Discord or Bot is not in the server.");
+
+        var server_name = socket_server.Name;
+        var new_server = new Server
+        {
+            Id = serverId,
+            Name = server_name
+        };
+
+        dbContext.DiscordServers.Add(new_server);
+        await dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Added new server {serverId} ({serverName}) to the database.", serverId, server_name);
+    }
+
     public async Task DeleteGroupChannels(Guid groupId)
     {
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
