@@ -103,7 +103,8 @@ public class DiscordService : IHostedService
             return null;
         }
 
-        var discord_user = server.GetUser(userId);
+        var discord_user = await _client.GetUserAsync(userId);
+
         if (discord_user == null)
         {
             _logger.LogError("User not found '{userId}'", userId);
