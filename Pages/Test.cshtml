@@ -25,33 +25,42 @@
 <p>@Model.TestResult</p>
 <p>Current Timestamp: @DateTime.Now</p>
 
-@foreach (var server in await discord.GetServerList())
-{
-    <p>@server.Name (@server.Id)</p>
-}
+<h2>Servers</h2>
+<section style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
 
-<form method="post" asp-page-handler="AddServer">
-    <input id="serverId" name="serverId" />
-    <button type="submit">
-        X
-    </button>
-</form>
+    @foreach (var server in await discord.GetServerList())
+    {
+        <p>@server.Name (@server.Id)</p>
+    }
+
+    <form method="post" asp-page-handler="AddServer">
+        <input id="serverId" name="serverId" />
+        <button type="submit">
+            Add
+        </button>
+    </form>
+</section>
+
+<h2>Channels</h2>
+
+<section style="border:  2px solid rgb(4, 174, 44); border-radius: 5px; padding: 4px;">
+    @foreach (var channel in discord.GetChannels())
+    {
+        <div style="display: flex;">
+            <p>@channel.Name (@channel.Id) @channel.Category</p>
+            <form method="post" asp-page-handler="DeleteChannel" asp-route-id="@channel.Id">
+                <button type="submit">
+                    X
+                </button>
+            </form>
+            <form method="post" asp-page-handler="SetChannelPermissions" asp-route-id="@channel.Id">
+                <button type="submit">
+                    Perms
+                </button>
+            </form>
+        </div>
 
 
-@foreach (var channel in discord.GetChannels())
-{
-    <div style="display: flex;">
-        <p>@channel.Name (@channel.Id) @channel.Category</p>
-        <form method="post" asp-page-handler="DeleteChannel" asp-route-id="@channel.Id">
-            <button type="submit">
-                X
-            </button>
-        </form>
-        <form method="post" asp-page-handler="SetChannelPermissions" asp-route-id="@channel.Id">
-            <button type="submit">
-                Perms
-            </button>
-        </form>
-    </div>
+    }
 
-}
+</section>
