@@ -21,7 +21,14 @@ namespace group_finder.Pages.Student
 
             [Required]
             [Display(Name = "Group Size")]
-            public uint GroupSize { get; set; }            
+            public uint GroupSize { get; set; }
+
+            public Languages[] SpokenLanguages { get; set; } = [];
+
+            [Required]
+            [Display(Name = "Languages")] 
+            public Languages[] SelectedLanguages { get; set; } = [];
+
         }
 
         public async Task LoadAsync(User user)
@@ -29,7 +36,8 @@ namespace group_finder.Pages.Student
             Input = new InputModel
             {
                 NewAvailability = user.Preferences.Availability,
-                GroupSize = user.Preferences.GroupSize
+                GroupSize = user.Preferences.GroupSize,
+                SpokenLanguages = user.Preferences.Language
             };
             await Task.CompletedTask;
         }
@@ -41,7 +49,6 @@ namespace group_finder.Pages.Student
             {
                 return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
             }
-
             await LoadAsync(user);
             return Page();
         }
@@ -62,6 +69,7 @@ namespace group_finder.Pages.Student
 
             user.Preferences.Availability = Input.NewAvailability;
             user.Preferences.GroupSize = Input.GroupSize;
+            user.Preferences.Language = Input.SelectedLanguages;
             await userManager.UpdateAsync(user);
 
             StatusMessage = "Your preferences have been updated.";

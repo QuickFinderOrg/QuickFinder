@@ -10,13 +10,15 @@
         <partial name="_StatusMessage" for="StatusMessage" />
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-            <label>
+            @* <label class="form-label">
                 Language
-                <select>
-                    <option>English</option>
-                    <option>Norwegian</option>
-                </select>
             </label>
+            <select class="form-control">
+                @foreach (var language in Model.Input.AvailableLanguages)
+                {
+                    <option>@language</option>
+                }
+            </select> *@
 
             <label asp-for="Input.NewAvailability" class="form-label"></label>
             <select asp-for="Input.NewAvailability" class="form-control">
@@ -27,6 +29,23 @@
 
             <label asp-for="Input.GroupSize" class="form-label"></label>
             <input asp-for="Input.GroupSize" class="form-control" type="number" min="2" max="20" />
+
+            <details>
+                <summary>Languages</summary>
+                @foreach (var language in Enum.GetValues<Languages>())
+                {
+                    if (Model.Input.SpokenLanguages.Contains(language))
+                    {
+                        <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked/> 
+                    }
+                    else
+                    {
+                        <input type="checkbox" value="@language" name="Input.SelectedLanguages" />
+                    }
+                    <label>@language</label>
+                }
+            </details>
+
             <button type="submit">Submit</button>
         </form>
     </div>

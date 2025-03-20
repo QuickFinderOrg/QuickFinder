@@ -14,7 +14,7 @@ public class User : IdentityUser
 public record class Preferences() : IEnumerable<KeyValuePair<string, object>>
 {
     public Availability Availability { get; set; } = Availability.Daytime;
-    public string Language = "English";
+    public Languages[] Language { get; set; } = [Languages.English];
     public uint GroupSize { get; set; } = 2;
 
     public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
@@ -31,4 +31,15 @@ public enum Availability
 {
     Daytime,
     Afternoons
+}
+
+public enum Languages
+{
+    English,
+    Norwegian,
+    Spanish,
+    French,
+    German,
+    Chinese,
+    Arabic
 }
