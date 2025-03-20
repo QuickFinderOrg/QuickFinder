@@ -78,10 +78,10 @@
     }
 </section>
 
-<h2>Bot Servers Your own</h2>
+<h2>servers that be added</h2>
 <section style="border:  2px solid rgb(4, 146, 174); border-radius: 5px; padding: 4px;">
 
-    @foreach (var server in discord.GetServersOwnedByUser((ulong)discordUserId))
+    @foreach (var server in discord.GetServersThatCanBeAdded((ulong)discordUserId))
     {
         <div style="display: flex;">
             <p>@server.Name (@server.Id)</p>

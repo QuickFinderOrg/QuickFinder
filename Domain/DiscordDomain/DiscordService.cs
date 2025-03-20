@@ -258,9 +258,28 @@ public class DiscordService : IHostedService
         var servers = _client.Guilds.Where(server => server.OwnerId == ownerDiscordId).Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name }).ToArray();
         return servers;
     }
+    /// <summary>
+    /// Get servers that are owned by the user and are not already in the database.
+    /// </summary>
+    /// <param name="ownerDiscordId"></param>
+    /// <returns></returns>
+    public DiscordServerItem[] GetServersThatCanBeAdded(ulong ownerDiscordId)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var existing_server_ids = db.DiscordServers.Select(server => server.Id).ToArray();
+
+        var servers = _client.Guilds
+                        .Where(server => server.OwnerId == ownerDiscordId)
+                        .Where(server => !existing_server_ids.Contains(server.Id))
+                        .Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
+                        .ToArray();
+        return servers;
+    }
 
     public async Task AddServer(ulong serverId)
     {
+        // TODO: check ownership before adding it.
         using var scope = _serviceProvider.CreateScope();
 
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
