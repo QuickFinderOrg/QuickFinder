@@ -27,6 +27,11 @@ public class DiscordModel(IConfiguration configuration, UserService userService,
             var tokenResponse = JsonSerializer.Deserialize<Dictionary<string, object>>(responseJSON) ?? throw new Exception("responseJSON");
             // within this token lies the power to surpass metal gear
             var token = tokenResponse["access_token"].ToString();
+            if (token is null)
+            {
+                TempData["AlertDanger"] = "Something failed. You are not logged in.";
+                return Redirect(StudentRoutes.Login());
+            }
 
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -35,7 +40,7 @@ public class DiscordModel(IConfiguration configuration, UserService userService,
 
             var identityDict = JsonSerializer.Deserialize<Dictionary<string, object>>(identityJSON) ?? throw new Exception("responseJSON");
 
-            var user = await userService.GetUserByDiscordId(identityDict["email"].ToString() ?? throw new Exception("email"), 
+            var user = await userService.GetUserByDiscordId(identityDict["email"].ToString() ?? throw new Exception("email"),
                                                             identityDict["id"].ToString() ?? throw new Exception("id"));
 
             user ??= await userService.CreateDiscordUser(
@@ -48,6 +53,7 @@ public class DiscordModel(IConfiguration configuration, UserService userService,
             if (user is not null)
             {
                 await signInManager.SignInAsync(user, true);
+                await userService.SetDiscordToken(user, token);
                 TempData["AlertSuccess"] = "You have been logged in.";
                 // Redirect to the home page or another page
                 return Redirect(StudentRoutes.Home());

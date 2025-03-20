@@ -55,6 +55,19 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         return user;
     }
 
+    public async Task SetDiscordToken(User user, string token)
+    {
+        await userManager.AddClaimAsync(user, new Claim("DiscordToken", token));
+    }
+
+    public async Task<string> GetDiscordToken(User user)
+    {
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
+        var discordTokenClaim = c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("Discord token not found");
+        return discordTokenClaim.Value;
+    }
+
     public async Task<User> GetUser(string userId)
     {
         return await db.Users.FindAsync(userId) ?? throw new Exception("User not found!");
