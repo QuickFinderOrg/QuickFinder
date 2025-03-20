@@ -2,9 +2,13 @@
 @model TestModel
 @using Domain.DiscordDomain
 @inject DiscordService discord
+@inject UserService userService
+@inject UserManager<User> userManager
 @{
     ViewData["Title"] = "Test";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
+    var user = await userManager.GetUserAsync(User);
+    var userServers = await userService.GetUserDiscordServers(user);
 }
 
 <h2>Test</h2>
@@ -24,6 +28,25 @@
 </form>
 <p>@Model.TestResult</p>
 <p>Current Timestamp: @DateTime.Now</p>
+
+<h2>Your Servers</h2>
+<section style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
+
+    @foreach (var server in userServers)
+    {
+        <div>
+            <p>@server.Name (@server.Id)</p>
+            <img src="@server.IconUrl" width="16px" height="16px" loading="lazy" alt="Server Icon" />
+        </div>
+    }
+
+    <form method="post" asp-page-handler="AddServer">
+        <input id="serverId" name="serverId" />
+        <button type="submit">
+            Add
+        </button>
+    </form>
+</section>
 
 <h2>Servers</h2>
 <section style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
