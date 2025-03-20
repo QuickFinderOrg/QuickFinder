@@ -18,9 +18,27 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
                 var potentialGroup = new PotentialGroupVM() { Group = group };
                 foreach (var preference in group.Preferences)
                 {
-                    if (ticket.User.Preferences.Contains(preference))
+                    // Check language preference
+                    // and give 0.5 score for each match
+                    if (preference.Key == "Language")
                     {
-                        potentialGroup.Score++;
+                        var languages = preference.Value as Languages[] ?? throw new Exception("No languages found");
+                        foreach(var language in languages)
+                        {
+                            if (ticket.User.Preferences.Language.Contains(language))
+                            {
+                                potentialGroup.Score += 0.5;
+                            }
+                        }
+                    }
+
+                    // Give 1 score for each match
+                    else
+                    {
+                        if (ticket.User.Preferences.Contains(preference))
+                        {
+                            potentialGroup.Score++;
+                        }
                     }
                 }
                 potentialGroups.Add(potentialGroup);
@@ -285,7 +303,7 @@ public record class GroupMemberVM
 public record class PotentialGroupVM
 {
     public required Group Group;
-    public int Score = 0;
+    public double Score = 0;
 }
 
 public enum GroupMemberRemovedReason
