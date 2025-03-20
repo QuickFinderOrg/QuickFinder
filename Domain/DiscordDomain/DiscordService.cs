@@ -237,6 +237,12 @@ public class DiscordService : IHostedService
         }
     }
 
+    public async Task<DiscordServerItem[]> GetBotServers()
+    {
+        var servers = _client.Guilds.Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name }).ToArray();
+        return servers;
+    }
+
     public async Task AddServer(ulong serverId)
     {
         using var scope = _serviceProvider.CreateScope();
@@ -287,6 +293,8 @@ public class DiscordService : IHostedService
             }
         }
     }
+
+    public string InviteURL => $"https://discord.com/oauth2/authorize?client_id={_options.ClientId}";
 }
 
 public record class DiscordChannel

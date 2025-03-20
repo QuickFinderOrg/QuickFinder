@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 using group_finder.Data;
 using group_finder.Domain.DiscordDomain;
 using group_finder.Domain.Matchmaking;
@@ -66,6 +67,45 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
         var discordTokenClaim = c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("Discord token not found");
         return discordTokenClaim.Value;
+    }
+
+
+    public async Task<List<DiscordServer>> GetUserDiscordServers(User user)
+    {
+        var discordToken = await GetDiscordToken(user);
+
+        if (string.IsNullOrEmpty(discordToken))
+        {
+            throw new Exception("Discord token not found for user");
+        }
+
+        using var httpClient = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/users/@me/guilds");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", discordToken);
+
+        var response = await httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Failed to fetch Discord servers: {response.StatusCode}");
+        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        var servers = System.Text.Json.JsonSerializer.Deserialize<List<DiscordServer>>(content) ?? throw new Exception("Failed to parse Discord servers");
+
+        return servers;
+    }
+
+    public class DiscordServer
+    {
+        [JsonPropertyName("id")]
+        public required string Id { get; set; }
+        [JsonPropertyName("name")]
+        public required string Name { get; set; }
+        [JsonPropertyName("icon")]
+        public required string Icon { get; set; }
+
+        public string IconUrl => $"https://cdn.discordapp.com/icons/{Id}/{Icon}.png";
     }
 
     public async Task<User> GetUser(string userId)

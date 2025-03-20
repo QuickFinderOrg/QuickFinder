@@ -2,9 +2,13 @@
 @model TestModel
 @using Domain.DiscordDomain
 @inject DiscordService discord
+@inject UserService userService
+@inject UserManager<User> userManager
 @{
     ViewData["Title"] = "Test";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
+    var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
+    var userServers = await userService.GetUserDiscordServers(user);
 }
 
 <h2>Test</h2>
@@ -25,7 +29,30 @@
 <p>@Model.TestResult</p>
 <p>Current Timestamp: @DateTime.Now</p>
 
-<h2>Servers</h2>
+
+
+<details>
+    <summary>
+        <h2 style="display: inline;">Your servers (@userServers.Count())</h2>
+    </summary>
+    @foreach (var server in userServers)
+    {
+        <div style="display: flex;">
+            <img src="@server.IconUrl" width="32px" height="32px" loading="lazy" alt="Server Icon" />
+            <p>@server.Name (@server.Id)</p>
+        </div>
+    }
+
+    <form method="post" asp-page-handler="AddServer">
+        <input id="serverId" name="serverId" />
+        <button type="submit">
+            Add
+        </button>
+    </form>
+</details>
+
+
+<h2>Course Servers</h2>
 <section style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
 
     @foreach (var server in await discord.GetServerList())
@@ -40,6 +67,24 @@
         </button>
     </form>
 </section>
+
+<h2>Bot Servers</h2>
+<section style="border:  2px solid rgb(174, 112, 4); border-radius: 5px; padding: 4px;">
+
+    @foreach (var server in await discord.GetBotServers())
+    {
+        <p>@server.Name (@server.Id)</p>
+    }
+
+    <form method="post" asp-page-handler="AddServer">
+        <input id="serverId" name="serverId" />
+        <button type="submit">
+            Add
+        </button>
+    </form>
+</section>
+
+<a href="@discord.InviteURL" target="_blank">Invite Bot</a>
 
 <h2>Channels</h2>
 
