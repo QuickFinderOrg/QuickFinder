@@ -7,7 +7,7 @@
 @{
     ViewData["Title"] = "Test";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
-    var user = await userManager.GetUserAsync(User);
+    var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var userServers = await userService.GetUserDiscordServers(user);
 }
 
