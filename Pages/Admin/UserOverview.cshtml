@@ -4,11 +4,22 @@
 @{
     ViewData["Title"] = "User Overview";
 }
+
 <div class="text-center">
-    <h1 class="display-4">Users</h1>
+    <h1 class="display-4">User Overview</h1>
+
+    <form asp-page-handler="Search" method="post" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search username..." asp-for="SearchQuery">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <h2>Users</h2>
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Username</th>
                 <th>Name</th>
                 <th>Actions</th>
             </tr>
@@ -17,9 +28,11 @@
             @foreach (var user in Model.Users)
             {
                 <tr>
+                    <td>@user.UserName</td>
                     <td>@await userService.GetName(user)</td>
                     <td>
                         <form asp-page-handler="MakeTeacher" method="post">
+                            <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                             <input hidden value="@user.Id" name="userId">
                             <button class="btn btn-primary">
                                 <i class="bi-check"></i>
@@ -31,10 +44,11 @@
         </tbody>
     </table>
 
-    <h1 class="display-4">Teachers</h1>
+    <h2>Teachers</h2>
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Username</th>
                 <th>Name</th>
                 <th>Actions</th>
             </tr>
@@ -43,9 +57,11 @@
             @foreach (var user in Model.Teachers)
             {
                 <tr>
+                    <td>@user.UserName</td>
                     <td>@await userService.GetName(user)</td>
                     <td>
                         <form asp-page-handler="RemoveTeacher" method="post">
+                            <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                             <input hidden value="@user.Id" name="userId">
                             <button class="btn btn-danger">
                                 <i class="bi-x"></i>
@@ -56,3 +72,4 @@
             }
         </tbody>
     </table>
+</div>

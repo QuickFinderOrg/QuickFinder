@@ -10,33 +10,51 @@ public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userSe
     public List<User> Users = [];
     public List<User> Teachers = [];
 
+    [BindProperty]
+    public string SearchQuery { get; set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync()
     {
-        await LoadAsync();
+        await LoadAsync(SearchQuery);
         return Page();
     }
 
-    public async Task<IActionResult> OnPostMakeTeacherAsync(string userId)
+    public async Task OnPostMakeTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
         await adminService.MakeTeacher(user);
-        return RedirectToPage();
+        await LoadAsync(SearchQuery);
     }
 
-    public async Task<IActionResult> OnPostRemoveTeacherAsync(string userId)
+    public async Task OnPostRemoveTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
         await adminService.RemoveTeacher(user);
-        return RedirectToPage();
+        await LoadAsync(SearchQuery);
     }
-    public async Task LoadAsync()
+
+    public async Task OnPostSearchAsync()
     {
+        await LoadAsync(SearchQuery);
+    }
+
+    public async Task LoadAsync(string searchQuery)
+    {
+        SearchQuery = searchQuery;
         var users = await userService.GetAllUsers();
-        
+
         foreach (User user in users)
         {
+            if (!string.IsNullOrEmpty(SearchQuery) 
+                && user.UserName != null 
+                && !user.UserName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) 
+                && !(await userService.GetName(user)).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             var isTeacher = await adminService.IsTeacher(user);
-            if(isTeacher)
+            if (isTeacher)
             {
                 Teachers.Add(user);
             }
@@ -44,7 +62,6 @@ public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userSe
             {
                 Users.Add(user);
             }
-
         }
         _logger.LogInformation("LoadAsync");
     }
