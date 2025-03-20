@@ -29,14 +29,17 @@
 <p>@Model.TestResult</p>
 <p>Current Timestamp: @DateTime.Now</p>
 
-<h2>Your Servers</h2>
-<section style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
 
+
+<details>
+    <summary>
+        <h2 style="display: inline;">Your servers (@userServers.Count())</h2>
+    </summary>
     @foreach (var server in userServers)
     {
-        <div>
+        <div style="display: flex;">
+            <img src="@server.IconUrl" width="32px" height="32px" loading="lazy" alt="Server Icon" />
             <p>@server.Name (@server.Id)</p>
-            <img src="@server.IconUrl" width="16px" height="16px" loading="lazy" alt="Server Icon" />
         </div>
     }
 
@@ -46,7 +49,8 @@
             Add
         </button>
     </form>
-</section>
+</details>
+
 
 <h2>Servers</h2>
 <section style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
