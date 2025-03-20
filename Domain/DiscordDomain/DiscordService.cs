@@ -35,6 +35,7 @@ public class DiscordService : IHostedService
         await _client.StartAsync();
         _logger.LogInformation("DiscordService started.");
         _client.MessageReceived += OnMessageRecieved;
+        _client.JoinedGuild += OnJoinedServer;
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -45,6 +46,7 @@ public class DiscordService : IHostedService
         await _client.StopAsync();
         _logger.LogInformation("DiscordService stopped.");
         _client.MessageReceived -= OnMessageRecieved;
+        _client.JoinedGuild -= OnJoinedServer;
     }
 
     private Task OnMessageRecieved(SocketMessage message)
@@ -55,6 +57,14 @@ public class DiscordService : IHostedService
         }
 
         _logger.LogInformation("Discord bot recieved message from {name} ({id}) in {channel}\n {msg}", message.Author.GlobalName, message.Author.Id, message.Channel.Name, message.Content);
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnJoinedServer(SocketGuild socketServer)
+    {
+
+        _logger.LogInformation("Discord bot invited to server {serverName} ({serverId}), owned by {username} {userId}", socketServer.Name, socketServer.Id, socketServer.Owner.GlobalName, socketServer.OwnerId);
 
         return Task.CompletedTask;
     }
@@ -237,9 +247,15 @@ public class DiscordService : IHostedService
         }
     }
 
-    public async Task<DiscordServerItem[]> GetBotServers()
+    public DiscordServerItem[] GetBotServers()
     {
         var servers = _client.Guilds.Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name }).ToArray();
+        return servers;
+    }
+
+    public DiscordServerItem[] GetServersOwnedByUser(ulong ownerDiscordId)
+    {
+        var servers = _client.Guilds.Where(server => server.OwnerId == ownerDiscordId).Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name }).ToArray();
         return servers;
     }
 

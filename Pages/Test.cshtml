@@ -9,6 +9,7 @@
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var userServers = await userService.GetUserDiscordServers(user);
+    var discordUserId = await userService.GetDiscordId(user.Id);
 }
 
 <h2>Test</h2>
@@ -71,17 +72,27 @@
 <h2>Bot Servers</h2>
 <section style="border:  2px solid rgb(174, 112, 4); border-radius: 5px; padding: 4px;">
 
-    @foreach (var server in await discord.GetBotServers())
+    @foreach (var server in discord.GetBotServers())
     {
         <p>@server.Name (@server.Id)</p>
     }
+</section>
 
-    <form method="post" asp-page-handler="AddServer">
-        <input id="serverId" name="serverId" />
-        <button type="submit">
-            Add
-        </button>
-    </form>
+<h2>Bot Servers Your own</h2>
+<section style="border:  2px solid rgb(4, 146, 174); border-radius: 5px; padding: 4px;">
+
+    @foreach (var server in discord.GetServersOwnedByUser((ulong)discordUserId))
+    {
+        <div style="display: flex;">
+            <p>@server.Name (@server.Id)</p>
+            <form method="post" asp-page-handler="AddServer" asp-route-serverId="@server.Id">
+                <button type="submit">
+                    Add
+                </button>
+            </form>
+        </div>
+    }
+
 </section>
 
 <a href="@discord.InviteURL" target="_blank">Invite Bot</a>
