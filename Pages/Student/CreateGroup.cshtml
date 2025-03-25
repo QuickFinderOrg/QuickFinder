@@ -1,0 +1,10 @@
+@page
+@model CreateGroupModel
+@{
+    ViewData["Title"] = "Create/Join Group";
+}
+
+@foreach (var group in Model.Groups)
+{
+    <div>@group.Id</div>
+}

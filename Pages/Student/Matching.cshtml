@@ -19,11 +19,13 @@
             {
                 <tr>
                     <td>@Course.Name</td>
-                    <td>
+                    <td class="d-flex justify-content-center gap-2">
                         <form method="post">
                             <input name="CourseId" hidden value="@Course.Id">
                             <button type="submit">Find Group</button>
                         </form>
+
+                        <a asp-page="@StudentRoutes.CreateGroup()" asp-route-id="@Course.Id"><button>Create Group</button></a>
                     </td>
                 </tr>
             }
