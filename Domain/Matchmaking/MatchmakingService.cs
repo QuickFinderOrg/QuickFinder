@@ -201,9 +201,13 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
 
     public async Task<List<Group>> GetAvailableGroups()
     {
-        return await db.Groups.Include(c => c.Members).Where(c => c.IsComplete == false).ToListAsync();
+        return await db.Groups.Include(g => g.Members).Where(g => g.IsComplete == false).ToListAsync();
     }
 
+    public async Task<Group[]> GetAvailableGroups(Guid id)
+    {
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Course.Id == id).Where(g => g.IsComplete == false).ToArrayAsync();
+    }
     public async Task<Group> GetGroup(Guid groupId)
     {
         var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");

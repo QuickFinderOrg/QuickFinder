@@ -10,13 +10,16 @@ public class CreateGroupModel(MatchmakingService matchmaking) : PageModel
     public Group[] Groups = [];
     public async Task<IActionResult> OnGetAsync(Guid Id)
     {
-        await LoadAsync(Id);
+        if (Id != Guid.Empty)
+        {
+            await LoadAsync(Id);   
+        }
         return Page();
     }
 
     public async Task LoadAsync(Guid Id)
     {
         Course = await matchmaking.GetCourse(Id);
-        Groups = await matchmaking.GetGroups(Id);
+        Groups = await matchmaking.GetAvailableGroups(Id);
     }
 }

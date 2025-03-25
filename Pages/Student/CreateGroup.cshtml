@@ -1,10 +1,56 @@
 @page
 @model CreateGroupModel
+@inject UserService userService;
 @{
     ViewData["Title"] = "Create/Join Group";
 }
+<div class="text-center">
+    @if (Model.Course is not null){
+    <h1>Groups for @Model.Course.Name</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Members</th>
+                <th>Complete</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
 
-@foreach (var group in Model.Groups)
-{
-    <div>@group.Id</div>
-}
+        <tbody>
+            @foreach (var group in Model.Groups)
+            {
+                <tr>
+                    <td>@group.Id</td>
+                    <td>@group.Course.Name</td>
+                    <td>
+                        @foreach (var member in group.Members)
+                        {
+                            <p>@await userService.GetName(member)</p>
+                        }
+                    </td>
+                    <td>
+                        <p>@group.Members.Count / @group.GroupLimit</p>
+                    </td>
+                    <td>
+                        <form asp-page-handler="JoinGroup" asp-route-id="@group.Id"  method="post">
+                            <button type="submit">Join Group</button>        
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <footer class="d-flex justify-content-center">
+        <form asp-page-handler="CreateGroup" method="post">
+            <button type="submit">Create Group</button>
+        </form>
+    </footer>
+    }
+    else {
+        <p>No course selected</p>
+        <a href="@StudentRoutes.Matching()">Go to available courses</a>
+    }
+</div>
