@@ -7,7 +7,7 @@
 <h4 class="text-center">Courses</h4>
 <form asp-page-handler="ChangeCourse" method="post">
     <select asp-for="Course.Id" class="form-control" onchange="this.form.submit()">
-        @foreach(var course in Model.Courses)
+        @foreach (var course in Model.Courses)
         {
             <option value="@course.Id">@course.Name</option>
         }
@@ -22,10 +22,15 @@
         <button class="btn btn-primary">Submit</button>
     </form>
 
-    <form asp-page-handler="ChangeCustomGroupSize" method="post" >
+    <form asp-page-handler="ChangeCustomGroupSize" method="post">
         <label asp-for="AllowCustomSize">Allow Custom Group Sizes?</label>
         <input asp-for="Course.Id" hidden />
         <input asp-for="AllowCustomSize" class="form-check-input" onchange="this.form.submit()" />
+    </form>
+
+    <form asp-page="/Teacher/AddServer" asp-route-CourseId="@Model.Course.Id" method="get">
+        <input name="CourseId" value="@Model.Course.Id" hidden />
+        <button class="btn btn-primary">Add Discord Server</button>
     </form>
 
     <h4>Groups</h4>
@@ -47,7 +52,7 @@
             </thead>
             <tbody>
                 @foreach (var group in Model.Groups)
-                {             
+                {
                     <tr>
                         <td>@group.Id</td>
                         <td>@group.Course.Name</td>
@@ -61,9 +66,10 @@
                             <p>@group.Members.Count / @group.GroupLimit</p>
                         </td>
                         <td>
-                            <form asp-page-handler="DeleteGroup" asp-route-id="@group.Id"  method="post">
+                            <form asp-page-handler="DeleteGroup" asp-route-id="@group.Id" method="post">
                                 <input asp-for="Course.Id" hidden />
-                                <a asp-page="@TeacherRoutes.EditGroup()" asp-route-id="@group.Id" asp-page-handler="EditGroup" class="btn btn-primary"><i class="bi-pencil"></i></a>
+                                <a asp-page="@TeacherRoutes.EditGroup()" asp-route-id="@group.Id" asp-page-handler="EditGroup"
+                                    class="btn btn-primary"><i class="bi-pencil"></i></a>
                                 <button class="btn btn-danger">
                                     <i class="bi-trash"></i>
                                 </button>
