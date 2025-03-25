@@ -21,6 +21,7 @@
 
 <!DOCTYPE html>
 <html lang="en" class="h-100">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,13 +30,14 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/group_finder.styles.css" asp-append-version="true" />
 </head>
+
 <body class="d-flex flex-column h-100 m-0">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="@StudentRoutes.Home()">QuickFinder</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -43,15 +45,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="@StudentRoutes.Home()">Home</a>
                         </li>
-                        @if(isStudent)
+                        @if (isStudent)
                         {
                             <li class="nav-item dropdown show-on-hover">
-                                <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" role="button" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" role="button"
+                                    aria-expanded="false">
                                     Student pages
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item" asp-area="Identity" asp-page="@StudentRoutes.Profile()">Profile</a>
+                                        <a class="dropdown-item" asp-area="Identity"
+                                            asp-page="@StudentRoutes.Profile()">Profile</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-page="@StudentRoutes.Preferences()">Preferences</a>
@@ -65,34 +69,41 @@
                                 </ul>
                             </li>
                         }
-                        @if(isTeacher || isAdmin)
+                        @if (isTeacher || isAdmin)
                         {
                             <li class="nav-item dropdown show-on-hover">
-                                <a class="nav-link dropdown-toggle text-dark" id="teacherDropdown" role="button" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-dark" id="teacherDropdown" role="button"
+                                    aria-expanded="false">
                                     Teacher pages
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item" asp-page="@TeacherRoutes.CourseOverview()">Course overview</a>
+                                        <a class="dropdown-item" asp-page="@TeacherRoutes.CourseOverview()">Course
+                                            overview</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item"  asp-page="@TeacherRoutes.CreateCourse()">Create new Course</a>
+                                        <a class="dropdown-item" asp-page="@TeacherRoutes.CreateCourse()">Create new
+                                            Course</a>
                                     </li>
                                 </ul>
                             </li>
                         }
-                        @if(isAdmin)
+                        @if (isAdmin)
                         {
                             <li class="nav-item dropdown show-on-hover">
-                                <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" role="button" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle text-dark" id="navbarDropdown" role="button"
+                                    aria-expanded="false">
                                     Admin pages
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item"  asp-page="@AdminRoutes.Students()">Students</a>
+                                        <a class="dropdown-item" asp-page="@AdminRoutes.Students()">Students</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item"  asp-page="@AdminRoutes.UserOverview()">User overview</a>
+                                        <a class="dropdown-item" asp-page="@AdminRoutes.UserOverview()">User overview</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-page="@AdminRoutes.Servers()">Server overview</a>
                                     </li>
                                 </ul>
                             </li>
@@ -123,4 +134,5 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

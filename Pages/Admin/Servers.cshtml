@@ -1,0 +1,34 @@
+@page
+@model ServersModel
+@{
+    ViewData["Title"] = "Discord Server Overview";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Discord Server Overview</h1>
+    <p class="lead">Here you can see all the servers that are connected to the application</p>
+    <a class="btn btn-primary" href="@Model.InviteURL" target="_blank">Invite Discord Bot</a>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var server in Model.Servers)
+            {
+                <tr>
+                    <td>@server.Id</td>
+                    <td>@server.Name</td>
+                    <td>
+                        ACTION
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

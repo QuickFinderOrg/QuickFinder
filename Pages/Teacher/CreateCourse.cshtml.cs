@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,18 +8,26 @@ namespace group_finder.Pages.Teacher;
 public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingService matchmakingService) : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
-    
-    [BindProperty]
-    public required string Name { get; set; }
 
     [BindProperty]
-    public required uint GroupSize { get; set; }
-    
+    [Required, Display(Name = "Course name")]
+    public string Name { get; set; } = String.Empty;
+
     [BindProperty]
-    public bool AllowCustomSize { get; set; }
+    [Required]
+    [Range(0, 20)]
+    public uint GroupSize { get; set; } = 4;
+
+    [BindProperty, Display(Name = "Allow custom group size")]
+    public bool AllowCustomSize { get; set; } = false;
 
     public async Task<IActionResult> OnPostAsync()
     {
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+
         _logger.LogDebug("Create new course {Name} with group size {GroupSize} and allow custom size {AllowCustomSize}", Name, GroupSize, AllowCustomSize);
         await matchmakingService.CreateCourse(Name, GroupSize, AllowCustomSize);
         return RedirectToPage();

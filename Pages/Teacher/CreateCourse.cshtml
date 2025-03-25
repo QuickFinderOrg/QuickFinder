@@ -4,20 +4,34 @@
     ViewData["Title"] = "Create Course";
 }
 
-<div class="text-center">
-<h1 class="display-4">Create Course</h1>   
-    <div>
-        <form method="post">
-            <label asp-for="@Model.Name">Course Name</label>
-            <input asp-for="Name" type="text" required />
 
-            <label asp-for="@Model.GroupSize">Choose Group Size limit</label>
-            <input asp-for="GroupSize" type="number" min="2" max="20" required />
+<h1 class="display-4">Create Course</h1>
+<p class="lead">Create a new course that students can form groups in.</p>
 
-            <label asp-for="@Model.AllowCustomSize">Allow Custom Group Sizes?</label>
-            <input asp-for="AllowCustomSize" class="form-check-input" />
+<form method="post" class="container">
+    <div class="row mb-3">
 
-            <button class="btn btn-primary" type="submit">Create</button>
-        </form>
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" type="text" required class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+
     </div>
-</div>
+
+    <div class="row mb-3">
+        <label asp-for="GroupSize" class="form-label">Choose Group Size limit</label>
+        <input asp-for="GroupSize" type="number" class="form-control" />
+        <span asp-validation-for="GroupSize" class="text-danger"></span>
+    </div>
+    <div class="row mb-3">
+        <div>
+            <input asp-for="AllowCustomSize" class="form-check-input" />
+            <label asp-for="AllowCustomSize" class="form-check-label"></label>
+            <span asp-validation-for="AllowCustomSize" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </div>
+</form>
