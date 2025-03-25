@@ -28,10 +28,17 @@
         <input asp-for="AllowCustomSize" class="form-check-input" onchange="this.form.submit()" />
     </form>
 
-    <form asp-page="/Teacher/AddServer" asp-route-CourseId="@Model.Course.Id" method="get">
-        <input name="CourseId" value="@Model.Course.Id" hidden />
-        <button class="btn btn-primary">Add Discord Server</button>
-    </form>
+    @if (Model.CourseDiscordServer == null)
+    {
+        <form asp-page="/Teacher/AddServer" asp-route-CourseId="@Model.Course.Id" method="get">
+            <input name="CourseId" value="@Model.Course.Id" hidden />
+            <button class="btn btn-primary">Add Discord Server</button>
+        </form>
+    }
+    else
+    {
+        <p>Discord Server connected (@Model.CourseDiscordServer.Name)</p>
+    }
 
     <h4>Groups</h4>
     @if (Model.Groups.Count() == 0)

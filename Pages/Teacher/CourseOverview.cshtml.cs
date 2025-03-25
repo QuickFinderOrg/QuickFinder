@@ -1,16 +1,20 @@
+using group_finder.Domain.DiscordDomain;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Teacher;
 
-public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, MatchmakingService matchmaking) : PageModel
+public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, MatchmakingService matchmaking, DiscordService discordService) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
     public List<Group> Groups = [];
     public Course[] Courses = [];
     [BindProperty]
-    public Course Course {get; set;} = default!;
+    public Course Course { get; set; } = default!;
+
+    public DiscordServerItem? CourseDiscordServer { get; set; }
+
     [BindProperty]
     public bool AllowCustomSize { get; set; }
 
@@ -35,7 +39,7 @@ public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, Matchmakin
     }
 
     public async Task<IActionResult> OnPostChangeGroupSIzeAsync()
-    {        
+    {
         await matchmaking.ChangeGroupSize(Course.Id, Course.GroupSize);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
@@ -58,6 +62,9 @@ public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, Matchmakin
             Course = await matchmaking.GetCourse(courseId);
         }
         var grouplist = await matchmaking.GetGroups(Course.Id);
+        var CourseDiscordServers = await discordService.GetCourseServer(Course.Id);
+        CourseDiscordServer = CourseDiscordServers.FirstOrDefault();
+
         Groups = grouplist.ToList();
         AllowCustomSize = Course.AllowCustomSize;
         _logger.LogInformation("LoadGroups");
