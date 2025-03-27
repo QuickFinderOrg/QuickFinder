@@ -10,15 +10,6 @@
         <partial name="_StatusMessage" for="StatusMessage" />
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-            @* <label class="form-label">
-                Language
-            </label>
-            <select class="form-control">
-                @foreach (var language in Model.Input.AvailableLanguages)
-                {
-                    <option>@language</option>
-                }
-            </select> *@
 
             <label asp-for="Input.NewAvailability" class="form-label"></label>
             <select asp-for="Input.NewAvailability" class="form-control">

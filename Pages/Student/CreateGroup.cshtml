@@ -35,6 +35,8 @@
                     </td>
                     <td>
                         <form asp-page-handler="JoinGroup" asp-route-id="@group.Id"  method="post">
+                            <input hidden asp-for="Course.Id">
+                            <input hidden name="groupId" value="@group.Id">
                             <button type="submit">Join Group</button>        
                         </form>
                     </td>

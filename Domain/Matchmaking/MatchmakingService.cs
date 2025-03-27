@@ -92,6 +92,20 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         return Task.CompletedTask;
     }
 
+    public async Task<Task> AddToGroup(User user, Group group, List<object> events)
+    {
+        group.Members.Add(user);
+        events.Add(new GroupMemberAdded() { User = user, Group = group });
+
+        if (group.IsFull && group.IsComplete == false)
+        {
+            group.IsComplete = true;
+            events.Add(new GroupFilled() { Group = group });
+        }
+
+        await db.SaveChangesAsync();
+        return Task.CompletedTask;
+    }
     public async Task DoMatching()
     {
         var events = new List<object>();
@@ -210,7 +224,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
     }
     public async Task<Group> GetGroup(Guid groupId)
     {
-        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
+        var group = await db.Groups.Include(g => g.Members).Include(g => g.Course).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         return group;
     }
 
