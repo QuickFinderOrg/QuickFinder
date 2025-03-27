@@ -9,7 +9,6 @@ namespace group_finder.Pages.Student;
 
 public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager) : PageModel
 {
-    private readonly ILogger<MatchingModel> _logger = logger;
     public Course[] Courses = [];
 
     public async Task OnGetAsync()
@@ -36,7 +35,7 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
             return Page();
         }
 
-        // TODO: Add a success message
+        logger.LogInformation("User {UserId} added to waitlist for course {CourseId}", user.Id, course.Id);
 
         return Redirect(StudentRoutes.Groups());
     }
