@@ -348,6 +348,10 @@ public class OnBeforeUserDelete(MatchmakingService matchmakingService) : INotifi
         await matchmakingService.RemoveUserFromWaitlist(user.Id);
 
         var groups = await matchmakingService.GetGroups(user);
-        await Task.WhenAll(groups.Select(group => matchmakingService.RemoveUserFromGroup(user.Id, group.Id, GroupMemberRemovedReason.UserAccountDeleted)));
+
+        foreach (var group in groups)
+        {
+            await matchmakingService.RemoveUserFromGroup(user.Id, group.Id, GroupMemberRemovedReason.UserAccountDeleted);
+        }
     }
 }
