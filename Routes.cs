@@ -8,6 +8,7 @@ public static class StudentRoutes
     public static string Matching() => "/Student/Matching";
     public static string Profile() => "/Account/Manage/Index";
     public static string Preferences() => "/Student/Preferences";
+    public static string JoinGroup() => "/Student/JoinGroup";
     public static string CreateGroup() => "/Student/CreateGroup";
 }
 
