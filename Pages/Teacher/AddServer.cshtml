@@ -1,0 +1,37 @@
+@page
+@model AddServerModel
+@{
+    ViewData["Title"] = "Add Discord Server to course";
+}
+
+
+<h1 class="display-4">Add</h1>
+
+<p>@Model.CourseId</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var server in Model.Servers)
+        {
+            <tr>
+                <td>@server.Name</td>
+                <td>
+                    <form method="post" asp-page="/Teacher/AddServer">
+                        <input type="hidden" name="serverId" value="@server.Id" />
+                        <input type="hidden" name="courseId" value="@Model.CourseId" />
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>Is your Server not in the list?</p>
+<a href="@Model.InviteURL" target="_blank">Invite our Discord bot</a>

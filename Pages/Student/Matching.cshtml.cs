@@ -24,10 +24,18 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         var course = Courses.First(c => c.Id == course_guid);
         if (course == null)
         {
+            PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
             return Page();
         }
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        await matchmakingService.AddToWaitlist(user, course);
+        var was_added_to_waitlist = await matchmakingService.AddToWaitlist(user, course);
+
+        if (!was_added_to_waitlist)
+        {
+            PageContext.ModelState.AddModelError(string.Empty, "You are already in the waitlist for this course.");
+            return Page();
+        }
+
         await matchmakingService.DoMatching();
 
         return Redirect(StudentRoutes.Groups());
@@ -36,6 +44,6 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
     public async Task LoadAsync()
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        Courses = await matchmakingService.GetCourses(user);  
+        Courses = await matchmakingService.GetCourses(user);
     }
 }

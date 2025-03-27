@@ -305,6 +305,34 @@ public class DiscordService : IHostedService
         _logger.LogInformation("Added new server {serverId} ({serverName}) to the database.", serverId, server_name);
     }
 
+    public async Task EnsureCourseServer(Guid courseId, ulong serverId)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var course = await db.Courses.FindAsync(courseId);
+        if (course == null)
+        {
+            throw new InvalidOperationException($"Course {courseId} not found.");
+        }
+
+        var server = await db.DiscordServers.FindAsync(serverId);
+        if (server == null)
+        {
+            var socket_server = _client.GetGuild(serverId) ?? throw new Exception($"Server {serverId} not found in Discord or Bot is not in the server.");
+            server = new Server { Id = serverId, Name = socket_server.Name };
+            db.Add(server);
+        }
+
+        if (!server.Courses.Contains(course))
+        {
+            server.Courses.Add(course);
+            await db.SaveChangesAsync();
+            _logger.LogInformation("Added server {serverId} to course {courseId}", serverId, courseId);
+        }
+
+    }
+
     public async Task DeleteGroupChannels(Guid groupId)
     {
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));

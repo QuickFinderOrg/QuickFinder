@@ -214,7 +214,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims);
 
-        var discordIdClaim = c.Find(c => c.Type == ClaimTypes.NameIdentifier);
+        var discordIdClaim = c.Find(c => c.Type == "DiscordId");
         var sendToEmailClaim = c.Find(c => c.Type == ClaimTypes.Email);
         if (discordIdClaim != null)
         {
