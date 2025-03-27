@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace group_finder.Domain.Matchmaking;
 
-public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
+public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
@@ -23,7 +23,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
                     if (preference.Key == "Language")
                     {
                         var languages = preference.Value as Languages[] ?? throw new Exception("No languages found");
-                        foreach(var language in languages)
+                        foreach (var language in languages)
                         {
                             if (ticket.User.Preferences.Language.Contains(language))
                             {
@@ -111,17 +111,19 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator)
         await Task.WhenAll(events.Select(e => mediator.Publish(e))); // Only publish after save
     }
 
-    public async Task AddToWaitlist(User user, Course course)
+    public async Task<bool> AddToWaitlist(User user, Course course)
     {
         var existing = await db.Tickets.Include(c => c.User).Include(c => c.Course).Where(t => t.User == user && t.Course == course).ToArrayAsync();
 
         if (existing.Length != 0)
         {
-            throw new Exception("User is already queued up for this course.");
+            logger.LogError("User '{userId}' is already queued up for course '{courseId}'", user.Id, course.Id);
+            return false;
         }
 
         db.Add(new Ticket() { User = user, Course = course });
         await db.SaveChangesAsync();
+        return true;
     }
 
     public async Task<Ticket[]> GetWaitlist()
