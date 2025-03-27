@@ -1,0 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace group_finder.Domain.Matchmaking;
+
+public sealed class MatchmakingOptions
+{
+    public const string Matchmaking = "Matchmaking";
+    [Required]
+    public string? Interval { get; set; }
+    public TimeSpan IntervalTimeSpan
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Interval))
+            {
+                return TimeSpan.Zero; // Or throw an exception, depending on your needs
+            }
+            return System.Xml.XmlConvert.ToTimeSpan(Interval);
+        }
+    }
+}

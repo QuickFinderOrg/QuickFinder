@@ -36,7 +36,7 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
             return Page();
         }
 
-        await matchmakingService.DoMatching();
+        // TODO: Add a success message
 
         return Redirect(StudentRoutes.Groups());
     }

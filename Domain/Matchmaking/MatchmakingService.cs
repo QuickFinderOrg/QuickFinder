@@ -106,7 +106,8 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         await db.SaveChangesAsync();
         return Task.CompletedTask;
     }
-    public async Task DoMatching()
+
+    public async Task DoMatching(CancellationToken cancellationToken = default)
     {
         var events = new List<object>();
         // needs a queue of people waiting to match
@@ -121,8 +122,12 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             await AddToGroup(ticket, group, events);
         }
 
-        await db.SaveChangesAsync();
-        await Task.WhenAll(events.Select(e => mediator.Publish(e))); // Only publish after save
+        await db.SaveChangesAsync(cancellationToken);
+
+        foreach (var e in events)
+        {
+            await mediator.Publish(e, cancellationToken);
+        }
     }
 
     public async Task<bool> AddToWaitlist(User user, Course course)
