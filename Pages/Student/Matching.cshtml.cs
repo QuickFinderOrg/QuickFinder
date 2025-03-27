@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Threading.Tasks;
 using group_finder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
