@@ -78,6 +78,10 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task<Group> CreateGroup(User user, Course course)
     {
+        if (await IsUserInGroup(user, course))
+        {
+            throw new Exception("User is already in group");
+        }
         var group = new Group() { Preferences = user.Preferences, Course = course };
         group.Members.Add(user);
 
@@ -211,6 +215,18 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
     }
 
+    public async Task<bool> IsUserInGroup(User user, Course course)
+    {
+        var groups = await GetGroups(user);
+        foreach (var group in groups)
+        {
+            if (group.Course == course)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     public async Task ChangeGroupSize(Guid courseId, uint newSize)
     {
         var course = await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");

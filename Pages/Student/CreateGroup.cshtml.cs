@@ -47,6 +47,12 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
         {
             Course = await matchmaking.GetCourse(courseId);
         }
+
+        if (await matchmaking.IsUserInGroup(user, Course))
+        {
+            return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
+        }
+
         await LoadAsync(user);
         return Page();
     }

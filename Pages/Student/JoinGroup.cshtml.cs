@@ -13,9 +13,14 @@ public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> us
     public Group[] Groups = [];
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
+        var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
         if (id != Guid.Empty)
         {
             await LoadAsync(id);   
+        }
+        if(await matchmaking.IsUserInGroup(user, Course))
+        {
+            return RedirectToPage(StudentRoutes.Groups());
         }
         return Page();
     }
