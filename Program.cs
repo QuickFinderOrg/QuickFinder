@@ -5,6 +5,7 @@ using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.DataProtection;
 using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Email;
 using Discord.WebSocket;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,4 +1,4 @@
-namespace QuickFinder;
+namespace QuickFinder.Email;
 
 public interface IEmailSender
 {

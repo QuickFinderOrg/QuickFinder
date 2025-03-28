@@ -3,7 +3,7 @@ using Mailjet.Client.Resources;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
-namespace QuickFinder;
+namespace QuickFinder.Email;
 
 public class MailJetEmailSender(IOptions<MailjetOptions> options) : IEmailSender
 {

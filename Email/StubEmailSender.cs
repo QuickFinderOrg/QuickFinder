@@ -1,4 +1,4 @@
-namespace QuickFinder;
+namespace QuickFinder.Email;
 
 public class StubEmailSender(ILogger<StubEmailSender> logger) : IEmailSender
 {
