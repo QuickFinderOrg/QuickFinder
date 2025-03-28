@@ -1,8 +1,8 @@
-using group_finder.Data;
+using QuickFinder.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {

@@ -1,4 +1,4 @@
-namespace group_finder.Domain.DiscordDomain;
+namespace QuickFinder.Domain.DiscordDomain;
 
 public class Channel : BaseEntity
 {

@@ -1,10 +1,10 @@
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Student;
+namespace QuickFinder.Pages.Student;
 
 public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> userManager) : PageModel
 {

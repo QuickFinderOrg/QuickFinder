@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Student
+namespace QuickFinder.Pages.Student
 {
     public class PreferencesModel(UserManager<User> userManager) : PageModel
     {
@@ -26,7 +26,7 @@ namespace group_finder.Pages.Student
             public Languages[] SpokenLanguages { get; set; } = [];
 
             [Required]
-            [Display(Name = "Languages")] 
+            [Display(Name = "Languages")]
             public Languages[] SelectedLanguages { get; set; } = [];
 
         }

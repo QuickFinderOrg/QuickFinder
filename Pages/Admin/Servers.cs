@@ -1,8 +1,8 @@
-using group_finder.Domain.DiscordDomain;
+using QuickFinder.Domain.DiscordDomain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Admin;
+namespace QuickFinder.Pages.Admin;
 
 public class ServersModel(ILogger<StudentsModel> logger, DiscordService discordService) : PageModel
 {

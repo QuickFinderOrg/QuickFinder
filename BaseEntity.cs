@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace group_finder;
+namespace QuickFinder;
 
 public abstract class BaseEntity
 {

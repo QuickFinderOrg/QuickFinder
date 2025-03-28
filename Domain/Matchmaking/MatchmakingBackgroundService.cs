@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingBackgroundService(ILogger<MatchmakingBackgroundService> logger, IServiceProvider serviceProvider, IOptions<MatchmakingOptions> options) : IHostedService, IDisposable
 {

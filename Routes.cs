@@ -1,4 +1,4 @@
-namespace group_finder;
+namespace QuickFinder;
 
 public static class StudentRoutes
 {

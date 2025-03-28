@@ -1,12 +1,12 @@
 
 using System.Security.Claims;
-using group_finder.Data;
-using group_finder.Domain.DiscordDomain;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Data;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace group_finder;
+namespace QuickFinder;
 
 class SeedDB(UserService userService, UserManager<User> userManager, ApplicationDbContext db, MatchmakingService matchmakingService, IOptions<DiscordServiceOptions> discordOptions)
 {

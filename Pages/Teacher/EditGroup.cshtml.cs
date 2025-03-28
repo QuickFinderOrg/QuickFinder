@@ -1,8 +1,8 @@
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Teacher;
+namespace QuickFinder.Pages.Teacher;
 
 public class EditGroupModel(MatchmakingService matchmaking) : PageModel
 {
@@ -24,7 +24,7 @@ public class EditGroupModel(MatchmakingService matchmaking) : PageModel
             {
                 return RedirectToPage(TeacherRoutes.CourseOverview());
             }
-            await LoadAsync(groupId);   
+            await LoadAsync(groupId);
         }
         return RedirectToPage(TeacherRoutes.EditGroup(), new { id = groupId });
     }
@@ -32,6 +32,6 @@ public class EditGroupModel(MatchmakingService matchmaking) : PageModel
     public async Task LoadAsync(Guid id)
     {
         Group = await matchmaking.GetGroup(id);
-        Members = Group.Members.ToArray();   
+        Members = Group.Members.ToArray();
     }
 }

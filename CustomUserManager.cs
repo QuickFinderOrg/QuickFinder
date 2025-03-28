@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace group_finder;
+namespace QuickFinder;
 
 public class CustomUserManager(
     IUserStore<User> store, // Replace User with your user type

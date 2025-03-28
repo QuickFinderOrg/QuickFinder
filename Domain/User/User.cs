@@ -1,9 +1,9 @@
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 
-namespace group_finder;
+namespace QuickFinder;
 
 public class User : IdentityUser
 {

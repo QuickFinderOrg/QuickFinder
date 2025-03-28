@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Student;
+namespace QuickFinder.Pages.Student;
 
 public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> userManager) : PageModel
 {
@@ -27,7 +27,7 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
         public Languages[] SpokenLanguages { get; set; } = [];
 
         [Required]
-        [Display(Name = "Languages")] 
+        [Display(Name = "Languages")]
         public Languages[] SelectedLanguages { get; set; } = [];
 
     }
@@ -50,7 +50,7 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
 
         if (await matchmaking.IsUserInGroup(user, Course))
         {
-            return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
+            return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
         }
 
         await LoadAsync(user);
@@ -86,6 +86,6 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
 
         await matchmaking.CreateGroup(user, Course);
 
-        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
+        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
 }

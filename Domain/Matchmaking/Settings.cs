@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
 public sealed class MatchmakingOptions
 {

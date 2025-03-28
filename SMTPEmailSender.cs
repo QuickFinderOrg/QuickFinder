@@ -1,7 +1,7 @@
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace group_finder;
+namespace QuickFinder;
 
 
 

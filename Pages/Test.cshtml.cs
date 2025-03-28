@@ -1,10 +1,10 @@
-﻿using group_finder.Domain.DiscordDomain;
+﻿using QuickFinder.Domain.DiscordDomain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages;
+namespace QuickFinder.Pages;
 
 [Authorize(Policy = "Admin")]
 public class TestModel(ILogger<TestModel> logger, DiscordService discordBotService, IWebHostEnvironment environment, UserService userService, UserManager<User> userManager) : PageModel

@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
 public record class GroupMemberAdded : BaseDomainEvent
 {

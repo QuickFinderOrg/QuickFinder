@@ -1,4 +1,4 @@
-namespace group_finder;
+namespace QuickFinder;
 
 public record class UserToBeDeleted : BaseDomainEvent
 {

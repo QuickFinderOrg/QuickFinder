@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-group_finder-ba524690-7388-451f-befc-6aee7d312add</UserSecretsId>
-    <RootNamespace>group_finder</RootNamespace>
+    <RootNamespace>QuickFinder</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

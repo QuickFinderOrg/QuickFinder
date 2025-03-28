@@ -1,9 +1,9 @@
-using group_finder.Domain.DiscordDomain;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Teacher;
+namespace QuickFinder.Pages.Teacher;
 
 public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, MatchmakingService matchmaking, DiscordService discordService) : PageModel
 {

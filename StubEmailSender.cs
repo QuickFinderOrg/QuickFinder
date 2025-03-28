@@ -1,4 +1,4 @@
-namespace group_finder;
+namespace QuickFinder;
 
 public class StubEmailSender(ILogger<StubEmailSender> logger) : IEmailSender
 {

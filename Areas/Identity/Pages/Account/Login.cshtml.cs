@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Areas.Identity.Pages.Account
+namespace QuickFinder.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {

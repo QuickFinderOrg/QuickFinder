@@ -1,10 +1,10 @@
-﻿using group_finder.Domain.DiscordDomain;
-using group_finder.Domain.Matchmaking;
+﻿using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
 
-namespace group_finder.Data;
+namespace QuickFinder.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IMediator mediator) : IdentityDbContext<User>(options)
 {
