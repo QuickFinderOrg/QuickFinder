@@ -2,13 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Areas.Identity.Pages.Account.Manage
@@ -105,7 +100,7 @@ namespace group_finder.Areas.Identity.Pages.Account.Manage
             bool NameValid = await _userService.UpdateName(user, Input.Name);
             if (!NameValid)
             {
-                
+
                 StatusMessage = "Error: Couldn't update name.";
                 await LoadAsync(user);
                 return Page();

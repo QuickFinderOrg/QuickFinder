@@ -237,13 +237,22 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
     }
 }
 
-public class NotifyUsersOnGroupFilled(UserService userService, DiscordService discordBot, ILogger<NotifyUsersOnGroupFilled> logger) : INotificationHandler<GroupFilled>
+public class NotifyUsersOnGroupFilled(UserService userService) : INotificationHandler<GroupFilled>
 {
     public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
     {
-        var names = await Task.WhenAll(notification.Group.Members.Select(userService.GetName));
+        var names = new List<string>();
+        foreach (var member in notification.Group.Members)
+        {
+            var name = await userService.GetName(member);
+            names.Add(name);
+        }
+
         var name_list = string.Join("", names.Select(name => $"- {name}(ID)\n"));
 
-        await Task.WhenAll(notification.Group.Members.Select(user => userService.NotifyUser(user, $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}")));
+        foreach (var member in notification.Group.Members)
+        {
+            await userService.NotifyUser(member, $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}");
+        }
     }
 }

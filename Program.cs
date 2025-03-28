@@ -10,7 +10,7 @@ using Discord.WebSocket;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DiscordServiceOptions>(builder.Configuration.GetSection(DiscordServiceOptions.Discord));
-
+builder.Services.Configure<MatchmakingOptions>(builder.Configuration.GetSection(MatchmakingOptions.Matchmaking));
 builder.Services.Configure<MailjetOptions>(builder.Configuration.GetSection(MailjetOptions.Mailjet));
 
 // Add services to the container.
@@ -72,7 +72,7 @@ builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddScoped<DiscordService>();
 builder.Services.AddHostedService<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
-
+builder.Services.AddHostedService<MatchmakingBackgroundService>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>

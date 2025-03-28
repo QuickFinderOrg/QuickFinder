@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace group_finder.Domain.Matchmaking;
 
 public class Ticket()
