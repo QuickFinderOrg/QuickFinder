@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Teacher;
+namespace QuickFinder.Pages.Teacher;
 
 public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingService matchmakingService) : PageModel
 {

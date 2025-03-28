@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages
+namespace QuickFinder.Pages
 {
     public class LoginModel() : PageModel
     {

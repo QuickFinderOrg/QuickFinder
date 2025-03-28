@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using group_finder.Data;
+using QuickFinder.Data;
 
 #nullable disable
 
-namespace group_finder.Migrations
+namespace QuickFinder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250307141623_AllowCustomSize")]
@@ -167,7 +167,7 @@ namespace group_finder.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Course", b =>
+            modelBuilder.Entity("QuickFinder.Domain.Matchmaking.Course", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -188,7 +188,7 @@ namespace group_finder.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
+            modelBuilder.Entity("QuickFinder.Domain.Matchmaking.Group", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -210,7 +210,7 @@ namespace group_finder.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
+            modelBuilder.Entity("QuickFinder.Domain.Matchmaking.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,7 +231,7 @@ namespace group_finder.Migrations
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("group_finder.User", b =>
+            modelBuilder.Entity("QuickFinder.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -297,13 +297,13 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("GroupUser", b =>
                 {
-                    b.HasOne("group_finder.Domain.Matchmaking.Group", null)
+                    b.HasOne("QuickFinder.Domain.Matchmaking.Group", null)
                         .WithMany()
                         .HasForeignKey("GroupsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("group_finder.User", null)
+                    b.HasOne("QuickFinder.User", null)
                         .WithMany()
                         .HasForeignKey("MembersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -321,7 +321,7 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("group_finder.User", null)
+                    b.HasOne("QuickFinder.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -330,7 +330,7 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("group_finder.User", null)
+                    b.HasOne("QuickFinder.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -345,7 +345,7 @@ namespace group_finder.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("group_finder.User", null)
+                    b.HasOne("QuickFinder.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -354,22 +354,22 @@ namespace group_finder.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("group_finder.User", null)
+                    b.HasOne("QuickFinder.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Group", b =>
+            modelBuilder.Entity("QuickFinder.Domain.Matchmaking.Group", b =>
                 {
-                    b.HasOne("group_finder.Domain.Matchmaking.Course", "Course")
+                    b.HasOne("QuickFinder.Domain.Matchmaking.Course", "Course")
                         .WithMany("Groups")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("group_finder.Preferences", "Preferences", b1 =>
+                    b.OwnsOne("QuickFinder.Preferences", "Preferences", b1 =>
                         {
                             b1.Property<Guid>("GroupId")
                                 .HasColumnType("TEXT");
@@ -391,15 +391,15 @@ namespace group_finder.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Ticket", b =>
+            modelBuilder.Entity("QuickFinder.Domain.Matchmaking.Ticket", b =>
                 {
-                    b.HasOne("group_finder.Domain.Matchmaking.Course", "Course")
+                    b.HasOne("QuickFinder.Domain.Matchmaking.Course", "Course")
                         .WithMany("Tickets")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("group_finder.User", "User")
+                    b.HasOne("QuickFinder.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
@@ -408,9 +408,9 @@ namespace group_finder.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("group_finder.User", b =>
+            modelBuilder.Entity("QuickFinder.User", b =>
                 {
-                    b.OwnsOne("group_finder.Preferences", "Preferences", b1 =>
+                    b.OwnsOne("QuickFinder.Preferences", "Preferences", b1 =>
                         {
                             b1.Property<string>("UserId")
                                 .HasColumnType("TEXT");
@@ -430,7 +430,7 @@ namespace group_finder.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("group_finder.Domain.Matchmaking.Course", b =>
+            modelBuilder.Entity("QuickFinder.Domain.Matchmaking.Course", b =>
                 {
                     b.Navigation("Groups");
 

@@ -1,11 +1,11 @@
-using group_finder.Domain.DiscordDomain;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Teacher;
+namespace QuickFinder.Pages.Teacher;
 
-public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService, MatchmakingService matchmakingService) : PageModel
+public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService) : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
     public DiscordServerItem[] Servers = [];

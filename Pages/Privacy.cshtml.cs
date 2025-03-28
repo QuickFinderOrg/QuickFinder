@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages;
+namespace QuickFinder.Pages;
 
 public class PrivacyModel(ILogger<PrivacyModel> logger) : PageModel
 {

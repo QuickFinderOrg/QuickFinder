@@ -1,8 +1,8 @@
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Admin;
+namespace QuickFinder.Pages.Admin;
 
 public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, UserService userService) : PageModel
 {

@@ -1,8 +1,8 @@
-using group_finder.Data;
+using QuickFinder.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {
@@ -98,15 +98,15 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return group;
     }
 
-    public Task AddToGroup(Ticket ticket, Group group, List<object> events)
+    public Task AddToGroup(Ticket ticket, Group group)
     {
         group.Members.Add(ticket.User);
-        events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
+        group.Events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
 
         if (group.IsFull && group.IsComplete == false)
         {
             group.IsComplete = true;
-            events.Add(new GroupFilled() { Group = group });
+            group.Events.Add(new GroupFilled() { Group = group });
         }
 
         // remove from waiting list
@@ -114,7 +114,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return Task.CompletedTask;
     }
 
-    public async Task<Task> AddToGroup(User user, Group group, List<object> events)
+    public async Task<Task> AddToGroup(User user, Group group)
     {
         if (group.Members.Contains(user))
         {
@@ -122,12 +122,12 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             return Task.CompletedTask;
         }
         group.Members.Add(user);
-        events.Add(new GroupMemberAdded() { User = user, Group = group });
+        group.Events.Add(new GroupMemberAdded() { User = user, Group = group });
 
         if (group.IsFull && group.IsComplete == false)
         {
             group.IsComplete = true;
-            events.Add(new GroupFilled() { Group = group });
+            group.Events.Add(new GroupFilled() { Group = group });
         }
 
         await db.SaveChangesAsync();
@@ -136,7 +136,6 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
-        var events = new List<object>();
         // needs a queue of people waiting to match
         var waitlist = await GetWaitlist();
         var groups = await GetAvailableGroups();
@@ -146,15 +145,10 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
             group ??= CreateGroup(ticket, groups);
 
-            await AddToGroup(ticket, group, events);
+            await AddToGroup(ticket, group);
         }
 
         await db.SaveChangesAsync(cancellationToken);
-
-        foreach (var e in events)
-        {
-            await mediator.Publish(e, cancellationToken);
-        }
     }
 
     public async Task<bool> AddToWaitlist(User user, Course course)

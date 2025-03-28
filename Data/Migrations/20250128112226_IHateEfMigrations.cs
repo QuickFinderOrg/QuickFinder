@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace group_finder.Migrations
+namespace QuickFinder.Migrations
 {
     /// <inheritdoc />
     public partial class IHateEfMigrations : Migration

@@ -1,12 +1,12 @@
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace group_finder.Pages.Student;
+namespace QuickFinder.Pages.Student;
 
-public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> userManager, IMediator mediator) : PageModel
+public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> userManager) : PageModel
 {
     [BindProperty]
     public Course Course { get; set; } = default!;
@@ -16,9 +16,9 @@ public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> us
         var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
         if (id != Guid.Empty)
         {
-            await LoadAsync(id);   
+            await LoadAsync(id);
         }
-        if(await matchmaking.IsUserInGroup(user, Course))
+        if (await matchmaking.IsUserInGroup(user, Course))
         {
             return RedirectToPage(StudentRoutes.Groups());
         }
@@ -27,20 +27,14 @@ public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> us
 
     public async Task<IActionResult> OnPostJoinGroupAsync(Guid groupId)
     {
-        var events = new List<object>();
         var user = await userManager.GetUserAsync(User);
         var group = await matchmaking.GetGroup(groupId);
         if (user is not null)
         {
-            await matchmaking.AddToGroup(user, group, events);
+            await matchmaking.AddToGroup(user, group);
         }
 
-        foreach (var e in events)
-        {
-            await mediator.Publish(e);
-        }
-
-        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
+        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostLeaveGroupAsync(Guid groupId)
@@ -48,7 +42,7 @@ public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> us
         var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
         var group = await matchmaking.GetGroup(groupId);
         await matchmaking.RemoveUserFromGroup(user.Id, group.Id);
-        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
+        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
 
     public IActionResult OnPostCreateGroup()

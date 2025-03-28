@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using group_finder.Data;
-using group_finder;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Data;
+using QuickFinder;
+using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.DataProtection;
-using group_finder.Domain.DiscordDomain;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Email;
 using Discord.WebSocket;
 
 var builder = WebApplication.CreateBuilder(args);

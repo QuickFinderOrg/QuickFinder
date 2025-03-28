@@ -1,11 +1,10 @@
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
-public class Ticket()
+public class Ticket() : BaseEntity
 {
     public Guid Id { get; init; }
     public required User User { get; init; }
     public required Course Course { get; init; }
-
 
     public bool WillAcceptGroup(Group group)
     {

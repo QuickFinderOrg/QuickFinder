@@ -1,8 +1,6 @@
-using MediatR;
+namespace QuickFinder;
 
-namespace group_finder;
-
-public class UserToBeDeleted : INotification
+public record class UserToBeDeleted : BaseDomainEvent
 {
     public required User User;
 }

@@ -1,9 +1,7 @@
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace group_finder;
-
-
+namespace QuickFinder.Email;
 
 public class SMTPEmailSender(ILogger<StubEmailSender> logger) : IEmailSender
 {

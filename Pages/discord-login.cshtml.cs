@@ -1,12 +1,12 @@
 using System.Net.Http.Headers;
 using System.Text;
-using group_finder.Domain.DiscordDomain;
+using QuickFinder.Domain.DiscordDomain;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
-namespace group_finder.Pages
+namespace QuickFinder.Pages
 {
     public class DiscordLoginModel(IOptions<DiscordServiceOptions> options) : PageModel
     {

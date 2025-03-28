@@ -1,6 +1,6 @@
-namespace group_finder.Domain.DiscordDomain;
+namespace QuickFinder.Domain.DiscordDomain;
 
-public class Channel
+public class Channel : BaseEntity
 {
     public required ulong Id { get; init; }
     public required Server Server { get; init; }

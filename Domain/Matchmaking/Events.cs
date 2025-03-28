@@ -1,20 +1,20 @@
 using MediatR;
 
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
-public class GroupMemberAdded : INotification
+public record class GroupMemberAdded : BaseDomainEvent
 {
     public required User User;
     public required Group Group;
 }
 
-public class GroupMemberLeft : INotification
+public record class GroupMemberLeft : BaseDomainEvent
 {
     public required User User;
     public required Group Group;
 }
 
-public class GroupDisbanded : INotification
+public record class GroupDisbanded : BaseDomainEvent
 {
     public required Guid GroupId;
     public required Course Course;
@@ -24,12 +24,12 @@ public class GroupDisbanded : INotification
 /// <summary>
 /// Fired only the first time a group is filled
 /// </summary>
-public class GroupFilled : INotification
+public record class GroupFilled : BaseDomainEvent
 {
     public required Group Group;
 }
 
-public class GroupEmpty : INotification
+public record class GroupEmpty : BaseDomainEvent
 {
     public required Guid GroupId;
 }

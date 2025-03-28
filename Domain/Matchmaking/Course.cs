@@ -1,6 +1,6 @@
-namespace group_finder.Domain.Matchmaking;
+namespace QuickFinder.Domain.Matchmaking;
 
-public class Course()
+public class Course() : BaseEntity
 {
     public Guid Id { get; init; }
     public required string Name { get; set; } = "Course";

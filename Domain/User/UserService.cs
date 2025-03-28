@@ -1,14 +1,14 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-using group_finder.Data;
-using group_finder.Domain.DiscordDomain;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Data;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace group_finder;
+namespace QuickFinder;
 
 public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordService discord, IEmailSender emailSender)
 {

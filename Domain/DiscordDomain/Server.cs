@@ -1,8 +1,8 @@
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
 
-namespace group_finder.Domain.DiscordDomain;
+namespace QuickFinder.Domain.DiscordDomain;
 
-public class Server
+public class Server : BaseEntity
 {
     public ulong Id { get; init; }
     /// <summary>

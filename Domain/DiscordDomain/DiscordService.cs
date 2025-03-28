@@ -1,12 +1,12 @@
 using Discord;
 using Discord.WebSocket;
-using group_finder.Data;
-using group_finder.Domain.Matchmaking;
+using QuickFinder.Data;
+using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace group_finder.Domain.DiscordDomain;
+namespace QuickFinder.Domain.DiscordDomain;
 
 public class DiscordService : IHostedService
 {

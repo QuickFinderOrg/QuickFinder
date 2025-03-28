@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 
-namespace group_finder.Pages;
+namespace QuickFinder.Pages;
 
 public class DiscordModel(IConfiguration configuration, UserService userService, SignInManager<User> signInManager) : PageModel
 {
