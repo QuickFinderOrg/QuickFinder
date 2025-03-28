@@ -83,8 +83,10 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
             return Page();
         }
 
+        var groupPreferences = new Preferences() 
+        { Availability = Input.NewAvailability, GroupSize = Input.GroupSize, Language = Input.SelectedLanguages};
 
-        await matchmaking.CreateGroup(user, Course);
+        await matchmaking.CreateGroup(user, Course, groupPreferences);
 
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
     }

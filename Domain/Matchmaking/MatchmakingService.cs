@@ -76,17 +76,20 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return group;
     }
 
-    public async Task<Group> CreateGroup(User user, Course course)
+    public async Task<Group> CreateGroup(User user, Course course, Preferences groupPreferences)
     {
         if (await IsUserInGroup(user, course))
         {
             throw new Exception("User is already in group");
         }
-        var group = new Group() { Preferences = user.Preferences, Course = course };
+        var group = new Group() { Preferences = groupPreferences, Course = course };
         group.Members.Add(user);
 
-        if (!course.AllowCustomSize)
+        if (course.AllowCustomSize)
         {
+            group.GroupLimit = groupPreferences.GroupSize;
+        }
+        else {
             group.GroupLimit = course.GroupSize;
         }
 
