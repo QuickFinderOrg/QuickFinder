@@ -38,9 +38,17 @@ public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> us
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
     }
 
+    public async Task<IActionResult> OnPostLeaveGroupAsync(Guid groupId)
+    {
+        var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
+        var group = await matchmaking.GetGroup(groupId);
+        await matchmaking.RemoveUserFromGroup(user.Id, group.Id);
+        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id});
+    }
+
     public IActionResult OnPostCreateGroup()
     {
-        return RedirectToPage(StudentRoutes.CreateGroup(), new { id = Course.Id });
+        return RedirectToPage(StudentRoutes.CreateGroup(), new { courseId = Course.Id });
     }
 
     public async Task LoadAsync(Guid id)

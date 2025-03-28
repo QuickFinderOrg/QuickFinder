@@ -58,7 +58,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return null;
     }
 
-    public Group AddGroup(Ticket ticket, List<Group> groups)
+    public Group CreateGroup(Ticket ticket, List<Group> groups)
     {
         var group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
         if (ticket.Course.AllowCustomSize)
@@ -73,6 +73,21 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             db.Add(group);
             groups.Add(group);
         }
+        return group;
+    }
+
+    public async Task<Group> CreateGroup(User user, Course course)
+    {
+        var group = new Group() { Preferences = user.Preferences, Course = course };
+        group.Members.Add(user);
+
+        if (!course.AllowCustomSize)
+        {
+            group.GroupLimit = course.GroupSize;
+        }
+
+        db.Add(group);
+        await db.SaveChangesAsync();
         return group;
     }
 
@@ -94,6 +109,11 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task<Task> AddToGroup(User user, Group group, List<object> events)
     {
+        if (group.Members.Contains(user))
+        {
+            logger.LogError("User '{userId}' is already in group '{groupId}'", user.Id, group.Id);
+            return Task.CompletedTask;
+        }
         group.Members.Add(user);
         events.Add(new GroupMemberAdded() { User = user, Group = group });
 
@@ -116,7 +136,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         foreach (var ticket in waitlist)
         {
             var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
-            group ??= AddGroup(ticket, groups);
+            group ??= CreateGroup(ticket, groups);
 
             await AddToGroup(ticket, group, events);
         }

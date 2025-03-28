@@ -1,8 +1,11 @@
 @page
 @model JoinGroupModel
+@inject UserManager<User> userManager
 @inject UserService userService;
 @{
     ViewData["Title"] = "Join Group";
+
+    var user = await userManager.GetUserAsync(User);
 }
 <div class="text-center">
     @if (Model.Course is not null){
@@ -34,11 +37,21 @@
                         <p>@group.Members.Count / @group.GroupLimit</p>
                     </td>
                     <td>
-                        <form asp-page-handler="JoinGroup" asp-route-id="@group.Id"  method="post">
-                            <input hidden asp-for="Course.Id">
-                            <input hidden name="groupId" value="@group.Id">
-                            <button type="submit">Join Group</button>        
-                        </form>
+                        @if (user is not null && !group.Members.Contains(user))
+                        {
+                            <form asp-page-handler="JoinGroup" asp-route-id="@group.Id"  method="post">
+                                <input hidden asp-for="Course.Id">
+                                <input hidden name="groupId" value="@group.Id">
+                                <button type="submit">Join Group</button>        
+                            </form>
+                        }
+                        else{
+                            <form asp-page-handler="LeaveGroup" asp-route-id="@group.Id"  method="post">
+                                <input hidden asp-for="Course.Id">
+                                <input hidden name="groupId" value="@group.Id">
+                                <button type="submit">Leave Group</button>        
+                            </form>                            
+                        }
                     </td>
                 </tr>
             }
