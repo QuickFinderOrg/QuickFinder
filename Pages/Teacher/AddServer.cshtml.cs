@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Teacher;
 
-public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService, MatchmakingService matchmakingService) : PageModel
+public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService) : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
     public DiscordServerItem[] Servers = [];

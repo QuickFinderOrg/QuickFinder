@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace group_finder.Pages.Student;
 
-public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> userManager, IMediator mediator) : PageModel
+public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> userManager) : PageModel
 {
     [BindProperty]
     public Course Course { get; set; } = default!;
