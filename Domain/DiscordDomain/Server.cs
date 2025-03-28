@@ -2,7 +2,7 @@ using group_finder.Domain.Matchmaking;
 
 namespace group_finder.Domain.DiscordDomain;
 
-public class Server
+public class Server : BaseEntity
 {
     public ulong Id { get; init; }
     /// <summary>

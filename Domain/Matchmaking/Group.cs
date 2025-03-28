@@ -1,6 +1,6 @@
 namespace group_finder.Domain.Matchmaking;
 
-public class Group()
+public class Group() : BaseEntity
 {
     public Guid Id { get; init; }
     public List<User> Members { get; } = [];
