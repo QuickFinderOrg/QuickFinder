@@ -1,5 +1,6 @@
 ﻿@page
 @model PreferencesModel
+@using QuickFinder.Domain.Matchmaking;
 @{
     ViewData["Title"] = "Preferences";
 }
@@ -10,24 +11,13 @@
         <partial name="_StatusMessage" for="StatusMessage" />
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-
-            <label asp-for="Input.NewAvailability" class="form-label"></label>
-            <select asp-for="Input.NewAvailability" class="form-control">
-                <option value="@Availability.Daytime">Day</option>
-                <option value="@Availability.Afternoons">Afternoon</option>
-            </select>
-            <span asp-validation-for="Input.NewAvailability" class="text-danger"></span>
-
-            <label asp-for="Input.GroupSize" class="form-label"></label>
-            <input asp-for="Input.GroupSize" class="form-control" type="number" min="2" max="20" />
-
             <details>
                 <summary>Languages</summary>
                 @foreach (var language in Enum.GetValues<Languages>())
                 {
                     if (Model.Input.SpokenLanguages.Contains(language))
                     {
-                        <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked/> 
+                        <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
                     }
                     else
                     {

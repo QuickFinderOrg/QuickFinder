@@ -1,5 +1,6 @@
 @page
 @model CreateGroupModel
+@using QuickFinder.Domain.Matchmaking;
 @inject UserService userService;
 @{
     ViewData["Title"] = "Create Group";
@@ -31,7 +32,7 @@
         {
             if (Model.Input.SpokenLanguages.Contains(language))
             {
-                <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked/> 
+                <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
             }
             else
             {

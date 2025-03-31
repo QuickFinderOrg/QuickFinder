@@ -16,31 +16,29 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             if (ticket.WillAcceptGroup(group))
             {
                 var potentialGroup = new PotentialGroupVM() { Group = group };
-                foreach (var preference in group.Preferences)
-                {
-                    // Check language preference
-                    // and give 0.5 score for each match
-                    if (preference.Key == "Language")
-                    {
-                        var languages = preference.Value as Languages[] ?? throw new Exception("No languages found");
-                        foreach (var language in languages)
-                        {
-                            if (ticket.User.Preferences.Language.Contains(language))
-                            {
-                                potentialGroup.Score += 0.5;
-                            }
-                        }
-                    }
 
-                    // Give 1 score for each match
-                    else
+                var languages = ticket.Preferences.Language;
+                var availability = ticket.Preferences.Availability;
+                var groupSize = ticket.Preferences.GroupSize;
+
+                foreach (var language in languages)
+                {
+                    if (ticket.Preferences.Language.Contains(language))
                     {
-                        if (ticket.User.Preferences.Contains(preference))
-                        {
-                            potentialGroup.Score++;
-                        }
+                        potentialGroup.Score += 0.5;
                     }
                 }
+
+                if (group.Preferences.GroupSize == groupSize)
+                {
+                    potentialGroup.Score += 1.0;
+                }
+
+                if (group.Preferences.Availability == availability)
+                {
+                    potentialGroup.Score += 1.0;
+                }
+
                 potentialGroups.Add(potentialGroup);
             }
 
@@ -60,10 +58,10 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public Group CreateGroup(Ticket ticket, List<Group> groups)
     {
-        var group = new Group() { Preferences = ticket.User.Preferences, Course = ticket.Course };
+        var group = new Group() { Preferences = ticket.Preferences, Course = ticket.Course };
         if (ticket.Course.AllowCustomSize)
         {
-            group.GroupLimit = ticket.User.Preferences.GroupSize;
+            group.GroupLimit = ticket.Preferences.GroupSize;
             db.Add(group);
             groups.Add(group);
         }
@@ -89,7 +87,8 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         {
             group.GroupLimit = groupPreferences.GroupSize;
         }
-        else {
+        else
+        {
             group.GroupLimit = course.GroupSize;
         }
 
@@ -161,14 +160,24 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             return false;
         }
 
-        db.Add(new Ticket() { User = user, Course = course });
+        var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p => p.User == user && p.Course == course);
+
+        if (course_prefs == null)
+        {
+            course_prefs = new CoursePreferences() { User = user, Course = course };
+            db.Add(course_prefs);
+        }
+
+        var full_preferences = Preferences.From(user.Preferences, course_prefs);
+
+        db.Add(new Ticket() { User = user, Course = course, Preferences = full_preferences });
         await db.SaveChangesAsync();
         return true;
     }
 
     public async Task<Ticket[]> GetWaitlist()
     {
-        return await db.Tickets.Include(t => t.User).Include(t => t.Course).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        return await db.Tickets.Include(t => t.User).Include(t => t.Course).Include(t => t.Preferences).ToArrayAsync() ?? throw new Exception("WAITLIST");
     }
 
     /// <summary>
@@ -245,32 +254,32 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     /// <returns></returns>
     public async Task<Group[]> GetGroups()
     {
-        return await db.Groups.Include(g => g.Members).Include(g => g.Course).ToArrayAsync();
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Include(g => g.Preferences).ToArrayAsync();
     }
 
     public async Task<Group[]> GetGroups(Guid id)
     {
-        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Course.Id == id).ToArrayAsync();
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Include(g => g.Preferences).Where(g => g.Course.Id == id).ToArrayAsync();
     }
 
     public async Task<List<Group>> GetAvailableGroups()
     {
-        return await db.Groups.Include(g => g.Members).Where(g => g.IsComplete == false).ToListAsync();
+        return await db.Groups.Include(g => g.Members).Include(g => g.Preferences).Where(g => g.IsComplete == false).ToListAsync();
     }
 
     public async Task<Group[]> GetAvailableGroups(Guid id)
     {
-        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Course.Id == id).Where(g => g.IsComplete == false).ToArrayAsync();
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Include(g => g.Preferences).Where(g => g.Course.Id == id).Where(g => g.IsComplete == false).ToArrayAsync();
     }
     public async Task<Group> GetGroup(Guid groupId)
     {
-        var group = await db.Groups.Include(g => g.Members).Include(g => g.Course).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
+        var group = await db.Groups.Include(g => g.Members).Include(g => g.Course).Include(g => g.Preferences).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         return group;
     }
 
     public async Task<User[]> GetGroupMembers(Guid groupId)
     {
-        var group = await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
+        var group = await db.Groups.Include(g => g.Members).Include(g => g.Course).FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         var users = group.Members.ToArray();
         return users;
     }
@@ -282,7 +291,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     /// <returns></returns>
     public async Task<Group[]> GetGroups(User user)
     {
-        return await db.Groups.Include(g => g.Members).Where(g => g.Members.Contains(user)).Include(g => g.Course).ToArrayAsync();
+        return await db.Groups.Include(g => g.Members).Include(g => g.Course).Where(g => g.Members.Contains(user)).Include(g => g.Course).ToArrayAsync();
     }
 
     public async Task Reset()

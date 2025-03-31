@@ -2,10 +2,11 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student
 {
-    public class PreferencesModel(UserManager<User> userManager) : PageModel
+    public class PreferencesModel(UserManager<User> userManager, UserService userService) : PageModel
     {
         [TempData]
         public string StatusMessage { get; set; } = null!;
@@ -15,14 +16,6 @@ namespace QuickFinder.Pages.Student
 
         public class InputModel
         {
-            [Required]
-            [Display(Name = "Availability")]
-            public Availability NewAvailability { get; set; }
-
-            [Required]
-            [Display(Name = "Group Size")]
-            public uint GroupSize { get; set; }
-
             public Languages[] SpokenLanguages { get; set; } = [];
 
             [Required]
@@ -33,12 +26,7 @@ namespace QuickFinder.Pages.Student
 
         public async Task LoadAsync(User user)
         {
-            Input = new InputModel
-            {
-                NewAvailability = user.Preferences.Availability,
-                GroupSize = user.Preferences.GroupSize,
-                SpokenLanguages = user.Preferences.Language
-            };
+            Input = new InputModel { SpokenLanguages = user.Preferences.Language };
             await Task.CompletedTask;
         }
 
@@ -67,8 +55,6 @@ namespace QuickFinder.Pages.Student
                 return Page();
             }
 
-            user.Preferences.Availability = Input.NewAvailability;
-            user.Preferences.GroupSize = Input.GroupSize;
             user.Preferences.Language = Input.SelectedLanguages;
             await userManager.UpdateAsync(user);
 

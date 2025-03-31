@@ -235,6 +235,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
         return true;
     }
+
 }
 
 public class NotifyUsersOnGroupFilled(UserService userService) : INotificationHandler<GroupFilled>

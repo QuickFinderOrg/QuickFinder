@@ -5,6 +5,7 @@ public class Ticket() : BaseEntity
     public Guid Id { get; init; }
     public required User User { get; init; }
     public required Course Course { get; init; }
+    public required Preferences Preferences { get; init; }
 
     public bool WillAcceptGroup(Group group)
     {
@@ -12,7 +13,7 @@ public class Ticket() : BaseEntity
         {
             return false;
         }
-        if (group.Preferences.Availability != User.Preferences.Availability)
+        if (group.Preferences.Availability != Preferences.Availability)
         {
             return false;
         }

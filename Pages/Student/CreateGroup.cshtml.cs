@@ -61,8 +61,8 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
     {
         Input = new InputModel
         {
-            NewAvailability = user.Preferences.Availability,
-            GroupSize = user.Preferences.GroupSize,
+            NewAvailability = Availability.Afternoons,
+            GroupSize = 2,
             SpokenLanguages = user.Preferences.Language
         };
         await Task.CompletedTask;
@@ -83,8 +83,8 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
             return Page();
         }
 
-        var groupPreferences = new Preferences() 
-        { Availability = Input.NewAvailability, GroupSize = Input.GroupSize, Language = Input.SelectedLanguages};
+        var groupPreferences = new Preferences()
+        { Availability = Input.NewAvailability, GroupSize = Input.GroupSize, Language = Input.SelectedLanguages };
 
         await matchmaking.CreateGroup(user, Course, groupPreferences);
 

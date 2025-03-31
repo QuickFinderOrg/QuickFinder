@@ -11,11 +11,25 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
     public DbSet<Course> Courses { get; set; } = null!;
+    public DbSet<CoursePreferences> CoursePreferences { get; set; } = null!;
     public DbSet<Channel> DiscordChannels { get; set; } = null!;
     public DbSet<Server> DiscordServers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.Entity<CoursePreferences>()
+           .HasKey(cp => new { cp.UserId, cp.CourseId });
+
+        builder.Entity<CoursePreferences>()
+        .HasOne(cp => cp.User)
+        .WithMany(u => u.CoursePreferences)
+        .HasForeignKey(cp => cp.UserId);
+
+        builder.Entity<CoursePreferences>()
+        .HasOne(cp => cp.Course)
+        .WithMany(c => c.CoursePreferences)
+        .HasForeignKey(cp => cp.CourseId);
+
         base.OnModelCreating(builder);
     }
 

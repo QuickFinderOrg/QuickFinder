@@ -8,4 +8,6 @@ public class Course() : BaseEntity
     public List<Ticket> Tickets { get; set; } = [];
     public uint GroupSize { get; set; } = 2;
     public bool AllowCustomSize { get; set; } = false;
+
+    public IEnumerable<CoursePreferences> CoursePreferences { get; set; } = null!;
 }
