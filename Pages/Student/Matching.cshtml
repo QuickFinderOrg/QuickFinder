@@ -1,7 +1,10 @@
 ﻿@page
 @model MatchingModel
+@inject UserManager<User> userManager
 @{
     ViewData["Title"] = "Matchmaking";
+
+    var user = await userManager.GetUserAsync(User);
 }
 
 <div class="text-center">
@@ -27,15 +30,25 @@
             {
                 <tr>
                     <td>@Course.Name</td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <form method="post">
-                            <input name="CourseId" hidden value="@Course.Id">
-                            <button type="submit">Find Group</button>
-                        </form>
+                    @if(user != null && !Course.Members.Contains(user)){
+                        <td class="d-flex justify-content-center gap-2">
+                            <form asp-page-handler="JoinCourse" method="post">
+                                <input name="CourseId" hidden value="@Course.Id">
+                                <button type="submit">Join Course</button>
+                            </form>
+                        </td>
+                    }
+                    else {
+                        <td class="d-flex justify-content-center gap-2">
+                            <form asp-page-handler="FindGroup" method="post">
+                                <input name="CourseId" hidden value="@Course.Id">
+                                <button type="submit">Find Group</button>
+                            </form>
 
-                        <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
-                                Group</button></a>
-                    </td>
+                            <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
+                                    Group</button></a>
+                        </td>
+                    }
                 </tr>
             }
         </tbody>

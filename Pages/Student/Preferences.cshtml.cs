@@ -6,7 +6,7 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student
 {
-    public class PreferencesModel(UserManager<User> userManager, UserService userService) : PageModel
+    public class PreferencesModel(UserManager<User> userManager) : PageModel
     {
         [TempData]
         public string StatusMessage { get; set; } = null!;
@@ -41,7 +41,7 @@ namespace QuickFinder.Pages.Student
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostFindGroupAsync()
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
