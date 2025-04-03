@@ -200,7 +200,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task<Course[]> GetCourses()
     {
-        return await db.Courses.ToArrayAsync();
+        return await db.Courses.Include(c => c.Members).ToArrayAsync();
     }
 
     public async Task<Course[]> GetCourses(User user)
