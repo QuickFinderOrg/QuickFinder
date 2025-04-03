@@ -1,6 +1,8 @@
 ﻿@page
+@using QuickFinder.Domain.Matchmaking
 @model MatchingModel
 @inject UserManager<User> userManager
+@inject MatchmakingService matchmakingService
 @{
     ViewData["Title"] = "Matchmaking";
 
@@ -40,13 +42,16 @@
                     }
                     else {
                         <td class="d-flex justify-content-center gap-2">
-                            <form asp-page-handler="FindGroup" method="post">
-                                <input name="CourseId" hidden value="@Course.Id">
-                                <button type="submit">Find Group</button>
-                            </form>
+                            @if(user != null && !await matchmakingService.CheckIfInGroup(user, Course))
+                            {
+                                <form asp-page-handler="FindGroup" method="post">
+                                    <input name="CourseId" hidden value="@Course.Id">
+                                    <button type="submit">Find Group</button>
+                                </form>
 
-                            <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
-                                    Group</button></a>
+                                <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
+                                        Group</button></a>
+                            }
                             
                             <form asp-page-handler="LeaveCourse" method="post">
                                 <input name="CourseId" hidden value="@Course.Id">

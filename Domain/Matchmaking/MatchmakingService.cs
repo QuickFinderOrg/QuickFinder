@@ -363,8 +363,23 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task LeaveCourse(User user, Course course)
     {
+        if(await CheckIfInGroup(user, course))
+        {
+            var group = await db.Groups.Where(g => g.Course == course && g.Members.Contains(user)).FirstOrDefaultAsync() ?? throw new Exception("Group not found");
+            await RemoveUserFromGroup(user.Id, group.Id);
+        }
         course.Members.Remove(user);
         await db.SaveChangesAsync();
+    }
+
+    public async Task<bool> CheckIfInGroup(User user, Course course)
+    {
+        var group = await db.Groups.Where(g => g.Course == course && g.Members.Contains(user)).FirstOrDefaultAsync();
+        if (group is null)
+        {
+            return false;
+        }
+        return true;
     }
 
 }

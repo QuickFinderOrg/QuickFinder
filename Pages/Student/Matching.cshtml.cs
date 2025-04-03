@@ -24,6 +24,12 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
             return Page();
         }
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        if (await matchmakingService.CheckIfInGroup(user, course))
+        {
+            PageContext.ModelState.AddModelError(string.Empty, "You are already in a group for this course.");
+            return Page();
+        }
+
         var was_added_to_waitlist = await matchmakingService.AddToWaitlist(user, course);
 
         if (!was_added_to_waitlist)
