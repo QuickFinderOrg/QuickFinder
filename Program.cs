@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.DataProtection;
 using QuickFinder.Domain.DiscordDomain;
 using QuickFinder.Email;
 using Discord.WebSocket;
+using Coravel;
+using Coravel.Scheduling.Schedule.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,7 @@ builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
+builder.Services.AddScheduler();
 
 if (builder.Environment.IsProduction())
 {
@@ -73,7 +76,7 @@ builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddScoped<DiscordService>();
 builder.Services.AddHostedService<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
-builder.Services.AddHostedService<MatchmakingBackgroundService>();
+builder.Services.AddTransient<RunMatchmakingInvocable>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -83,6 +86,19 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 
 var app = builder.Build();
+
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler
+        .Schedule<RunMatchmakingInvocable>()
+        .EveryThirtySeconds();
+
+}).OnError(e =>
+{
+    var logger = app.Services.GetRequiredService<ILogger<Startup>>();
+    logger.LogError(e, "Error in scheduled task: {Message}", e.Message);
+
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
