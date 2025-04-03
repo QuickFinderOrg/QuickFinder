@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuickFinder.Data;
 
@@ -10,27 +11,14 @@ using QuickFinder.Data;
 namespace QuickFinder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250403110659_AddTicketCreatedAt")]
+    partial class AddTicketCreatedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
-
-            modelBuilder.Entity("CourseUser", b =>
-                {
-                    b.Property<Guid>("CoursesId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MembersId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("CoursesId", "MembersId");
-
-                    b.HasIndex("MembersId");
-
-                    b.ToTable("CourseUser");
-                });
 
             modelBuilder.Entity("GroupUser", b =>
                 {
@@ -355,6 +343,9 @@ namespace QuickFinder.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
@@ -397,6 +388,8 @@ namespace QuickFinder.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CourseId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -405,21 +398,6 @@ namespace QuickFinder.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("CourseUser", b =>
-                {
-                    b.HasOne("QuickFinder.Domain.Matchmaking.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QuickFinder.User", null)
-                        .WithMany()
-                        .HasForeignKey("MembersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("GroupUser", b =>
@@ -571,6 +549,10 @@ namespace QuickFinder.Migrations
 
             modelBuilder.Entity("QuickFinder.User", b =>
                 {
+                    b.HasOne("QuickFinder.Domain.Matchmaking.Course", null)
+                        .WithMany("Members")
+                        .HasForeignKey("CourseId");
+
                     b.OwnsOne("QuickFinder.Domain.Matchmaking.UserPreferences", "Preferences", b1 =>
                         {
                             b1.Property<string>("UserId")
@@ -602,6 +584,8 @@ namespace QuickFinder.Migrations
                     b.Navigation("CoursePreferences");
 
                     b.Navigation("Groups");
+
+                    b.Navigation("Members");
 
                     b.Navigation("Tickets");
                 });

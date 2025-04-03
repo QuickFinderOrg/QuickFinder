@@ -6,6 +6,7 @@ public class Ticket() : BaseEntity
     public required User User { get; init; }
     public required Course Course { get; init; }
     public required Preferences Preferences { get; init; }
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
     public bool WillAcceptGroup(Group group)
     {
