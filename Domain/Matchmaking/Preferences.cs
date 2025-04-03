@@ -62,6 +62,15 @@ public record class Preferences : IPreferences
             GroupSize = coursePreferences.GroupSize
         };
     }
+
+    public static uint GetNumberOfMatchingLanguages(Languages[] languages1, Languages[] languages2)
+    {
+        return (uint)languages1.Intersect(languages2).Count();
+    }
+    public static uint GetNumberOfMatchingLanguages(Preferences preferences1, Preferences preferences2)
+    {
+        return GetNumberOfMatchingLanguages(preferences1.Language, preferences2.Language);
+    }
 }
 
 public enum Availability
