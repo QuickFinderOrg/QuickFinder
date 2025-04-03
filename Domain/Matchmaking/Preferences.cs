@@ -44,7 +44,7 @@ public interface IPreferences : IUserPreferences, ICoursePreferences
 public record class Preferences : IPreferences
 {
     public Guid Id { get; init; }
-    public Languages[] Language { get; set; } = [Languages.English];
+    public Languages[] Language { get; set; } = [];
     public Availability Availability { get; set; } = Availability.Daytime;
     public uint GroupSize { get; set; } = 1;
 

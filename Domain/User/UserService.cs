@@ -34,6 +34,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         }
 
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
+        user.Preferences.Language = [Languages.English];
         return user;
     }
 
@@ -53,6 +54,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
         await userManager.AddClaimAsync(user, new Claim("DiscordId", discordId));
+        // user.Preferences.Language = [Languages.English];
         return user;
     }
 
