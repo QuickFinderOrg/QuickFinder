@@ -24,7 +24,7 @@ public class Ticket() : BaseEntity
 }
 
 
-interface ICandiate
+public interface ICandiate
 {
     public Guid Id { get; init; }
     public IPreferences Preferences { get; init; }
