@@ -10,4 +10,5 @@ public class User : IdentityUser
     public List<Group> Groups { get; } = [];
     public UserPreferences Preferences { get; set; } = new UserPreferences();
     public IEnumerable<CoursePreferences> CoursePreferences { get; set; } = null!;
+    public List<Course> Courses { get; set; } = [];
 }

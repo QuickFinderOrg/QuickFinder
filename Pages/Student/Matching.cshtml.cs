@@ -14,11 +14,10 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         await LoadAsync();
     }
 
-    public async Task<IActionResult> OnPostFindGroupAsync(string CourseId)
+    public async Task<IActionResult> OnPostFindGroupAsync(Guid courseId)
     {
-        var course_guid = Guid.Parse(CourseId);
         await LoadAsync();
-        var course = Courses.First(c => c.Id == course_guid);
+        var course = Courses.First(c => c.Id == courseId);
         if (course == null)
         {
             PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
@@ -36,6 +35,42 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         logger.LogInformation("User {UserId} added to waitlist for course {CourseId}", user.Id, course.Id);
 
         return Redirect(StudentRoutes.Groups());
+    }
+
+    public async Task<IActionResult> OnPostJoinCourseAsync(Guid courseId)
+    {
+        await LoadAsync();
+
+        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+
+        var course = Courses.First(c => c.Id == courseId);
+        if (course == null)
+        {
+            PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
+            return Page();
+        }
+
+        await matchmakingService.JoinCourse(user, course);
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostLeaveCourseAsync(Guid courseId)
+    {
+        await LoadAsync();
+
+        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+
+        var course = Courses.First(c => c.Id == courseId);
+        if (course == null)
+        {
+            PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
+            return Page();
+        }
+
+        await matchmakingService.LeaveCourse(user, course);
+
+        return Page();
     }
 
     public async Task LoadAsync()

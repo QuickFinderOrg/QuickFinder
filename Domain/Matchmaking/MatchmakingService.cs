@@ -206,7 +206,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     public async Task<Course[]> GetCourses(User user)
     {
         var groups = await GetGroups(user);
-        var courses = await db.Courses.ToListAsync();
+        var courses = await db.Courses.Include(c => c.Members).ToListAsync();
 
         foreach (Group group in groups)
         {
@@ -353,6 +353,18 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         await db.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task JoinCourse(User user, Course course)
+    {
+        course.Members.Add(user);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task LeaveCourse(User user, Course course)
+    {
+        course.Members.Remove(user);
+        await db.SaveChangesAsync();
     }
 
 }

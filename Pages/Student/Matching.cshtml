@@ -47,6 +47,11 @@
 
                             <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
                                     Group</button></a>
+                            
+                            <form asp-page-handler="LeaveCourse" method="post">
+                                <input name="CourseId" hidden value="@Course.Id">
+                                <button type="submit">Leave Course</button>
+                            </form>                            
                         </td>
                     }
                 </tr>
