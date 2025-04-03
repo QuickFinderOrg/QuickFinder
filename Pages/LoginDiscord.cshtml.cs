@@ -4,14 +4,16 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using QuickFinder.Domain.DiscordDomain;
 
 namespace QuickFinder.Pages;
 
-public class DiscordModel(IConfiguration configuration, UserService userService, SignInManager<User> signInManager) : PageModel
+public class DiscordModel(UserService userService, SignInManager<User> signInManager, IOptions<DiscordServiceOptions> options) : PageModel
 {
     private const string API_ENDPOINT = "https://discord.com/api/v10";
-    private readonly string CLIENT_ID = configuration["Discord:ClientId"] ?? throw new Exception("Discord:ClientId");
-    private readonly string CLIENT_SECRET = configuration["Discord:ClientSecret"] ?? throw new Exception("Discord:ClientSecret");
+    private readonly string CLIENT_ID = options.Value.ClientId;
+    private readonly string CLIENT_SECRET = options.Value.ClientSecret;
     public async Task<IActionResult> OnGetAsync(string code)
     {
         Console.WriteLine("Code: " + code);
