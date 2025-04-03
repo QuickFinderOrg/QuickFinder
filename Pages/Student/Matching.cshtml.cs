@@ -14,7 +14,7 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
         await LoadAsync();
     }
 
-    public async Task<IActionResult> OnPostAsync(string CourseId)
+    public async Task<IActionResult> OnPostFindGroupAsync(string CourseId)
     {
         var course_guid = Guid.Parse(CourseId);
         await LoadAsync();

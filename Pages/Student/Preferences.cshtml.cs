@@ -41,7 +41,7 @@ namespace QuickFinder.Pages.Student
             return Page();
         }
 
-        public async Task<IActionResult> OnPostFindGroupAsync()
+        public async Task<IActionResult> OnPostAsync()
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
