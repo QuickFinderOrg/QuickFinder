@@ -6,6 +6,24 @@ namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {
+    public static ICandiate[] Match(ICandiate seedCandidate, ICandiate[] candidatePool)
+    {
+        // iterate through all candidates
+        // check if they are a match
+        // if they are a match, add them to the group
+        // calculate distance between candidates. 0 is a perfect match.
+
+        return Array.Empty<ICandiate>();
+    }
+
+    public static decimal Distance(ICandiate A, ICandiate B)
+    {
+
+        // calculate distance between candidates. 0 is a perfect match.
+
+        return 0;
+    }
+
     public Group? LookForMatch(Ticket ticket, Group[] groups)
     {
         var potentialGroups = new List<PotentialGroupVM>();
