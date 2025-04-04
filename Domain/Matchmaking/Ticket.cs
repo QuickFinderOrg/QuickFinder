@@ -24,7 +24,7 @@ public class Ticket() : BaseEntity
 }
 
 
-public interface ICandiate
+public interface ICandidate
 {
     public Guid Id { get; init; }
     public IPreferences Preferences { get; init; }
@@ -36,7 +36,7 @@ public interface ICandiate
     public TimeSpan TimeInQueue => DateTime.UtcNow - CreatedAt;
 }
 
-public record class TestCandidate : ICandiate
+public record class TestCandidate : ICandidate
 {
     public Guid Id { get; init; }
     public required IPreferences Preferences { get; init; }

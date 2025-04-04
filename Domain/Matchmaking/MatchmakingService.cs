@@ -14,9 +14,9 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     /// <param name="candidatePool"></param>
     /// <param name="groupSize"></param>
     /// <returns></returns>
-    public static ICandiate[] Match(ICandiate seedCandidate, ICandiate[] candidatePool, int groupSize, DateTime time)
+    public static ICandidate[] Match(ICandidate seedCandidate, ICandidate[] candidatePool, int groupSize, DateTime time)
     {
-        var potentialMembers = new SortedList<decimal, ICandiate>();
+        var potentialMembers = new SortedList<decimal, ICandidate>();
         var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
         var waitTime = seedCandidate.TimeInQueue.TotalSeconds;
 
