@@ -31,8 +31,6 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
         public Languages[] SelectedLanguages { get; set; } = [];
 
     }
-
-    [BindProperty]
     public Course Course { get; set; } = default!;
 
     public async Task<IActionResult> OnGetAsync(Guid courseId)
@@ -68,13 +66,17 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
         await Task.CompletedTask;
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(Guid courseId)
     {
         var user = await userManager.GetUserAsync(User);
-        Course = await matchmaking.GetCourse(Course.Id);
         if (user == null)
         {
             return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+        }
+
+        if (courseId != Guid.Empty)
+        {
+            Course = await matchmaking.GetCourse(courseId);
         }
 
         if (!ModelState.IsValid)
@@ -83,8 +85,9 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
             return Page();
         }
 
-        var groupPreferences = new Preferences()
-        { Availability = Input.NewAvailability, GroupSize = Input.GroupSize, Language = Input.SelectedLanguages };
+        var coursePreferences = new CoursePreferences() { User = user, Course = Course, Availability = Input.NewAvailability, GroupSize = Input.GroupSize };
+        var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
+        var groupPreferences = Preferences.From(userPreferences, coursePreferences);
 
         await matchmaking.CreateGroup(user, Course, groupPreferences);
 
