@@ -6,22 +6,55 @@ namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {
-    public static ICandiate[] Match(ICandiate seedCandidate, ICandiate[] candidatePool)
+    /// <summary>
+    /// Returns the group members that match the seed candidate's preferences.
+    /// The seed candidate is not included in the result.
+    /// </summary>
+    /// <param name="seedCandidate"></param>
+    /// <param name="candidatePool"></param>
+    /// <param name="groupSize"></param>
+    /// <returns></returns>
+    public static ICandiate[] Match(ICandiate seedCandidate, ICandiate[] candidatePool, int groupSize, DateTime time)
     {
-        // iterate through all candidates
-        // check if they are a match
-        // if they are a match, add them to the group
-        // calculate distance between candidates. 0 is a perfect match.
+        var potentialMembers = new SortedList<decimal, ICandiate>();
+        var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
+        var waitTime = seedCandidate.TimeInQueue.TotalSeconds;
 
-        return Array.Empty<ICandiate>();
+        foreach (var candidate in candidatePool)
+        {
+            if (candidate.Id == seedCandidate.Id)
+            {
+                continue; // skip the seed candidate
+            }
+            var score = GetScore(seedCandidate.Preferences, candidate.Preferences);
+            if (score > 0)
+            {
+                potentialMembers.Add(score, candidate);
+            }
+
+        }
+
+        var bestCandidates = potentialMembers.Values.Take(groupSizeLimit).ToArray();
+        return bestCandidates;
     }
 
-    public static decimal Distance(ICandiate A, ICandiate B)
+    /// <summary>
+    /// Get the score between two candidates.
+    /// The score is a number between 0 and 1, where 0 means no match and 1 means perfect match.
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <returns></returns>
+    public static decimal GetScore(IPreferences from, IPreferences to)
     {
+        var languageScore = Preferences.GetLanguageScore(from, to) * 3;
+        var availabilityScore = Preferences.GetAvailabilityScore(from, to) * 7;
+        var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * 0;
 
-        // calculate distance between candidates. 0 is a perfect match.
+        // TODO: make multipliers into variables and make them configurable
+        // TODO: make the score a percentage of the max score
 
-        return 0;
+        return (languageScore + availabilityScore + groupSizeScore) / 10;
     }
 
     public Group? LookForMatch(Ticket ticket, Group[] groups)
@@ -381,7 +414,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task LeaveCourse(User user, Course course)
     {
-        if(await CheckIfInGroup(user, course))
+        if (await CheckIfInGroup(user, course))
         {
             var group = await db.Groups.Where(g => g.Course == course && g.Members.Contains(user)).FirstOrDefaultAsync() ?? throw new Exception("Group not found");
             await RemoveUserFromGroup(user.Id, group.Id);

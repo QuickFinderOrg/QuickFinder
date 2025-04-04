@@ -67,9 +67,27 @@ public record class Preferences : IPreferences
     {
         return (uint)languages1.Intersect(languages2).Count();
     }
-    public static uint GetNumberOfMatchingLanguages(Preferences preferences1, Preferences preferences2)
+    public static decimal GetLanguageScore(IPreferences from, IPreferences to)
     {
-        return GetNumberOfMatchingLanguages(preferences1.Language, preferences2.Language);
+        var languages = GetNumberOfMatchingLanguages(from.Language, to.Language);
+        if (languages >= 1)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    internal static decimal GetAvailabilityScore(IPreferences from, IPreferences to)
+    {
+        return from.Availability == to.Availability ? 1 : 0;
+    }
+
+    internal static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
+    {
+        return 1;
     }
 }
 
