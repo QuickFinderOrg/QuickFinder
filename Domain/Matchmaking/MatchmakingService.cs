@@ -6,19 +6,9 @@ namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {
-    /// <summary>
-    /// Returns the group members that match the seed candidate's preferences.
-    /// The seed candidate is not included in the result.
-    /// </summary>
-    /// <param name="seedCandidate"></param>
-    /// <param name="candidatePool"></param>
-    /// <param name="groupSize"></param>
-    /// <returns></returns>
-    public static ICandidate[] Match(ICandidate seedCandidate, ICandidate[] candidatePool, int groupSize, DateTime time)
+    public static List<KeyValuePair<decimal, ICandidate>> OrderCandidates(ICandidate seedCandidate, ICandidate[] candidatePool)
     {
-        var potentialMembers = new SortedList<decimal, ICandidate>();
-        var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
-        var waitTime = seedCandidate.TimeInQueue.TotalSeconds;
+        var potentialMembers = new List<KeyValuePair<decimal, ICandidate>>();
 
         foreach (var candidate in candidatePool)
         {
@@ -29,12 +19,33 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
             var score = GetScore(seedCandidate.Preferences, candidate.Preferences);
             if (score > 0)
             {
-                potentialMembers.Add(score, candidate);
+                potentialMembers.Add(KeyValuePair.Create(score, candidate));
             }
 
         }
 
-        var bestCandidates = potentialMembers.Values.Take(groupSizeLimit).ToArray();
+        var sortedList = potentialMembers.OrderByDescending(pair => pair.Key).ToList();
+        return potentialMembers;
+    }
+
+    /// <summary>
+    /// Returns the group members that match the seed candidate's preferences.
+    /// The seed candidate is not included in the result.
+    /// </summary>
+    /// <param name="seedCandidate"></param>
+    /// <param name="candidatePool"></param>
+    /// <param name="groupSize"></param>
+    /// <returns></returns>
+    public static ICandidate[] Match(ICandidate seedCandidate, ICandidate[] candidatePool, int groupSize, DateTime time)
+    {
+        var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
+        var waitTime = time - seedCandidate.CreatedAt; // TODO: account for wait time.
+
+        var orderedCandidates = OrderCandidates(seedCandidate, candidatePool);
+
+        var sortedList = orderedCandidates.Select(pair => pair.Value).ToList();
+
+        var bestCandidates = sortedList.Take(groupSizeLimit).ToArray();
         return bestCandidates;
     }
 
@@ -47,14 +58,15 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     /// <returns></returns>
     public static decimal GetScore(IPreferences from, IPreferences to)
     {
-        var languageScore = Preferences.GetLanguageScore(from, to) * 3;
-        var availabilityScore = Preferences.GetAvailabilityScore(from, to) * 7;
+        var languageScore = Preferences.GetLanguageScore(from, to) * 5;
+        var availabilityScore = Preferences.GetAvailabilityScore(from, to) * 2;
+        var daysScore = Preferences.GetDaysScore(from, to) * 3;
         var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * 0;
 
         // TODO: make multipliers into variables and make them configurable
         // TODO: make the score a percentage of the max score
 
-        return (languageScore + availabilityScore + groupSizeScore) / 10;
+        return (languageScore + availabilityScore + daysScore + groupSizeScore) / 10;
     }
 
     public Group? LookForMatch(Ticket ticket, Group[] groups)
