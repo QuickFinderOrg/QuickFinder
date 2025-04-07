@@ -22,6 +22,7 @@ public record class CoursePreferences : ICoursePreferences
     public Course Course { get; set; } = null!;
 
     public Availability Availability { get; set; } = Availability.Daytime;
+    public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
     public uint GroupSize { get; set; } = 1;
 }
 
@@ -33,6 +34,7 @@ public interface IUserPreferences
 public interface ICoursePreferences
 {
     Availability Availability { get; set; }
+    DaysOfTheWeek Days { get; set; }
     uint GroupSize { get; set; }
 }
 
@@ -46,6 +48,7 @@ public record class Preferences : IPreferences
     public Guid Id { get; init; }
     public Languages[] Language { get; set; } = [];
     public Availability Availability { get; set; } = Availability.Daytime;
+    public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
     public uint GroupSize { get; set; } = 1;
 
     public override string ToString()
@@ -59,7 +62,8 @@ public record class Preferences : IPreferences
         {
             Language = userPreferences.Language,
             Availability = coursePreferences.Availability,
-            GroupSize = coursePreferences.GroupSize
+            GroupSize = coursePreferences.GroupSize,
+            Days = coursePreferences.Days
         };
     }
 
@@ -85,8 +89,14 @@ public record class Preferences : IPreferences
         return from.Availability == to.Availability ? 1 : 0;
     }
 
+    public static decimal GetDaysScore(IPreferences from, IPreferences to)
+    {
+        return from.Days.GetNumberOfMatchingDays(to.Days) / from.Days.CountSelectedDays();
+    }
+
     public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
     {
+
         return 1;
     }
 }
@@ -107,3 +117,71 @@ public enum Languages
     Chinese,
     Arabic
 }
+
+[Flags]
+public enum DaysOfTheWeek
+{
+    None = 0,
+    Monday = 1 << 0,
+    Tuesday = 1 << 1,
+    Wednesday = 1 << 2,
+    Thursday = 1 << 3,
+    Friday = 1 << 4,
+    Saturday = 1 << 5,
+    Sunday = 1 << 6,
+    Weekdays = Monday | Tuesday | Wednesday | Thursday | Friday,
+    Weekends = Saturday | Sunday,
+    All = Weekdays | Weekends
+}
+
+
+public static class DaysOfTheWeekHelper
+{
+    public const DaysOfTheWeek Weekend = DaysOfTheWeek.Saturday | DaysOfTheWeek.Sunday;
+
+    public static bool HasDay(this DaysOfTheWeek daysA, DaysOfTheWeek daysB)
+    {
+        return (daysA & daysB) == daysB;
+    }
+
+    public static DaysOfTheWeek WithDay(this DaysOfTheWeek daysA, DaysOfTheWeek daysB)
+    {
+        return daysA | daysB;
+    }
+
+    public static DaysOfTheWeek RemoveDay(this DaysOfTheWeek daysA, DaysOfTheWeek daysB)
+    {
+        return daysA & ~daysB;
+    }
+
+    public static DaysOfTheWeek SetFromArray(this DaysOfTheWeek daysA, DaysOfTheWeek[] daysArray)
+    {
+        DaysOfTheWeek newDays = 0;
+        foreach (var day in daysArray)
+        {
+            newDays = newDays.WithDay(day);
+        }
+        return newDays;
+    }
+
+    public static uint GetNumberOfMatchingDays(this DaysOfTheWeek daysA, DaysOfTheWeek daysB)
+    {
+        return (daysA & daysB).CountSelectedDays();
+    }
+
+    public static uint CountSelectedDays(this DaysOfTheWeek days)
+    {
+        var matches = 0u;
+        for (int i = 0; i < 7; i++)
+        {
+            DaysOfTheWeek day = (DaysOfTheWeek)(1 << i);
+            if (days.HasDay(day))
+            {
+                matches++;
+            }
+
+        }
+        return matches;
+    }
+}
+

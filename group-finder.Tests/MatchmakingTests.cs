@@ -66,6 +66,23 @@ public class MatchmakingTests
     }
 
     [Fact]
+    public void ScoreBetweenAllSharedDaysOfTheWeekShouldBeOne()
+    {
+        var preferences1 = new Preferences
+        {
+            Language = [Languages.English],
+            Days = DaysOfTheWeek.All
+        };
+        var preferences2 = new Preferences
+        {
+            Language = [Languages.English],
+            Days = DaysOfTheWeek.All
+        };
+        var distance = Preferences.GetDaysScore(preferences1, preferences2);
+        Assert.Equal(1, distance);
+    }
+
+    [Fact]
     public void TwoEqualCandidatesShouldBeTheBestMatch()
     {
         var seedCandidate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.English] }, CreatedAt = DateTime.UnixEpoch };
