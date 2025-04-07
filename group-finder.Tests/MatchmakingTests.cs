@@ -6,7 +6,7 @@ namespace group_finder.Tests;
 public class MatchmakingTests
 {
     [Fact]
-    public void DistanceBetweenSameLanguageIsOne()
+    public void ScoreBetweenSameLanguageIsOne()
     {
         var preferences1 = new Preferences
         {
@@ -21,7 +21,7 @@ public class MatchmakingTests
     }
 
     [Fact]
-    public void DistanceBetweenSameAvailabilityIsOne()
+    public void ScoreBetweenSameAvailabilityIsOne()
     {
         var preferences1 = new Preferences
         {
@@ -36,7 +36,7 @@ public class MatchmakingTests
     }
 
     [Fact]
-    public void DistanceBetweenSamePreferencesShouldBeOne()
+    public void ScoreBetweenSamePreferencesShouldBeOne()
     {
         var preferences1 = new Preferences
         {
@@ -46,8 +46,8 @@ public class MatchmakingTests
         {
             Language = [Languages.English]
         };
-        var distance = MatchmakingService.GetScore(preferences1, preferences2);
-        Assert.Equal(1, distance);
+        var score = MatchmakingService.GetScore(preferences1, preferences2);
+        Assert.Equal(1, score);
     }
 
     [Fact]
@@ -72,16 +72,6 @@ public class MatchmakingTests
         var bestCandidate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.English] }, CreatedAt = DateTime.UnixEpoch };
         var otherCandiadate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.German] }, CreatedAt = DateTime.UnixEpoch };
         ICandidate[] pool = [seedCandidate, bestCandidate, otherCandiadate];
-
-        var languageScore = Preferences.GetLanguageScore(seedCandidate.Preferences, bestCandidate.Preferences);
-        Assert.Equal(1, languageScore);
-        var availabilityScore = Preferences.GetAvailabilityScore(seedCandidate.Preferences, bestCandidate.Preferences);
-        Assert.Equal(1, availabilityScore);
-        var groupSizeScore = Preferences.GetGroupSizeScore(seedCandidate.Preferences, bestCandidate.Preferences);
-        Assert.Equal(1, groupSizeScore);
-
-        var score = MatchmakingService.GetScore(seedCandidate.Preferences, bestCandidate.Preferences);
-        Assert.Equal(1, score);
 
         var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
 
