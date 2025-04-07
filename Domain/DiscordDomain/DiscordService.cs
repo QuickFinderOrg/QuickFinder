@@ -5,6 +5,9 @@ using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Text;
+using System.Net.Http.Headers;
 
 namespace QuickFinder.Domain.DiscordDomain;
 
@@ -354,6 +357,44 @@ public class DiscordService : IHostedService
             {
                 await DeleteChannel(channel.Id);
             }
+        }
+    }
+
+    public async Task InviteToServer(Guid courseId, ulong userId, string accessToken)
+    {
+        var server = await GetCourseServer(courseId);
+
+        var guild = _client.GetGuild(server[0].Id);
+
+
+
+        await AddGuildMember(_options.BotToken, guild.Id, userId, accessToken);
+    }
+    public static async Task AddGuildMember(string botToken, ulong guildId, ulong userId, string accessToken)
+    {
+        var client = new HttpClient();
+        var uri = $"https://discord.com/api/guilds/{guildId}/members/{userId}?scope=bot%20guilds.join";
+
+        var properties = new
+        {
+            access_token = accessToken
+        };
+
+        var json = JsonConvert.SerializeObject(properties);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", botToken);
+        var response = await client.PutAsync(uri, data);
+
+        if (!response.IsSuccessStatusCode)
+        {
+             //Log
+            Console.WriteLine($"Error joining guild. Status code: {response.StatusCode}");
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+        }
+        else
+        {
+          //Log to know it was a success.
+          Console.WriteLine("Sucess! user id was sent over");
         }
     }
 

@@ -2,10 +2,12 @@ using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.DiscordDomain;
+using System.Security.Claims;
 
 namespace QuickFinder.Pages.Student;
 
-public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager) : PageModel
+public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager, DiscordService discordService) : PageModel
 {
     public Course[] Courses = [];
 
@@ -58,6 +60,13 @@ public class MatchingModel(ILogger<MatchingModel> logger, MatchmakingService mat
 
         await matchmakingService.JoinCourse(user, course);
 
+        var claims = await userManager.GetClaimsAsync(user);
+        var c = new List<Claim>(claims);
+
+        var discordIdClaim = c.Find(c => c.Type == "DiscordId") ?? throw new Exception("DiscordId claim not found");
+        var discordTokenClaim = c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("DiscordId claim not found");
+
+        await discordService.InviteToServer(course.Id, ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value);
         return Page();
     }
 
