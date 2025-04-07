@@ -51,7 +51,7 @@ public class MatchmakingTests
     }
 
     [Fact]
-    public void DistanceBetweenOneSharedLanguageShouldBeOne()
+    public void ScoreBetweenOneSharedLanguageShouldBeOne()
     {
         var preferences1 = new Preferences
         {
@@ -61,7 +61,7 @@ public class MatchmakingTests
         {
             Language = [Languages.English],
         };
-        var distance = MatchmakingService.GetScore(preferences1, preferences2);
+        var distance = Preferences.GetLanguageScore(preferences1, preferences2);
         Assert.Equal(1, distance);
     }
 
@@ -89,6 +89,24 @@ public class MatchmakingTests
         var bestCandidate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.English] }, CreatedAt = DateTime.UnixEpoch };
         var otherCandiadate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.German] }, CreatedAt = DateTime.UnixEpoch };
         ICandidate[] pool = [seedCandidate, bestCandidate, otherCandiadate];
+
+        var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
+
+        Assert.NotEmpty(matches);
+        Assert.Contains(bestCandidate, matches);
+    }
+
+    [Fact(Skip = "Days need more work")]
+    public void PreferCandidatesWithMoreMatchingDays()
+    {
+        var seedCandidate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Weekdays }, CreatedAt = DateTime.UnixEpoch };
+        var bestCandidate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday }, CreatedAt = DateTime.UnixEpoch };
+        var otherCandiadate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Wednesday }, CreatedAt = DateTime.UnixEpoch };
+        ICandidate[] pool = [seedCandidate, otherCandiadate, bestCandidate];
+
+        var orderedCandidates = MatchmakingService.OrderCandidates(seedCandidate, pool);
+        Assert.Equal(bestCandidate, orderedCandidates[0].Value);
+
 
         var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
 

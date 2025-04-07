@@ -53,7 +53,7 @@ public record class Preferences : IPreferences
 
     public override string ToString()
     {
-        return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, GroupSize: {GroupSize}";
+        return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, GroupSize: {GroupSize}, Days: {Days}";
     }
 
     public static Preferences From(UserPreferences userPreferences, CoursePreferences coursePreferences)
@@ -91,7 +91,7 @@ public record class Preferences : IPreferences
 
     public static decimal GetDaysScore(IPreferences from, IPreferences to)
     {
-        return from.Days.GetNumberOfMatchingDays(to.Days) / from.Days.CountSelectedDays();
+        return from.Days.GetNumberOfMatchingDays(to.Days) / 7;
     }
 
     public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
