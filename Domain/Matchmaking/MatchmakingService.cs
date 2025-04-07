@@ -18,7 +18,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     {
         var potentialMembers = new SortedList<decimal, ICandidate>();
         var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
-        var waitTime = seedCandidate.TimeInQueue.TotalSeconds;
+        var waitTime = time - seedCandidate.CreatedAt; // TODO: account for wait time.
 
         foreach (var candidate in candidatePool)
         {
@@ -34,7 +34,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
         }
 
-        var bestCandidates = potentialMembers.Values.Take(groupSizeLimit).ToArray();
+        var bestCandidates = potentialMembers.Values.TakeLast(groupSizeLimit).ToArray();
         return bestCandidates;
     }
 

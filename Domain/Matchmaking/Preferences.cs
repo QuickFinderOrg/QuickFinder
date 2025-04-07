@@ -80,12 +80,12 @@ public record class Preferences : IPreferences
         }
     }
 
-    internal static decimal GetAvailabilityScore(IPreferences from, IPreferences to)
+    public static decimal GetAvailabilityScore(IPreferences from, IPreferences to)
     {
         return from.Availability == to.Availability ? 1 : 0;
     }
 
-    internal static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
+    public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
     {
         return 1;
     }

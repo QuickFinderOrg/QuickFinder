@@ -15,7 +15,7 @@ public interface ICandidate
 
 public record class TestCandidate : ICandidate
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; init; } = Guid.NewGuid();
     public required IPreferences Preferences { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
