@@ -360,13 +360,9 @@ public class DiscordService : IHostedService
         }
     }
 
-    public async Task InviteToServer(Guid courseId, ulong userId, string accessToken)
+    public async Task InviteToServer(ulong userId, string accessToken, ulong serverId)
     {
-        var server = await GetCourseServer(courseId);
-
-        var guild = _client.GetGuild(server[0].Id);
-
-
+        var guild = _client.GetGuild(serverId);
 
         await AddGuildMember(_options.BotToken, guild.Id, userId, accessToken);
     }
