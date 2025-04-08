@@ -284,6 +284,17 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
     }
 
+    public async Task<CoursePreferences> GetCoursePreferences(Guid courseId, string userId)
+    {
+        return await db.CoursePreferences.Include(prefs => prefs.User).Include(prefs => prefs.Course).Where(prefs => prefs.UserId == userId && prefs.CourseId == courseId).SingleAsync();
+    }
+
+    public async Task UpdateCoursePreferencesAsync(Guid courseId, string userId, CoursePreferences newPreferences)
+    {
+
+        await db.SaveChangesAsync();
+    }
+
     public async Task<bool> IsUserInGroup(User user, Course course)
     {
         var groups = await GetGroups(user);

@@ -154,12 +154,17 @@ public static class DaysOfTheWeekHelper
         return daysA & ~daysB;
     }
 
-    public static DaysOfTheWeek SetFromArray(this DaysOfTheWeek daysA, DaysOfTheWeek[] daysArray)
+    public static DaysOfTheWeek SetFromArray(this DaysOfTheWeek daysA, bool[] daysArray)
     {
-        DaysOfTheWeek newDays = 0;
-        foreach (var day in daysArray)
+        DaysOfTheWeek newDays = DaysOfTheWeek.None;
+        for (int i = 0; i < 7; i++)
         {
-            newDays = newDays.WithDay(day);
+            DaysOfTheWeek day = (DaysOfTheWeek)(1 << i);
+            if (daysArray[i])
+            {
+                newDays = newDays.WithDay(day);
+            }
+
         }
         return newDays;
     }
