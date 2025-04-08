@@ -25,7 +25,7 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         }
 
         var sortedList = potentialMembers.OrderByDescending(pair => pair.Key).ToList();
-        return potentialMembers;
+        return sortedList;
     }
 
     /// <summary>
@@ -58,15 +58,18 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     /// <returns></returns>
     public static decimal GetScore(IPreferences from, IPreferences to)
     {
-        var languageScore = Preferences.GetLanguageScore(from, to) * 5;
-        var availabilityScore = Preferences.GetAvailabilityScore(from, to) * 2;
-        var daysScore = Preferences.GetDaysScore(from, to) * 3;
-        var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * 0;
+        var languageWeight = 1;
+        var availabilityWeight = 1;
+        var daysWeight = 1;
+        var groupSizeWeight = 1;
+        var weights = languageWeight + availabilityWeight + daysWeight + groupSizeWeight;
 
-        // TODO: make multipliers into variables and make them configurable
-        // TODO: make the score a percentage of the max score
+        var languageScore = Preferences.GetLanguageScore(from, to) * languageWeight;
+        var availabilityScore = Preferences.GetAvailabilityScore(from, to) * availabilityWeight;
+        var daysScore = Preferences.GetDaysScore(from, to) * daysWeight;
+        var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * groupSizeWeight;
 
-        return (languageScore + availabilityScore + daysScore + groupSizeScore) / 10;
+        return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
     public Group? LookForMatch(Ticket ticket, Group[] groups)

@@ -1,14 +1,15 @@
 @page
 @model TestModel
 @using Domain.DiscordDomain
+@using Domain.Matchmaking
 @inject DiscordService discord
 @inject UserService userService
 @inject UserManager<User> userManager
+@inject MatchmakingService matchmakingService
 @{
     ViewData["Title"] = "Test";
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
-    var userServers = await userService.GetUserDiscordServers(user);
     var discordUserId = await userService.GetDiscordId(user.Id);
 }
 
@@ -28,21 +29,15 @@
     <button type="submit">TEST</button>
 </form>
 <p>@Model.TestResult</p>
-<p>Current Timestamp: @DateTime.Now</p>
+using QuickFinder.Domain.Matchmaking;
+using QuickFinder.Domain.Matchmaking;
+p>Current Timestamp: @DateTime.Now</p>
 
 
 
 <details>
-    <summary>
-        <h2 style="display: inline;">Your servers (@userServers.Count())</h2>
-    </summary>
-    @foreach (var server in userServers)
-    {
-        <div style="display: flex;">
-            <img src="@server.IconUrl" width="32px" height="32px" loading="lazy" alt="Server Icon" />
-            <p>@server.Name (@server.Id)</p>
-        </div>
-    }
+
+
 
     <form method="post" asp-page-handler="AddServer">
         <input id="serverId" name="serverId" />
@@ -119,4 +114,79 @@
 
     }
 
+
 </section>
+
+
+@{
+    var p1 = new TestCandidate
+    {
+        Id = Guid.Parse("ef1775d5-c97a-48b7-a7b4-f649b603a4af"),
+        Preferences = new Preferences
+        {
+            Days
+    = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday | DaysOfTheWeek.Wednesday
+        }
+    };
+    var p2 = new TestCandidate
+    {
+        Id = Guid.Parse("ef2775d5-c97a-48b7-a7b4-f649b603a4af"),
+        Preferences = new Preferences
+        {
+            Days
+    = DaysOfTheWeek.Wednesday
+        }
+    };
+    var p3 = new TestCandidate
+    {
+        Id = Guid.Parse("ef3775d5-c97a-48b7-a7b4-f649b603a4af"),
+        Preferences = new Preferences
+        {
+            Days
+    = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday
+        }
+    };
+    var p4 = new TestCandidate
+    {
+        Id = Guid.Parse("ef4775d5-c97a-48b7-a7b4-f649b603a4af"),
+        Preferences = new Preferences
+        {
+            Days
+    = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday | DaysOfTheWeek.Wednesday
+        }
+    };
+
+    TestCandidate[] pool = [p2, p3, p4];
+    var orderedCandidates = MatchmakingService.OrderCandidates(p1, pool);
+
+    var matches = MatchmakingService.Match(p1, pool, 2, DateTime.Now);
+}
+<p>@p1</p>
+<hr>
+<div style="display: flex;" class="gap-1">
+    <p>@p2</p>
+    <p>@MatchmakingService.GetScore(p1.Preferences, p2.Preferences)</p>
+    <p>s=@Preferences.GetDaysScore(p1.Preferences, p2.Preferences)</p>
+</div>
+<p>@p3</p>
+<p>@MatchmakingService.GetScore(p1.Preferences, p3.Preferences)</p>
+<p>@p4</p>
+<p>@MatchmakingService.GetScore(p1.Preferences, p4.Preferences)</p>
+
+<ol style="border: 1px solid yellow;">
+
+    @foreach (var pair in orderedCandidates)
+    {
+        <li>@pair.Key - @pair.Value</li>
+    }
+</ol>
+
+<p>Match</p>
+
+<ol style="border: 1px solid yellow;">
+
+    @foreach (var match in matches)
+    {
+        <li>@match</li>
+    }
+</ol>
