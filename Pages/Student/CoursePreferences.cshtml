@@ -46,35 +46,23 @@ DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
 
 
     </details>
+    <br></br>
     <label>Available days:</label>
+    <br></br>
     @foreach (var day in days)
     {
-        if (Model.CoursePreferences.Days.HasDay(day))
+        if (Model.Input.Days.HasDay(day))
         {
-            <input type="checkbox" value="@day" name="Days" checked />
+            <input type="checkbox" value="@day" name="Input.Days" checked />
         }
         else
         {
-            <input type="checkbox" value="@day" name="Days" />
+            <input type="checkbox" value="@day" name="Input.Days" />
         }
         <label>@day</label>
     }
-    <div class="d-flex gap-2">
-        <input asp-for="Input.Monday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Monday" class="form-check-label"></label>
-        <input asp-for="Input.Tuesday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Tuesday" class="form-check-label"></label>
-        <input asp-for="Input.Wednesday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Wednesday" class="form-check-label"></label>
-        <input asp-for="Input.Thursday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Thursday" class="form-check-label"></label>
-        <input asp-for="Input.Friday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Friday" class="form-check-label"></label>
-        <input asp-for="Input.Saturday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Saturday" class="form-check-label"></label>
-        <input asp-for="Input.Sunday" class="form-check-input" type="checkbox" />
-        <label asp-for="Input.Sunday" class="form-check-label"></label>
-    </div>
+    <br></br>
+
 
     <button type="submit">Save</button>
 </form>

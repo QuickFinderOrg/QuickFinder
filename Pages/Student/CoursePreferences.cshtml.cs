@@ -17,9 +17,6 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
     [BindProperty]
     public Guid CourseId { get; set; }
 
-    [BindProperty]
-    public DaysOfTheWeek Days { get; set; }
-
     public class InputModel
     {
         [Required]
@@ -36,30 +33,9 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
         [Display(Name = "Languages")]
         public Languages[] SelectedLanguages { get; set; } = [];
 
-        [Display(Name = "Monday")]
-        public bool Monday { get; set; } = false;
-
-        [Display(Name = "Tuesday")]
-        public bool Tuesday { get; set; } = false;
-
-        [Display(Name = "Wednesday")]
-        public bool Wednesday { get; set; } = false;
-
-        [Display(Name = "Thursday")]
-        public bool Thursday { get; set; } = false;
-
-        [Display(Name = "Friday")]
-        public bool Friday { get; set; } = false;
-
-        [Display(Name = "Saturday")]
-        public bool Saturday { get; set; } = false;
-
-        [Display(Name = "Sunday")]
-        public bool Sunday { get; set; } = false;
+        public DaysOfTheWeek Days { get; set; }
 
     }
-
-    public CoursePreferences CoursePreferences { get; set; } = default!;
 
     public async Task<IActionResult> OnGetAsync(Guid courseId)
     {
@@ -91,18 +67,11 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
         var userId = userManager.GetUserId(User);
         CourseId = courseId;
         var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
-        CoursePreferences = coursePreferences;
         Input = new InputModel
         {
-            NewAvailability = Availability.Afternoons,
-            GroupSize = 2,
-            Monday = coursePreferences.Days.HasDay(DaysOfTheWeek.Monday),
-            Tuesday = coursePreferences.Days.HasDay(DaysOfTheWeek.Tuesday),
-            Wednesday = coursePreferences.Days.HasDay(DaysOfTheWeek.Wednesday),
-            Thursday = coursePreferences.Days.HasDay(DaysOfTheWeek.Thursday),
-            Friday = coursePreferences.Days.HasDay(DaysOfTheWeek.Friday),
-            Saturday = coursePreferences.Days.HasDay(DaysOfTheWeek.Saturday),
-            Sunday = coursePreferences.Days.HasDay(DaysOfTheWeek.Sunday)
+            NewAvailability = coursePreferences.Availability,
+            GroupSize = coursePreferences.GroupSize,
+            Days = coursePreferences.Days
         };
         await Task.CompletedTask;
     }
@@ -120,8 +89,6 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
             return NotFound("CourseId is empty");
         }
 
-        await LoadAsync(courseId);
-
         if (!ModelState.IsValid)
         {
             return Page();
@@ -130,16 +97,11 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
         var userId = userManager.GetUserId(User);
         CourseId = courseId;
         var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
-        // var newDays = DaysOfTheWeek.None.SetFromArray([Input.Monday, Input.Tuesday, Input.Wednesday, Input.Thursday, Input.Friday, Input.Saturday, Input.Sunday]);
-        var newDays = DaysOfTheWeek.None;
-        if (Input.Monday)
-        {
-            newDays = newDays.WithDay(DaysOfTheWeek.Monday);
-        }
-        logger.LogInformation("Monday: {monday}", Input);
-        logger.LogInformation("nDays: {days}", newDays);
-        logger.LogInformation("Days of: {days}", Days);
-        coursePreferences.Days = Days;
+
+        logger.LogInformation("Days of: {days}", Input.Days);
+        coursePreferences.Availability = Input.NewAvailability;
+        coursePreferences.GroupSize = Input.GroupSize;
+        coursePreferences.Days = Input.Days;
 
         await matchmaking.UpdateCoursePreferencesAsync(courseId, "user", coursePreferences);
 
