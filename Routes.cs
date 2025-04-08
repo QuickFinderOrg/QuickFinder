@@ -10,6 +10,7 @@ public static class StudentRoutes
     public static string Preferences() => "/Student/Preferences";
     public static string JoinGroup() => "/Student/JoinGroup";
     public static string CreateGroup() => "/Student/CreateGroup";
+    public static string CourseOverview() => "/Student/CourseOverview";
 }
 
 public static class TeacherRoutes
