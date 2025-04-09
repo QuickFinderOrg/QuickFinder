@@ -71,6 +71,7 @@ public record class Preferences : IPreferences
     {
         return (uint)languages1.Intersect(languages2).Count();
     }
+
     public static decimal GetLanguageScore(IPreferences from, IPreferences to)
     {
         var languages = GetNumberOfMatchingLanguages(from.Language, to.Language);
@@ -91,7 +92,7 @@ public record class Preferences : IPreferences
 
     public static decimal GetDaysScore(IPreferences from, IPreferences to)
     {
-        return from.Days.GetNumberOfMatchingDays(to.Days) / 7;
+        return (decimal)from.Days.GetNumberOfMatchingDays(to.Days) / (decimal)from.Days.CountSelectedDays();
     }
 
     public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)

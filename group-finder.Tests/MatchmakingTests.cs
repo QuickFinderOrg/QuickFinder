@@ -96,7 +96,7 @@ public class MatchmakingTests
         Assert.Contains(bestCandidate, matches);
     }
 
-    [Fact(Skip = "Days need more work")]
+    [Fact]
     public void PreferCandidatesWithMoreMatchingDays()
     {
         var seedCandidate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Weekdays }, CreatedAt = DateTime.UnixEpoch };
