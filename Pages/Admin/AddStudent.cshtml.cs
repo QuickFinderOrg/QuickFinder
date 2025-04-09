@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Admin;
 
-public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbContext db, UserService userService, MatchmakingService matchmakingService) : PageModel
+public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbContext db, UserService userService, TicketRepository ticketRepository) : PageModel
 {
     private readonly ILogger<AddStudentsModel> _logger = logger;
 
@@ -14,7 +14,7 @@ public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbCon
         _logger.LogDebug(" Add {name} {availability}", name, availability);
         Course course = new() { Name = "Course" };
         var user = await userService.CreateUser("Test@mail.com", name, "Lego1!");
-        await matchmakingService.AddToWaitlist(user, course);
+        await ticketRepository.AddToWaitlist(user, course);
         await db.SaveChangesAsync();
         return RedirectToPage(AdminRoutes.Students());
     }

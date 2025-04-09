@@ -253,46 +253,6 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> AddToWaitlist(User user, Course course)
-    {
-        var existing = await db.Tickets.Include(c => c.User).Include(c => c.Course).Where(t => t.User == user && t.Course == course).ToArrayAsync();
-
-        if (existing.Length != 0)
-        {
-            logger.LogError("User '{userId}' is already queued up for course '{courseId}'", user.Id, course.Id);
-            return false;
-        }
-
-        var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p => p.User == user && p.Course == course);
-
-        if (course_prefs == null)
-        {
-            course_prefs = new CoursePreferences() { User = user, Course = course };
-            db.Add(course_prefs);
-        }
-
-        var full_preferences = Preferences.From(user.Preferences, course_prefs);
-
-        db.Add(new Ticket() { User = user, Course = course, Preferences = full_preferences });
-        await db.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<Ticket[]> GetWaitlist()
-    {
-        return await db.Tickets.Include(t => t.User).Include(t => t.Course).Include(t => t.Preferences).ToArrayAsync() ?? throw new Exception("WAITLIST");
-    }
-
-    /// <summary>
-    /// Get tickets for a particular course
-    /// </summary>
-    /// <param name="course"></param>
-    /// <returns></returns>
-    public async Task<Ticket[]> GetWaitlist(Course course)
-    {
-        return await db.Tickets.Include(t => t.User).Include(t => t.Course).Where(t => t.Course == course).ToArrayAsync();
-    }
-
     public async Task<Course> CreateCourse(string name, uint groupSize, bool allowCustomSize)
     {
         var course = new Course() { Name = name, GroupSize = groupSize, AllowCustomSize = allowCustomSize };

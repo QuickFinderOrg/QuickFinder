@@ -9,11 +9,12 @@ using Microsoft.Extensions.Options;
 namespace QuickFinder.Pages.Student;
 
 public class MatchingModel(
-    ILogger<MatchingModel> logger, 
-    MatchmakingService matchmakingService, 
-    UserManager<User> userManager, 
+    ILogger<MatchingModel> logger,
+    MatchmakingService matchmakingService,
+    UserManager<User> userManager,
     DiscordService discordService,
-    IOptions<DiscordServiceOptions> options
+    IOptions<DiscordServiceOptions> options,
+    TicketRepository ticketRepository
     ) : PageModel
 {
     public Course[] Courses = [];
@@ -39,7 +40,7 @@ public class MatchingModel(
             return Page();
         }
 
-        var was_added_to_waitlist = await matchmakingService.AddToWaitlist(user, course);
+        var was_added_to_waitlist = await ticketRepository.AddToWaitlist(user, course);
 
         if (!was_added_to_waitlist)
         {

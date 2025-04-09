@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace QuickFinder;
 
-class SeedDB(UserService userService, UserManager<User> userManager, ApplicationDbContext db, MatchmakingService matchmakingService, IOptions<DiscordServiceOptions> discordOptions)
+class SeedDB(UserService userService, UserManager<User> userManager, ApplicationDbContext db, IOptions<DiscordServiceOptions> discordOptions, TicketRepository ticketRepository)
 {
     public async void Seed()
     {
@@ -43,7 +43,7 @@ class SeedDB(UserService userService, UserManager<User> userManager, Application
         foreach (var account in test_accounts)
         {
             var user = await userService.CreateUser(account.Email, account.Name, account.Password);
-            await matchmakingService.AddToWaitlist(user, TestCourse1);
+            await ticketRepository.AddToWaitlist(user, TestCourse1);
         }
 
         foreach (var account in admin_accounts)

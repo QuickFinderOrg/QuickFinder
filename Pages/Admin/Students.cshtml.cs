@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Admin;
 
-public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, UserService userService) : PageModel
+public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, TicketRepository ticketRepository, UserService userService) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -32,7 +32,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
         var users = await userService.GetAllUsers();
         foreach (var user in users)
         {
-            await matchmaking.AddToWaitlist(user, course);
+            await ticketRepository.AddToWaitlist(user, course);
         }
         return RedirectToPage();
     }
@@ -45,14 +45,14 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
         var course = courses[0];
         foreach (var user in users)
         {
-            await matchmaking.AddToWaitlist(user, course);
+            await ticketRepository.AddToWaitlist(user, course);
         }
         return RedirectToPage();
     }
 
     public async Task LoadAsync()
     {
-        var waitlist = await matchmaking.GetWaitlist();
+        var waitlist = await ticketRepository.GetWaitlist();
         foreach (Ticket ticket in waitlist)
         {
             Students.Add(ticket);
