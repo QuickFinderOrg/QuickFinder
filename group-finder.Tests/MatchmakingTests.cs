@@ -105,7 +105,7 @@ public class MatchmakingTests
         ICandidate[] pool = [seedCandidate, otherCandiadate, bestCandidate];
 
         var orderedCandidates = MatchmakingService.OrderCandidates(seedCandidate, pool);
-        Assert.Equal(bestCandidate, orderedCandidates[0].Value);
+        Assert.Equal(bestCandidate, orderedCandidates.First().Value);
 
 
         var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
