@@ -3,5 +3,11 @@
 @{
     ViewData["Title"] = "Course Overview";
 }
+<div class="text-center">
+    <h1>Course overview for @Model.Course.Name</h1>
 
-<h1>Course overview for @Model.Course.Name</h1>
+    <a asp-page="@StudentRoutes.CoursePreferences()" 
+       asp-route-courseId="@Model.Course.Id"
+       asp-route-returnUrl="@StudentRoutes.CourseOverview()">
+       <button>Change preferences</button></a>
+</div>

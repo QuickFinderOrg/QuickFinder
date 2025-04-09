@@ -11,6 +11,7 @@ public static class StudentRoutes
     public static string JoinGroup() => "/Student/JoinGroup";
     public static string CreateGroup() => "/Student/CreateGroup";
     public static string CourseOverview() => "/Student/CourseOverview";
+    public static string CoursePreferences() => "/Student/CoursePreferences";
 }
 
 public static class TeacherRoutes

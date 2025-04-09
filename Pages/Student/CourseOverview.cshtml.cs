@@ -4,16 +4,20 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
 
-public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, MatchmakingService matchmaking) : PageModel
+public class CourseOverviewModel(
+    ILogger<CourseOverviewModel> logger, 
+    MatchmakingService matchmaking
+    ) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
 
     [BindProperty]
     public Course Course { get; set; } = default!;
 
-    public async Task<IActionResult> OnGetAsync(Guid id)
+
+    public async Task<IActionResult> OnGetAsync(Guid courseId)
     {
-        await LoadAsync(id);
+        await LoadAsync(courseId);
         return Page();
     }
 

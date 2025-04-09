@@ -17,6 +17,9 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
     [BindProperty]
     public Guid CourseId { get; set; }
 
+    [BindProperty]
+    public string ReturnUrl { get; set; } = null!;
+
     public class InputModel
     {
         [Required]
@@ -37,8 +40,9 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
 
     }
 
-    public async Task<IActionResult> OnGetAsync(Guid courseId)
+    public async Task<IActionResult> OnGetAsync(Guid courseId, string returnUrl)
     {
+        ReturnUrl = returnUrl;
         Console.WriteLine($"CourseId {courseId}");
         if (Guid.Empty == courseId)
         {
@@ -105,7 +109,7 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
 
         await matchmaking.UpdateCoursePreferencesAsync(courseId, "user", coursePreferences);
 
-        return RedirectToPage(new { courseId });
+        return RedirectToPage(ReturnUrl, new { courseId });
 
     }
 }

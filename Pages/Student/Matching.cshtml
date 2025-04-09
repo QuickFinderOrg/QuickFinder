@@ -52,7 +52,7 @@
                                 <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
                                         Group</button></a>
 
-                                <a asp-page="@StudentRoutes.CourseOverview()" asp-route-id="@Course.Id"><button>Overview</button></a>
+                                <a asp-page="@StudentRoutes.CourseOverview()" asp-route-courseId="@Course.Id"><button>Overview</button></a>
                             }
                             
                             <form asp-page-handler="LeaveCourse" method="post">
