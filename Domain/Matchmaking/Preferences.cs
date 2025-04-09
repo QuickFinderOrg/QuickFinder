@@ -92,7 +92,12 @@ public record class Preferences : IPreferences
 
     public static decimal GetDaysScore(IPreferences from, IPreferences to)
     {
-        return (decimal)from.Days.GetNumberOfMatchingDays(to.Days) / (decimal)from.Days.CountSelectedDays();
+        var availabile_days = from.Days.CountSelectedDays();
+        if (availabile_days == 0)
+        {
+            return 0;
+        }
+        return (decimal)from.Days.GetNumberOfMatchingDays(to.Days) / (decimal)availabile_days;
     }
 
     public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)

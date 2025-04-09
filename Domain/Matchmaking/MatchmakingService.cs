@@ -6,7 +6,7 @@ namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILogger<MatchmakingService> logger)
 {
-    public static List<KeyValuePair<decimal, ICandidate>> OrderCandidates(ICandidate seedCandidate, ICandidate[] candidatePool)
+    public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(ICandidate seedCandidate, IEnumerable<ICandidate> candidatePool)
     {
         var potentialMembers = new List<KeyValuePair<decimal, ICandidate>>();
 
@@ -36,12 +36,13 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
     /// <param name="candidatePool"></param>
     /// <param name="groupSize"></param>
     /// <returns></returns>
-    public static ICandidate[] Match(ICandidate seedCandidate, ICandidate[] candidatePool, int groupSize, DateTime time)
+    public static ICandidate[] Match(ICandidate seedCandidate, IEnumerable<ICandidate> candidatePool, int groupSize, DateTime time)
     {
+        var scoreRequirement = 0.5m;
         var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
         var waitTime = time - seedCandidate.CreatedAt; // TODO: account for wait time.
 
-        var orderedCandidates = OrderCandidates(seedCandidate, candidatePool);
+        var orderedCandidates = OrderCandidates(seedCandidate, candidatePool).Where(pair => pair.Key >= scoreRequirement);
 
         var sortedList = orderedCandidates.Select(pair => pair.Value).ToList();
 
@@ -201,16 +202,52 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
-        // needs a queue of people waiting to match
-        var waitlist = await GetWaitlist();
-        var groups = await GetAvailableGroups();
+        var all_candidates = await db.Tickets.Include(t => t.Course).Include(t => t.Preferences).Include(t => t.User).ToListAsync(cancellationToken);
+        // todo: handle open groups that need members.
+        // pick a random candidate.
+        var seedCandiate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
 
-        foreach (var ticket in waitlist)
+
+        if (seedCandiate == null)
         {
-            var group = LookForMatch(ticket, [.. groups.Where(g => g.Course == ticket.Course)]);
-            group ??= CreateGroup(ticket, groups);
+            logger.LogInformation("No seed candidate to begin matchmaking.");
+            return;
+        }
 
-            await AddToGroup(ticket, group);
+        var course = seedCandiate.Course;
+
+        var candidates_in_course = all_candidates.Where(t => t.Course == course);
+
+        var matching_candidates = MatchmakingService.Match(seedCandiate, candidates_in_course, (int)course.GroupSize, DateTime.Now);
+
+        if (matching_candidates.Length == 0)
+        {
+            logger.LogInformation("No match found for {username}", seedCandiate.User.UserName);
+            return;
+        }
+
+        var matchingTickets = matching_candidates.Select(candidate =>
+            candidates_in_course.First(ticket => ticket == candidate));
+
+        var matchingUsers = matching_candidates.Select(candidate =>
+        candidates_in_course.First(ticket => ticket == candidate)).Select(t => t.User);
+
+        var matchingUsernames = matchingTickets.Select(t => t.User.UserName);
+
+        // TODO: make Match generic.
+
+        logger.LogInformation("New potential group in {course}: {leader}, Candidates: {candidates}",
+            seedCandiate.Course.Name, seedCandiate.User.UserName, string.Join(", ", matchingTickets));
+
+        var group = new Group { Course = seedCandiate.Course, Preferences = seedCandiate.Preferences, GroupLimit = course.GroupSize, IsComplete = true };
+        // assumes all created groups are filled
+        db.Add(group);
+        group.Members.AddRange([seedCandiate.User, .. matchingUsers]);
+        group.Events.Add(new GroupFilled { Group = group });
+
+        foreach (var ticket in matchingTickets)
+        {
+            db.Remove(ticket);
         }
 
         await db.SaveChangesAsync(cancellationToken);
