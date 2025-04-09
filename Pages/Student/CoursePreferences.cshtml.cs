@@ -62,21 +62,34 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
         {
             return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
         }
+
         await LoadAsync(courseId);
+        Input.SpokenLanguages = user.Preferences.Language;
         return Page();
     }
 
     public async Task LoadAsync(Guid courseId)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = userManager.GetUserId(User) ?? throw new Exception("User not found");
         CourseId = courseId;
+
         var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
-        Input = new InputModel
+        if (coursePreferences is null)
         {
-            NewAvailability = coursePreferences.Availability,
-            GroupSize = coursePreferences.GroupSize,
-            Days = coursePreferences.Days
-        };
+            Input = new InputModel{
+                NewAvailability = Availability.Daytime,
+                GroupSize = 2,
+                Days = DaysOfTheWeek.None,
+            };
+        }
+        else{
+        Input = new InputModel
+            {
+                NewAvailability = coursePreferences.Availability,
+                GroupSize = coursePreferences.GroupSize,
+                Days = coursePreferences.Days,
+            };
+        }
         await Task.CompletedTask;
     }
 
@@ -98,7 +111,7 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
             return Page();
         }
 
-        var userId = userManager.GetUserId(User);
+        var userId = userManager.GetUserId(User) ?? throw new Exception("User not found");
         CourseId = courseId;
         var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
 
@@ -106,6 +119,7 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
         coursePreferences.Availability = Input.NewAvailability;
         coursePreferences.GroupSize = Input.GroupSize;
         coursePreferences.Days = Input.Days;
+        user.Preferences.Language = Input.SelectedLanguages;
 
         await matchmaking.UpdateCoursePreferencesAsync(courseId, "user", coursePreferences);
 

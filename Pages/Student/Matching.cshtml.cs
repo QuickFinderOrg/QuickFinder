@@ -77,10 +77,17 @@ public class MatchingModel(
         if (server.Length == 0)
         {
             await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, ulong.Parse(options.Value.ServerId));
-            return Page();
+        }
+        else{
+            await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, server[0].Id);
+        }
+        
+        if(await matchmakingService.GetCoursePreferences(course.Id, user.Id) is null)
+        {
+            await matchmakingService.CreateNewCoursePreferences(course.Id, user.Id);
+            return RedirectToPage(StudentRoutes.CoursePreferences(), new { courseId = course.Id, returnUrl = StudentRoutes.Matching() });
         }
 
-        await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, server[0].Id);
         return Page();
     }
 

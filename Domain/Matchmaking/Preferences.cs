@@ -23,7 +23,7 @@ public record class CoursePreferences : ICoursePreferences
 
     public Availability Availability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
-    public uint GroupSize { get; set; } = 1;
+    public uint GroupSize { get; set; } = 2;
 }
 
 public interface IUserPreferences
@@ -49,7 +49,7 @@ public record class Preferences : IPreferences
     public Languages[] Language { get; set; } = [];
     public Availability Availability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
-    public uint GroupSize { get; set; } = 1;
+    public uint GroupSize { get; set; } = 2;
 
     public override string ToString()
     {
