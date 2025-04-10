@@ -114,6 +114,6 @@ public class MatchingModel(
     public async Task LoadAsync()
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        Courses = await courseRepository.GetCourses();
+        Courses = await courseRepository.GetAllAsync();
     }
 }

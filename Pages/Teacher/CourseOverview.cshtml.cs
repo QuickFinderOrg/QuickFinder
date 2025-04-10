@@ -2,6 +2,7 @@ using QuickFinder.Domain.DiscordDomain;
 using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace QuickFinder.Pages.Teacher;
 
@@ -32,14 +33,14 @@ public class CourseOverviewModel(
 
     public async Task<IActionResult> OnPostChangeCourseAsync()
     {
-        Course = await courseRepository.GetCourse(Course.Id);
+        Course = await courseRepository.GetByIdAsync(Course.Id);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
         await matchmaking.DeleteGroup(id);
-        Course = await courseRepository.GetCourse(Course.Id);
+        Course = await courseRepository.GetByIdAsync(Course.Id);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
@@ -57,14 +58,14 @@ public class CourseOverviewModel(
 
     public async Task LoadAsync(Guid courseId)
     {
-        Courses = await courseRepository.GetCourses();
+        Courses = await courseRepository.GetAllAsync();
         if (courseId == Guid.Empty)
         {
             Course = Courses[0];
         }
         else
         {
-            Course = await courseRepository.GetCourse(courseId);
+            Course = await courseRepository.GetByIdAsync(courseId);
         }
         var grouplist = await matchmaking.GetGroups(Course.Id);
         var CourseDiscordServers = await discordService.GetCourseServer(Course.Id);
