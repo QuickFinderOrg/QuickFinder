@@ -9,7 +9,8 @@ public class StudentsModel(
     MatchmakingService matchmaking,
     TicketRepository ticketRepository,
     UserService userService,
-    CourseRepository courseRepository
+    CourseRepository courseRepository,
+    GroupRepository groupRepository
     ) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
@@ -45,8 +46,8 @@ public class StudentsModel(
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
-        var users = await matchmaking.GetGroupMembers(id);
-        await matchmaking.DeleteGroup(id);
+        var users = await groupRepository.GetGroupMembers(id);
+        await groupRepository.DeleteGroup(id);
         var courses = await courseRepository.GetAllAsync();
         var course = courses[0];
         foreach (var user in users)
@@ -63,7 +64,7 @@ public class StudentsModel(
         {
             Students.Add(ticket);
         }
-        var grouplist = await matchmaking.GetGroups();
+        var grouplist = await groupRepository.GetGroups();
         Groups = grouplist.ToList();
         _logger.LogInformation("LoadAsync");
     }

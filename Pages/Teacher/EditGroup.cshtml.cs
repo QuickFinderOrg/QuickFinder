@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class EditGroupModel(MatchmakingService matchmaking) : PageModel
+public class EditGroupModel(MatchmakingService matchmaking, GroupRepository groupRepository) : PageModel
 {
     public Group? Group;
     public User[] Members = [];
@@ -19,7 +19,7 @@ public class EditGroupModel(MatchmakingService matchmaking) : PageModel
         await LoadAsync(groupId);
         if (Group is not null)
         {
-            await matchmaking.RemoveUserFromGroup(userId, Group.Id);
+            await groupRepository.RemoveUserFromGroup(userId, Group.Id);
             if (Members.Length == 1)
             {
                 return RedirectToPage(TeacherRoutes.CourseOverview());
@@ -31,7 +31,7 @@ public class EditGroupModel(MatchmakingService matchmaking) : PageModel
 
     public async Task LoadAsync(Guid id)
     {
-        Group = await matchmaking.GetGroup(id);
+        Group = await groupRepository.GetGroup(id);
         Members = Group.Members.ToArray();
     }
 }

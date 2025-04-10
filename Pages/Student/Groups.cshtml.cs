@@ -5,7 +5,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Student;
 
-public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchmakingService, UserManager<User> userManager, UserService userService) : PageModel
+public class GroupsModel(
+    ILogger<GroupsModel> logger,
+    UserManager<User> userManager,
+    UserService userService,
+    GroupRepository groupRepository
+    ) : PageModel
 {
     private readonly ILogger<GroupsModel> _logger = logger;
 
@@ -14,7 +19,7 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
     public async Task<IActionResult> OnGetAsync()
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        var groups = await matchmakingService.GetGroups(user);
+        var groups = await groupRepository.GetGroups(user);
 
         foreach (var g in groups)
         {
@@ -37,14 +42,13 @@ public class GroupsModel(ILogger<GroupsModel> logger, MatchmakingService matchma
 
         }
 
-
         return Page();
     }
 
     public async Task<IActionResult> OnPostLeaveAsync(Guid groupId)
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        await matchmakingService.RemoveUserFromGroup(user.Id, groupId);
+        await groupRepository.RemoveUserFromGroup(user.Id, groupId);
         // TODO: add load functions and model errors
         // TODO: don't match again with a group you left
 

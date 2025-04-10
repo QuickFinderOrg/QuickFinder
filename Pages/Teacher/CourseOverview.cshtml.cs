@@ -8,9 +8,9 @@ namespace QuickFinder.Pages.Teacher;
 
 public class CourseOverviewModel(
     ILogger<CourseOverviewModel> logger,
-    MatchmakingService matchmaking,
     DiscordService discordService,
-    CourseRepository courseRepository
+    CourseRepository courseRepository,
+    GroupRepository groupRepository
     ) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
@@ -39,20 +39,20 @@ public class CourseOverviewModel(
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
-        await matchmaking.DeleteGroup(id);
+        await groupRepository.DeleteGroup(id);
         Course = await courseRepository.GetByIdAsync(Course.Id);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostChangeGroupSIzeAsync()
     {
-        await matchmaking.ChangeGroupSize(Course.Id, Course.GroupSize);
+        await groupRepository.ChangeGroupSize(Course.Id, Course.GroupSize);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostChangeCustomGroupSizeAsync()
     {
-        await matchmaking.ChangeCustomGroupSize(Course.Id, AllowCustomSize);
+        await groupRepository.ChangeCustomGroupSize(Course.Id, AllowCustomSize);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
@@ -67,7 +67,7 @@ public class CourseOverviewModel(
         {
             Course = await courseRepository.GetByIdAsync(courseId);
         }
-        var grouplist = await matchmaking.GetGroups(Course.Id);
+        var grouplist = await groupRepository.GetGroups(Course.Id);
         var CourseDiscordServers = await discordService.GetCourseServer(Course.Id);
         CourseDiscordServer = CourseDiscordServers.FirstOrDefault();
 

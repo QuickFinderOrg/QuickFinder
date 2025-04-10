@@ -15,7 +15,8 @@ public class MatchingModel(
     DiscordService discordService,
     IOptions<DiscordServiceOptions> options,
     TicketRepository ticketRepository,
-    CourseRepository courseRepository
+    CourseRepository courseRepository,
+    GroupRepository groupRepository
     ) : PageModel
 {
     public Course[] Courses = [];
@@ -35,7 +36,7 @@ public class MatchingModel(
             return Page();
         }
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        if (await matchmakingService.CheckIfInGroup(user, course))
+        if (await groupRepository.CheckIfInGroup(user, course))
         {
             PageContext.ModelState.AddModelError(string.Empty, "You are already in a group for this course.");
             return Page();

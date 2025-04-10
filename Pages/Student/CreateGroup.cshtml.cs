@@ -9,7 +9,8 @@ namespace QuickFinder.Pages.Student;
 public class CreateGroupModel(
     MatchmakingService matchmaking,
     UserManager<User> userManager,
-    CourseRepository courseRepository
+    CourseRepository courseRepository,
+    GroupRepository groupRepository
     ) : PageModel
 {
     [TempData]
@@ -57,7 +58,7 @@ public class CreateGroupModel(
             return NotFound();
         }
 
-        if (await matchmaking.IsUserInGroup(user, Course))
+        if (await groupRepository.IsUserInGroup(user, Course))
         {
             return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
         }

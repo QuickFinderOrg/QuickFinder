@@ -9,7 +9,8 @@ namespace QuickFinder.Pages.Student;
 public class JoinGroupModel(
     MatchmakingService matchmaking,
     UserManager<User> userManager,
-    CourseRepository courseRepository
+    CourseRepository courseRepository,
+    GroupRepository groupRepository
     ) : PageModel
 {
     [BindProperty]
@@ -37,13 +38,13 @@ public class JoinGroupModel(
         }
         Course = course;
 
-        var groups = await matchmaking.GetAvailableGroups(id);
+        var groups = await groupRepository.GetAvailableGroups(id);
         if (groups == null)
         {
             return NotFound();
         }
 
-        if (await matchmaking.IsUserInGroup(user, Course))
+        if (await groupRepository.IsUserInGroup(user, Course))
         {
             return RedirectToPage(StudentRoutes.Groups());
         }
@@ -54,7 +55,7 @@ public class JoinGroupModel(
     public async Task<IActionResult> OnPostJoinGroupAsync(Guid groupId)
     {
         var user = await userManager.GetUserAsync(User);
-        var group = await matchmaking.GetGroup(groupId);
+        var group = await groupRepository.GetGroup(groupId);
         if (user is not null)
         {
             await matchmaking.AddToGroup(user, group);
@@ -66,8 +67,8 @@ public class JoinGroupModel(
     public async Task<IActionResult> OnPostLeaveGroupAsync(Guid groupId)
     {
         var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
-        var group = await matchmaking.GetGroup(groupId);
-        await matchmaking.RemoveUserFromGroup(user.Id, group.Id);
+        var group = await groupRepository.GetGroup(groupId);
+        await groupRepository.RemoveUserFromGroup(user.Id, group.Id);
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
 
