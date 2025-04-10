@@ -68,7 +68,7 @@ public class MatchingModel(
             return Page();
         }
 
-        await matchmakingService.JoinCourse(user, course);
+        await courseRepository.JoinCourse(user, course);
 
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims);
@@ -107,7 +107,7 @@ public class MatchingModel(
             return Page();
         }
 
-        await matchmakingService.LeaveCourse(user, course);
+        await courseRepository.LeaveCourse(user, course);
 
         return Page();
     }

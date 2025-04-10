@@ -144,6 +144,49 @@ public class GroupRepository : Repository<Group, Guid>
         return true;
     }
 
+    public async Task<Group> CreateGroup(User user, Course course, Preferences groupPreferences)
+    {
+        if (await IsUserInGroup(user, course))
+        {
+            throw new Exception("User is already in group");
+        }
+        var group = new Group() { Preferences = groupPreferences, Course = course };
+        group.Members.Add(user);
+
+        if (course.AllowCustomSize)
+        {
+            group.GroupLimit = groupPreferences.GroupSize;
+        }
+        else
+        {
+            group.GroupLimit = course.GroupSize;
+        }
+
+        db.Add(group);
+        await db.SaveChangesAsync();
+        return group;
+    }
+
+    public async Task<Task> AddToGroup(User user, Group group)
+    {
+        if (group.Members.Contains(user))
+        {
+            logger.LogError("User '{userId}' is already in group '{groupId}'", user.Id, group.Id);
+            return Task.CompletedTask;
+        }
+        group.Members.Add(user);
+        group.Events.Add(new GroupMemberAdded() { User = user, Group = group });
+
+        if (group.IsFull && group.IsComplete == false)
+        {
+            group.IsComplete = true;
+            group.Events.Add(new GroupFilled() { Group = group });
+        }
+
+        await db.SaveChangesAsync();
+        return Task.CompletedTask;
+    }
+
 }
 
 public record class GroupVM

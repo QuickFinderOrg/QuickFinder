@@ -77,49 +77,6 @@ public class MatchmakingService(
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
-    public async Task<Group> CreateGroup(User user, Course course, Preferences groupPreferences)
-    {
-        if (await groupRepository.IsUserInGroup(user, course))
-        {
-            throw new Exception("User is already in group");
-        }
-        var group = new Group() { Preferences = groupPreferences, Course = course };
-        group.Members.Add(user);
-
-        if (course.AllowCustomSize)
-        {
-            group.GroupLimit = groupPreferences.GroupSize;
-        }
-        else
-        {
-            group.GroupLimit = course.GroupSize;
-        }
-
-        db.Add(group);
-        await db.SaveChangesAsync();
-        return group;
-    }
-
-    public async Task<Task> AddToGroup(User user, Group group)
-    {
-        if (group.Members.Contains(user))
-        {
-            logger.LogError("User '{userId}' is already in group '{groupId}'", user.Id, group.Id);
-            return Task.CompletedTask;
-        }
-        group.Members.Add(user);
-        group.Events.Add(new GroupMemberAdded() { User = user, Group = group });
-
-        if (group.IsFull && group.IsComplete == false)
-        {
-            group.IsComplete = true;
-            group.Events.Add(new GroupFilled() { Group = group });
-        }
-
-        await db.SaveChangesAsync();
-        return Task.CompletedTask;
-    }
-
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
         var all_candidates = await db.Tickets.Include(t => t.Course).Include(t => t.Preferences).Include(t => t.User).ToListAsync(cancellationToken);
@@ -198,31 +155,4 @@ public class MatchmakingService(
         await Task.CompletedTask;
     }
 
-    public async Task<bool> RemoveUserFromWaitlist(string userId)
-    {
-        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
-        var tickets = await db.Tickets.Include(g => g.User).Where(t => t.User == user).ToArrayAsync();
-        db.Tickets.RemoveRange(tickets);
-
-        await db.SaveChangesAsync();
-
-        return true;
-    }
-
-    public async Task JoinCourse(User user, Course course)
-    {
-        course.Members.Add(user);
-        await db.SaveChangesAsync();
-    }
-
-    public async Task LeaveCourse(User user, Course course)
-    {
-        if (await groupRepository.CheckIfInGroup(user, course))
-        {
-            var group = await db.Groups.Where(g => g.Course == course && g.Members.Contains(user)).FirstOrDefaultAsync() ?? throw new Exception("Group not found");
-            await groupRepository.RemoveUserFromGroup(user.Id, group.Id);
-        }
-        course.Members.Remove(user);
-        await db.SaveChangesAsync();
-    }
 }
