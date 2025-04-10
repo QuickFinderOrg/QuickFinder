@@ -22,6 +22,7 @@ public class CourseOverviewModel(
         {
             return NotFound();
         }
+        Course = course;
         return Page();
     }
 }
