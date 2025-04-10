@@ -76,16 +76,18 @@ public class CoursePreferencesModel(
     public async Task LoadAsync(Guid courseId)
     {
         var userId = userManager.GetUserId(User) ?? throw new Exception("User not found");
+        var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
         CourseId = courseId;
 
         var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
         if (coursePreferences is null)
         {
+            await matchmaking.CreateNewCoursePreferences(courseId, userId);
             Input = new InputModel
             {
-                NewAvailability = Availability.Daytime,
+                NewAvailability = user.Preferences.GlobalAvailability,
                 GroupSize = 2,
-                Days = DaysOfTheWeek.None,
+                Days = user.Preferences.GlobalDays,
             };
         }
         else

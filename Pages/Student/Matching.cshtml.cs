@@ -87,7 +87,6 @@ public class MatchingModel(
 
         if (await matchmakingService.GetCoursePreferences(course.Id, user.Id) is null)
         {
-            await matchmakingService.CreateNewCoursePreferences(course.Id, user.Id);
             return RedirectToPage(StudentRoutes.CoursePreferences(), new { courseId = course.Id, returnUrl = StudentRoutes.Matching() });
         }
 
