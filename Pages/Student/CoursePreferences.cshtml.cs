@@ -6,7 +6,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Student;
 
-public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<User> userManager, ILogger<CoursePreferences> logger) : PageModel
+public class CoursePreferencesModel(
+    MatchmakingService matchmaking,
+    UserManager<User> userManager,
+    ILogger<CoursePreferences> logger,
+    CourseRepository courseRepository
+    ) : PageModel
 {
     [TempData]
     public string StatusMessage { get; set; } = null!;
@@ -49,7 +54,7 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
             return NotFound("CourseId must not be empty");
         }
 
-        var course = await matchmaking.GetCourse(courseId);
+        var course = await courseRepository.GetCourse(courseId);
         if (course == null)
         {
             return NotFound("Course not found");

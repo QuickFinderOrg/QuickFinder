@@ -6,7 +6,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Student;
 
-public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> userManager) : PageModel
+public class JoinGroupModel(
+    MatchmakingService matchmaking,
+    UserManager<User> userManager,
+    CourseRepository courseRepository
+    ) : PageModel
 {
     [BindProperty]
     public Course Course { get; set; } = default!;
@@ -52,7 +56,7 @@ public class JoinGroupModel(MatchmakingService matchmaking, UserManager<User> us
 
     public async Task LoadAsync(Guid id)
     {
-        Course = await matchmaking.GetCourse(id);
+        Course = await courseRepository.GetCourse(id);
         Groups = await matchmaking.GetAvailableGroups(id);
     }
 }

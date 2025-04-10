@@ -14,7 +14,8 @@ public class MatchingModel(
     UserManager<User> userManager,
     DiscordService discordService,
     IOptions<DiscordServiceOptions> options,
-    TicketRepository ticketRepository
+    TicketRepository ticketRepository,
+    CourseRepository courseRepository
     ) : PageModel
 {
     public Course[] Courses = [];
@@ -79,11 +80,12 @@ public class MatchingModel(
         {
             await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, ulong.Parse(options.Value.ServerId));
         }
-        else{
+        else
+        {
             await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, server[0].Id);
         }
-        
-        if(await matchmakingService.GetCoursePreferences(course.Id, user.Id) is null)
+
+        if (await matchmakingService.GetCoursePreferences(course.Id, user.Id) is null)
         {
             await matchmakingService.CreateNewCoursePreferences(course.Id, user.Id);
             return RedirectToPage(StudentRoutes.CoursePreferences(), new { courseId = course.Id, returnUrl = StudentRoutes.Matching() });
@@ -113,6 +115,6 @@ public class MatchingModel(
     public async Task LoadAsync()
     {
         var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
-        Courses = await matchmakingService.GetCourses();
+        Courses = await courseRepository.GetCourses();
     }
 }

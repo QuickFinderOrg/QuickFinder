@@ -6,7 +6,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Student;
 
-public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> userManager) : PageModel
+public class CreateGroupModel(
+    MatchmakingService matchmaking,
+    UserManager<User> userManager,
+    CourseRepository courseRepository
+    ) : PageModel
 {
     [TempData]
     public string StatusMessage { get; set; } = null!;
@@ -43,7 +47,7 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
 
         if (courseId != Guid.Empty)
         {
-            Course = await matchmaking.GetCourse(courseId);
+            Course = await courseRepository.GetCourse(courseId);
         }
 
         if (await matchmaking.IsUserInGroup(user, Course))
@@ -76,7 +80,7 @@ public class CreateGroupModel(MatchmakingService matchmaking, UserManager<User> 
 
         if (courseId != Guid.Empty)
         {
-            Course = await matchmaking.GetCourse(courseId);
+            Course = await courseRepository.GetCourse(courseId);
         }
 
         if (!ModelState.IsValid)

@@ -4,7 +4,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Admin;
 
-public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService matchmaking, TicketRepository ticketRepository, UserService userService) : PageModel
+public class StudentsModel(
+    ILogger<StudentsModel> logger,
+    MatchmakingService matchmaking,
+    TicketRepository ticketRepository,
+    UserService userService,
+    CourseRepository courseRepository
+    ) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -27,7 +33,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
     public async Task<IActionResult> OnPostResetAsync()
     {
         await matchmaking.Reset();
-        var courses = await matchmaking.GetCourses();
+        var courses = await courseRepository.GetCourses();
         var course = courses[0];
         var users = await userService.GetAllUsers();
         foreach (var user in users)
@@ -41,7 +47,7 @@ public class StudentsModel(ILogger<StudentsModel> logger, MatchmakingService mat
     {
         var users = await matchmaking.GetGroupMembers(id);
         await matchmaking.DeleteGroup(id);
-        var courses = await matchmaking.GetCourses();
+        var courses = await courseRepository.GetCourses();
         var course = courses[0];
         foreach (var user in users)
         {

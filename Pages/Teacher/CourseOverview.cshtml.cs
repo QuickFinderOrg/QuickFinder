@@ -5,7 +5,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, MatchmakingService matchmaking, DiscordService discordService) : PageModel
+public class CourseOverviewModel(
+    ILogger<CourseOverviewModel> logger,
+    MatchmakingService matchmaking,
+    DiscordService discordService,
+    CourseRepository courseRepository
+    ) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
     public List<Group> Groups = [];
@@ -27,14 +32,14 @@ public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, Matchmakin
 
     public async Task<IActionResult> OnPostChangeCourseAsync()
     {
-        Course = await matchmaking.GetCourse(Course.Id);
+        Course = await courseRepository.GetCourse(Course.Id);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
         await matchmaking.DeleteGroup(id);
-        Course = await matchmaking.GetCourse(Course.Id);
+        Course = await courseRepository.GetCourse(Course.Id);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
@@ -52,14 +57,14 @@ public class CourseOverviewModel(ILogger<CourseOverviewModel> logger, Matchmakin
 
     public async Task LoadAsync(Guid courseId)
     {
-        Courses = await matchmaking.GetCourses();
+        Courses = await courseRepository.GetCourses();
         if (courseId == Guid.Empty)
         {
             Course = Courses[0];
         }
         else
         {
-            Course = await matchmaking.GetCourse(courseId);
+            Course = await courseRepository.GetCourse(courseId);
         }
         var grouplist = await matchmaking.GetGroups(Course.Id);
         var CourseDiscordServers = await discordService.GetCourseServer(Course.Id);

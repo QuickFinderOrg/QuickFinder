@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingService matchmakingService) : PageModel
+public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingService matchmakingService, CourseRepository courseRepository) : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
 
@@ -29,7 +29,7 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingSer
         }
 
         _logger.LogDebug("Create new course {Name} with group size {GroupSize} and allow custom size {AllowCustomSize}", Name, GroupSize, AllowCustomSize);
-        await matchmakingService.CreateCourse(Name, GroupSize, AllowCustomSize);
+        await courseRepository.CreateCourse(Name, GroupSize, AllowCustomSize);
         return RedirectToPage();
     }
 }

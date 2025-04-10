@@ -169,37 +169,6 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Course> CreateCourse(string name, uint groupSize, bool allowCustomSize)
-    {
-        var course = new Course() { Name = name, GroupSize = groupSize, AllowCustomSize = allowCustomSize };
-        db.Add(course);
-        await db.SaveChangesAsync();
-        return course;
-    }
-
-    public async Task<Course[]> GetCourses()
-    {
-        return await db.Courses.Include(c => c.Members).ToArrayAsync();
-    }
-
-    public async Task<Course[]> GetCourses(User user)
-    {
-        var groups = await GetGroups(user);
-        var courses = await db.Courses.Include(c => c.Members).ToListAsync();
-
-        foreach (Group group in groups)
-        {
-            courses.Remove(group.Course);
-        }
-
-        return [.. courses];
-    }
-
-    public async Task<Course> GetCourse(Guid courseId)
-    {
-        return await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
-    }
-
     public async Task<CoursePreferences?> GetCoursePreferences(Guid courseId, string userId)
     {
         return await db.CoursePreferences.Include(prefs => prefs.User).Include(prefs => prefs.Course).Where(prefs => prefs.UserId == userId && prefs.CourseId == courseId).SingleOrDefaultAsync();

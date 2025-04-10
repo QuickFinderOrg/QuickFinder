@@ -5,8 +5,8 @@ using QuickFinder.Domain.Matchmaking;
 namespace QuickFinder.Pages.Student;
 
 public class CourseOverviewModel(
-    ILogger<CourseOverviewModel> logger, 
-    MatchmakingService matchmaking
+    ILogger<CourseOverviewModel> logger,
+    CourseRepository courseRepository
     ) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
@@ -23,7 +23,7 @@ public class CourseOverviewModel(
 
     public async Task LoadAsync(Guid courseId)
     {
-        Course = await matchmaking.GetCourse(courseId);
+        Course = await courseRepository.GetCourse(courseId);
     }
 
 }
