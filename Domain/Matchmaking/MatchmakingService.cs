@@ -73,74 +73,6 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
-    public Group? LookForMatch(Ticket ticket, Group[] groups)
-    {
-        var potentialGroups = new List<PotentialGroupVM>();
-        // other groups do exist
-        foreach (var group in groups)
-        {
-            // is this the group for me?
-            if (ticket.WillAcceptGroup(group))
-            {
-                var potentialGroup = new PotentialGroupVM() { Group = group };
-
-                var languages = ticket.Preferences.Language;
-                var availability = ticket.Preferences.Availability;
-                var groupSize = ticket.Preferences.GroupSize;
-
-                foreach (var language in languages)
-                {
-                    if (ticket.Preferences.Language.Contains(language))
-                    {
-                        potentialGroup.Score += 0.5;
-                    }
-                }
-
-                if (group.Preferences.GroupSize == groupSize)
-                {
-                    potentialGroup.Score += 1.0;
-                }
-
-                if (group.Preferences.Availability == availability)
-                {
-                    potentialGroup.Score += 1.0;
-                }
-
-                potentialGroups.Add(potentialGroup);
-            }
-
-            // no: keep looking
-        }
-
-        if (potentialGroups.Count > 0)
-        {
-            // sort by score
-            potentialGroups.Sort((a, b) => b.Score.CompareTo(a.Score));
-            return potentialGroups[0].Group;
-        }
-        // no groups, make a new one.
-        // or could not fit into any groups, make new one.
-        return null;
-    }
-
-    public Group CreateGroup(Ticket ticket, List<Group> groups)
-    {
-        var group = new Group() { Preferences = ticket.Preferences, Course = ticket.Course };
-        if (ticket.Course.AllowCustomSize)
-        {
-            group.GroupLimit = ticket.Preferences.GroupSize;
-            db.Add(group);
-            groups.Add(group);
-        }
-        else
-        {
-            group.GroupLimit = ticket.Course.GroupSize;
-            db.Add(group);
-            groups.Add(group);
-        }
-        return group;
-    }
-
     public async Task<Group> CreateGroup(User user, Course course, Preferences groupPreferences)
     {
         if (await IsUserInGroup(user, course))
@@ -162,22 +94,6 @@ public class MatchmakingService(ApplicationDbContext db, IMediator mediator, ILo
         db.Add(group);
         await db.SaveChangesAsync();
         return group;
-    }
-
-    public Task AddToGroup(Ticket ticket, Group group)
-    {
-        group.Members.Add(ticket.User);
-        group.Events.Add(new GroupMemberAdded() { User = ticket.User, Group = group });
-
-        if (group.IsFull && group.IsComplete == false)
-        {
-            group.IsComplete = true;
-            group.Events.Add(new GroupFilled() { Group = group });
-        }
-
-        // remove from waiting list
-        db.Remove(ticket);
-        return Task.CompletedTask;
     }
 
     public async Task<Task> AddToGroup(User user, Group group)
