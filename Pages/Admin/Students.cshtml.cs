@@ -33,7 +33,7 @@ public class StudentsModel(
     public async Task<IActionResult> OnPostResetAsync()
     {
         await matchmaking.Reset();
-        var courses = await courseRepository.GetCourses();
+        var courses = await courseRepository.GetAllAsync();
         var course = courses[0];
         var users = await userService.GetAllUsers();
         foreach (var user in users)
@@ -47,7 +47,7 @@ public class StudentsModel(
     {
         var users = await matchmaking.GetGroupMembers(id);
         await matchmaking.DeleteGroup(id);
-        var courses = await courseRepository.GetCourses();
+        var courses = await courseRepository.GetAllAsync();
         var course = courses[0];
         foreach (var user in users)
         {

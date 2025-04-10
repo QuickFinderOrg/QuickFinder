@@ -28,7 +28,7 @@ public class Ticket() : BaseEntity, ICandidate
 
 
 
-public class TicketRepository : Repository<Ticket>
+public class TicketRepository : Repository<Ticket, Guid>
 {
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;

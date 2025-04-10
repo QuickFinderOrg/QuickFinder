@@ -45,9 +45,16 @@ public class CreateGroupModel(
             return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
         }
 
-        if (courseId != Guid.Empty)
+        if (courseId == Guid.Empty)
         {
-            Course = await courseRepository.GetCourse(courseId);
+            return NotFound();
+        }
+
+        var course = await courseRepository.GetByIdAsync(courseId);
+
+        if (course == null)
+        {
+            return NotFound();
         }
 
         if (await matchmaking.IsUserInGroup(user, Course))
@@ -78,10 +85,17 @@ public class CreateGroupModel(
             return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
         }
 
-        if (courseId != Guid.Empty)
+        if (courseId == Guid.Empty)
         {
-            Course = await courseRepository.GetCourse(courseId);
+            return NotFound();
         }
+
+        var course = await courseRepository.GetByIdAsync(courseId);
+        if (course == null)
+        {
+            return NotFound();
+        }
+        Course = course;
 
         if (!ModelState.IsValid)
         {

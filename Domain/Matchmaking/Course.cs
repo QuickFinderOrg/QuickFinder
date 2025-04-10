@@ -16,7 +16,7 @@ public class Course() : BaseEntity
     public IEnumerable<CoursePreferences> CoursePreferences { get; set; } = null!;
 }
 
-public class CourseRepository : Repository<Ticket>
+public class CourseRepository : Repository<Course, Guid>
 {
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;
@@ -36,32 +36,8 @@ public class CourseRepository : Repository<Ticket>
         return course;
     }
 
-    public async Task<Course[]> GetCourses()
+    public new async Task<Course[]> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await db.Courses.Include(c => c.Members).ToArrayAsync();
-    }
-
-    public async Task<Course[]> GetCourses(User user)
-    {
-        var groups = await db.Groups
-                            .Include(g => g.Members)
-                            .Include(g => g.Course)
-                            .Where(g => g.Members
-                            .Contains(user)).Include(g => g.Course).ToArrayAsync();
-
-        var courses = await db.Courses.Include(c => c.Members).ToListAsync();
-
-        // filter away courses?
-        foreach (Group group in groups)
-        {
-            courses.Remove(group.Course);
-        }
-
-        return [.. courses];
-    }
-
-    public async Task<Course> GetCourse(Guid courseId)
-    {
-        return await db.Courses.FirstAsync(c => c.Id == courseId) ?? throw new Exception("Course not found");
+        return await db.Courses.Include(c => c.Members).ToArrayAsync(cancellationToken);
     }
 }

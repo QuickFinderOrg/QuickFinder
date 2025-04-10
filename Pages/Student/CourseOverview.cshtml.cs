@@ -17,13 +17,11 @@ public class CourseOverviewModel(
 
     public async Task<IActionResult> OnGetAsync(Guid courseId)
     {
-        await LoadAsync(courseId);
+        var course = await courseRepository.GetByIdAsync(courseId);
+        if (course == null)
+        {
+            return NotFound();
+        }
         return Page();
     }
-
-    public async Task LoadAsync(Guid courseId)
-    {
-        Course = await courseRepository.GetCourse(courseId);
-    }
-
 }

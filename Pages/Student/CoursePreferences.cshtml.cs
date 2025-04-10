@@ -54,7 +54,7 @@ public class CoursePreferencesModel(
             return NotFound("CourseId must not be empty");
         }
 
-        var course = await courseRepository.GetCourse(courseId);
+        var course = await courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
             return NotFound("Course not found");

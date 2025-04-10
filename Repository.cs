@@ -3,16 +3,16 @@ using QuickFinder.Data;
 
 namespace QuickFinder;
 
-public interface IRepository<T> where T : class
+public interface IRepository<T, U> where T : class
 {
-    Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(U id, CancellationToken cancellationToken = default);
     Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default);
     Task AddAsync(T entity, CancellationToken cancellationToken = default);
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
-    Task DeleteAsync(int id, CancellationToken cancellationToken = default);
+    Task DeleteAsync(U id, CancellationToken cancellationToken = default);
 }
 
-public class Repository<T> : IRepository<T> where T : class
+public class Repository<T, U> : IRepository<T, U> where T : class
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly DbSet<T> _dbSet;
@@ -23,7 +23,7 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet = _dbContext.Set<T>();
     }
 
-    public async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<T?> GetByIdAsync(U id, CancellationToken cancellationToken = default)
     {
         return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
     }
@@ -45,7 +45,7 @@ public class Repository<T> : IRepository<T> where T : class
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(U id, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
         if (entity != null)
