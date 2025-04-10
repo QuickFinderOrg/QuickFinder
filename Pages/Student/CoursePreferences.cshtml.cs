@@ -76,14 +76,16 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
         var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
         if (coursePreferences is null)
         {
-            Input = new InputModel{
+            Input = new InputModel
+            {
                 NewAvailability = Availability.Daytime,
                 GroupSize = 2,
                 Days = DaysOfTheWeek.None,
             };
         }
-        else{
-        Input = new InputModel
+        else
+        {
+            Input = new InputModel
             {
                 NewAvailability = coursePreferences.Availability,
                 GroupSize = coursePreferences.GroupSize,
@@ -113,7 +115,7 @@ public class CoursePreferencesModel(MatchmakingService matchmaking, UserManager<
 
         var userId = userManager.GetUserId(User) ?? throw new Exception("User not found");
         CourseId = courseId;
-        var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
+        var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId) ?? throw new Exception("Preferences not found");
 
         logger.LogInformation("Days of: {days}", Input.Days);
         coursePreferences.Availability = Input.NewAvailability;
