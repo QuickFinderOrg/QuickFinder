@@ -7,6 +7,8 @@ namespace QuickFinder.Domain.Matchmaking;
 public record class UserPreferences : IUserPreferences
 {
     public Languages[] Language { get; set; } = new Languages[0];
+    public Availability GlobalAvailability { get; set; } = Availability.Daytime;
+    public DaysOfTheWeek GlobalDays { get; set; } = DaysOfTheWeek.All;
 }
 
 [PrimaryKey(nameof(UserId), nameof(CourseId))]
@@ -29,6 +31,8 @@ public record class CoursePreferences : ICoursePreferences
 public interface IUserPreferences
 {
     Languages[] Language { get; set; }
+    Availability GlobalAvailability { get; set; }
+    DaysOfTheWeek GlobalDays { get; set; }
 }
 
 public interface ICoursePreferences
@@ -48,7 +52,9 @@ public record class Preferences : IPreferences
     public Guid Id { get; init; }
     public Languages[] Language { get; set; } = [];
     public Availability Availability { get; set; } = Availability.Daytime;
+    public Availability GlobalAvailability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
+    public DaysOfTheWeek GlobalDays { get; set; } = DaysOfTheWeek.All;
     public uint GroupSize { get; set; } = 2;
 
     public override string ToString()

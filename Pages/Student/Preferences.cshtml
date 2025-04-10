@@ -3,6 +3,9 @@
 @using QuickFinder.Domain.Matchmaking;
 @{
     ViewData["Title"] = "Preferences";
+
+    DaysOfTheWeek[] days = [DaysOfTheWeek.Monday, DaysOfTheWeek.Tuesday, DaysOfTheWeek.Wednesday, 
+    DaysOfTheWeek.Thursday, DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
 }
 @{
     <div>
@@ -11,8 +14,33 @@
         <partial name="_StatusMessage" for="StatusMessage" />
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
-            <details>
-                <summary>Languages</summary>
+
+            <label>Available days:</label>
+            <br></br>
+            @foreach (var day in days)
+            {
+                if (Model.Input.Days.HasDay(day))
+                {
+                    <input type="checkbox" value="@day" name="Input.Days" checked />
+                }
+                else
+                {
+                    <input type="checkbox" value="@day" name="Input.Days" />
+                }
+                <label>@day</label>
+            }
+            <br></br>
+
+            <label asp-for="Input.Availability" class="form-label"></label>
+            <select asp-for="Input.Availability" class="form-control">
+                <option value="@Availability.Daytime">Day</option>
+                <option value="@Availability.Afternoons">Afternoon</option>
+            </select>
+            <span asp-validation-for="Input.Availability" class="text-danger"></span>
+            <br></br>
+
+            <label>Language:</label>
+            <br></br>
                 @foreach (var language in Enum.GetValues<Languages>())
                 {
                     if (Model.Input.SpokenLanguages.Contains(language))
@@ -25,7 +53,7 @@
                     }
                     <label>@language</label>
                 }
-            </details>
+            <br></br>
 
             <button type="submit">Submit</button>
         </form>

@@ -16,17 +16,26 @@ namespace QuickFinder.Pages.Student
 
         public class InputModel
         {
+            [Required]
+            [Display(Name = "Available time:")]
+            public Availability Availability { get; set; }
+
             public Languages[] SpokenLanguages { get; set; } = [];
 
             [Required]
             [Display(Name = "Languages")]
             public Languages[] SelectedLanguages { get; set; } = [];
 
+            public DaysOfTheWeek Days { get; set; }
         }
 
         public async Task LoadAsync(User user)
         {
-            Input = new InputModel { SpokenLanguages = user.Preferences.Language };
+            Input = new InputModel { 
+                SpokenLanguages = user.Preferences.Language,
+                Availability = user.Preferences.GlobalAvailability,
+                Days = user.Preferences.GlobalDays,
+            };
             await Task.CompletedTask;
         }
 
@@ -56,6 +65,8 @@ namespace QuickFinder.Pages.Student
             }
 
             user.Preferences.Language = Input.SelectedLanguages;
+            user.Preferences.GlobalAvailability = Input.Availability;
+            user.Preferences.GlobalDays = Input.Days;
             await userManager.UpdateAsync(user);
 
             StatusMessage = "Your preferences have been updated.";
