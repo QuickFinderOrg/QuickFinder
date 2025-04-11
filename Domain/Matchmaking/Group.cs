@@ -36,6 +36,61 @@ public class GroupRepository : Repository<Group, Guid>
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
     }
 
+    public new async Task AddAsync(Group group, CancellationToken cancellationToken = default)
+    {
+        var errors = await ValidateAsync(group, cancellationToken);
+        if (errors.Length > 0)
+        {
+            throw new Exception("Cannot create group: " + string.Join(", ", errors));
+        }
+
+        if (group.Members.Count >= group.GroupLimit)
+        {
+            group.Events.Add(new GroupFilled { Group = group });
+        }
+
+        db.Add(group);
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<string[]> ValidateAsync(
+        Group groupToValidate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var errors = new List<string>();
+
+        var course = groupToValidate.Course ?? throw new NullReferenceException("Course is null");
+
+        if (course.AllowCustomSize == false && groupToValidate.GroupLimit != course.GroupSize)
+        {
+            errors.Add($"Custom sizes are not allowed for course {course.Name}");
+        }
+
+        if (groupToValidate.Members.Count > groupToValidate.GroupLimit)
+        {
+            errors.Add("Members are over group member limit");
+        }
+
+        foreach (var member in groupToValidate.Members)
+        {
+            var otherGroups = await db
+                .Groups.Include(g => g.Course)
+                .Include(g => g.Members)
+                .Where(g => g.Course == course)
+                .Where(g => g.Members.Contains(member))
+                .ToArrayAsync(cancellationToken);
+            if (otherGroups.Length > 0)
+            {
+                errors.Add(
+                    $"Group member {member.UserName} {member.Id} is already in another group in course {course.Name}"
+                );
+            }
+        }
+
+        return errors.ToArray();
+    }
+
     public async Task<bool> IsUserInGroup(User user, Course course)
     {
         var groups = await GetGroups(user);
@@ -199,29 +254,6 @@ public class GroupRepository : Repository<Group, Guid>
             return false;
         }
         return true;
-    }
-
-    public async Task<Group> CreateGroup(User user, Course course, Preferences groupPreferences)
-    {
-        if (await IsUserInGroup(user, course))
-        {
-            throw new Exception("User is already in group");
-        }
-        var group = new Group() { Preferences = groupPreferences, Course = course };
-        group.Members.Add(user);
-
-        if (course.AllowCustomSize)
-        {
-            group.GroupLimit = groupPreferences.GroupSize;
-        }
-        else
-        {
-            group.GroupLimit = course.GroupSize;
-        }
-
-        db.Add(group);
-        await db.SaveChangesAsync();
-        return group;
     }
 
     public async Task<Task> AddToGroup(User user, Group group)

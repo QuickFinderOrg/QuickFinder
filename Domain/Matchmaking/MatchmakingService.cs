@@ -4,7 +4,11 @@ using QuickFinder.Data;
 
 namespace QuickFinder.Domain.Matchmaking;
 
-public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingService> logger)
+public class MatchmakingService(
+    ApplicationDbContext db,
+    ILogger<MatchmakingService> logger,
+    GroupRepository groupRepository
+)
 {
     public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(
         ICandidate seedCandidate,
@@ -142,9 +146,9 @@ public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingServ
             IsComplete = true,
         };
         // assumes all created groups are filled
-        db.Add(group);
         group.Members.AddRange(groupMembers);
-        group.Events.Add(new GroupFilled { Group = group });
+
+        await groupRepository.AddAsync(group, cancellationToken);
 
         foreach (var ticket in groupTickets)
         {
