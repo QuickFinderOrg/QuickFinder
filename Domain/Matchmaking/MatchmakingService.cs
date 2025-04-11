@@ -90,20 +90,20 @@ public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingServ
             .ToListAsync(cancellationToken);
         // todo: handle open groups that need members.
         // pick a random candidate.
-        var seedCandiate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
+        var seedCandidate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
 
-        if (seedCandiate == null)
+        if (seedCandidate == null)
         {
             logger.LogInformation("No seed candidate to begin matchmaking.");
             return;
         }
 
-        var course = seedCandiate.Course;
+        var course = seedCandidate.Course;
 
         var candidates_in_course = all_candidates.Where(t => t.Course == course);
 
         var matching_candidates = MatchmakingService.Match(
-            seedCandiate,
+            seedCandidate,
             candidates_in_course,
             (int)course.GroupSize,
             DateTime.Now
@@ -111,7 +111,7 @@ public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingServ
 
         if (matching_candidates.Length == 0)
         {
-            logger.LogInformation("No match found for {username}", seedCandiate.User.UserName);
+            logger.LogInformation("No match found for {username}", seedCandidate.User.UserName);
             return;
         }
 
@@ -129,21 +129,21 @@ public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingServ
 
         logger.LogInformation(
             "New potential group in {course}: {leader}, Candidates: {candidates}",
-            seedCandiate.Course.Name,
-            seedCandiate.User.UserName,
+            seedCandidate.Course.Name,
+            seedCandidate.User.UserName,
             string.Join(", ", matchingTickets)
         );
 
         var group = new Group
         {
-            Course = seedCandiate.Course,
-            Preferences = seedCandiate.Preferences,
+            Course = seedCandidate.Course,
+            Preferences = seedCandidate.Preferences,
             GroupLimit = course.GroupSize,
             IsComplete = true,
         };
         // assumes all created groups are filled
         db.Add(group);
-        group.Members.AddRange([seedCandiate.User, .. matchingUsers]);
+        group.Members.AddRange([seedCandidate.User, .. matchingUsers]);
         group.Events.Add(new GroupFilled { Group = group });
 
         foreach (var ticket in matchingTickets)
