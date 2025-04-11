@@ -78,4 +78,17 @@ public class TicketRepository : Repository<Ticket, Guid>
     {
         return await db.Tickets.Include(t => t.User).Include(t => t.Course).Where(t => t.Course == course).ToArrayAsync();
     }
+
+    public async Task<bool> RemoveUserFromWaitlist(string userId)
+    {
+        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
+        var tickets = await db.Tickets.Include(g => g.User).Where(t => t.User == user).ToArrayAsync();
+        db.Tickets.RemoveRange(tickets);
+
+        await db.SaveChangesAsync();
+
+        return true;
+    }
+
+
 }

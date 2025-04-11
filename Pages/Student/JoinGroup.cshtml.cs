@@ -58,7 +58,7 @@ public class JoinGroupModel(
         var group = await groupRepository.GetGroup(groupId);
         if (user is not null)
         {
-            await matchmaking.AddToGroup(user, group);
+            await groupRepository.AddToGroup(user, group);
         }
 
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });

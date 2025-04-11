@@ -108,7 +108,7 @@ public class CreateGroupModel(
         var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
         var groupPreferences = Preferences.From(userPreferences, coursePreferences);
 
-        await matchmaking.CreateGroup(user, Course, groupPreferences);
+        await groupRepository.CreateGroup(user, Course, groupPreferences);
 
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
