@@ -27,7 +27,7 @@ public class Repository<T, U> : IRepository<T, U>
 
     public async Task<T?> GetByIdAsync(U id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        return await _dbSet.FindAsync([id], cancellationToken);
     }
 
     public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -49,7 +49,7 @@ public class Repository<T, U> : IRepository<T, U>
 
     public async Task DeleteAsync(U id, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        var entity = await _dbSet.FindAsync([id], cancellationToken);
         if (entity != null)
         {
             _dbSet.Remove(entity);

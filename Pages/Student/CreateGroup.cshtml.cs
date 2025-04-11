@@ -7,7 +7,6 @@ using QuickFinder.Domain.Matchmaking;
 namespace QuickFinder.Pages.Student;
 
 public class CreateGroupModel(
-    MatchmakingService matchmaking,
     UserManager<User> userManager,
     CourseRepository courseRepository,
     GroupRepository groupRepository

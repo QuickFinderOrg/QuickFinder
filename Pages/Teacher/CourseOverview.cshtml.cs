@@ -33,14 +33,18 @@ public class CourseOverviewModel(
 
     public async Task<IActionResult> OnPostChangeCourseAsync()
     {
-        Course = await courseRepository.GetByIdAsync(Course.Id);
+        Course =
+            await courseRepository.GetByIdAsync(Course.Id)
+            ?? throw new Exception("Course not found");
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
     {
         await groupRepository.DeleteGroup(id);
-        Course = await courseRepository.GetByIdAsync(Course.Id);
+        Course =
+            await courseRepository.GetByIdAsync(Course.Id)
+            ?? throw new Exception("Course not found");
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
@@ -65,7 +69,9 @@ public class CourseOverviewModel(
         }
         else
         {
-            Course = await courseRepository.GetByIdAsync(courseId);
+            Course =
+                await courseRepository.GetByIdAsync(courseId)
+                ?? throw new Exception("Course not found");
         }
         var grouplist = await groupRepository.GetGroups(Course.Id);
         var CourseDiscordServers = await discordService.GetCourseServer(Course.Id);

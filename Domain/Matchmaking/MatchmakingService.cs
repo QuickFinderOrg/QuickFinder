@@ -4,11 +4,7 @@ using QuickFinder.Data;
 
 namespace QuickFinder.Domain.Matchmaking;
 
-public class MatchmakingService(
-    ApplicationDbContext db,
-    ILogger<MatchmakingService> logger,
-    GroupRepository groupRepository
-)
+public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingService> logger)
 {
     public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(
         ICandidate seedCandidate,
