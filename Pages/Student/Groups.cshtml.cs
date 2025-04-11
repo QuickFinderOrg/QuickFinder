@@ -61,7 +61,16 @@ public class GroupsModel(
         var user =
             await userManager.GetUserAsync(HttpContext.User)
             ?? throw new Exception("User not found");
-        await groupRepository.RemoveUserFromGroup(user.Id, groupId);
+
+        var group = await groupRepository.GetGroup(groupId);
+        if (group == null)
+        {
+            return NotFound();
+        }
+
+        group.Members.Remove(user);
+
+        await groupRepository.UpdateAsync(group);
         // TODO: add load functions and model errors
         // TODO: don't match again with a group you left
 
