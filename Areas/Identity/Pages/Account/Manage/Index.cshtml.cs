@@ -17,7 +17,8 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
         public IndexModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            UserService userService)
+            UserService userService
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -55,7 +56,6 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             public string Name { get; set; }
-
         }
 
         private async Task LoadAsync(User user)
@@ -65,10 +65,7 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
 
             Username = userName;
 
-            Input = new InputModel
-            {
-                Name = name
-            };
+            Input = new InputModel { Name = name };
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -100,7 +97,6 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
             bool NameValid = await _userService.UpdateName(user, Input.Name);
             if (!NameValid)
             {
-
                 StatusMessage = "Error: Couldn't update name.";
                 await LoadAsync(user);
                 return Page();

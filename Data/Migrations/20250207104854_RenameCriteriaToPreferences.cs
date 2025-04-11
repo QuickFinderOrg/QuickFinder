@@ -13,12 +13,14 @@ namespace QuickFinder.Migrations
             migrationBuilder.RenameColumn(
                 name: "Criteria_Availability",
                 table: "Groups",
-                newName: "Preferences_Availability");
+                newName: "Preferences_Availability"
+            );
 
             migrationBuilder.RenameColumn(
                 name: "Criteria_Availability",
                 table: "AspNetUsers",
-                newName: "Preferences_Availability");
+                newName: "Preferences_Availability"
+            );
         }
 
         /// <inheritdoc />
@@ -27,12 +29,14 @@ namespace QuickFinder.Migrations
             migrationBuilder.RenameColumn(
                 name: "Preferences_Availability",
                 table: "Groups",
-                newName: "Criteria_Availability");
+                newName: "Criteria_Availability"
+            );
 
             migrationBuilder.RenameColumn(
                 name: "Preferences_Availability",
                 table: "AspNetUsers",
-                newName: "Criteria_Availability");
+                newName: "Criteria_Availability"
+            );
         }
     }
 }

@@ -1,13 +1,15 @@
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class EditGroupModel(MatchmakingService matchmaking, GroupRepository groupRepository) : PageModel
+public class EditGroupModel(MatchmakingService matchmaking, GroupRepository groupRepository)
+    : PageModel
 {
     public Group? Group;
     public User[] Members = [];
+
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
         await LoadAsync(id);

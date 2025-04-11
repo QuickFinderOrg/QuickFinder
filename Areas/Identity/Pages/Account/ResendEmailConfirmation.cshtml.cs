@@ -47,9 +47,7 @@ namespace QuickFinder.Areas.Identity.Pages.Account
             public string Email { get; set; }
         }
 
-        public void OnGet()
-        {
-        }
+        public void OnGet() { }
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -61,7 +59,10 @@ namespace QuickFinder.Areas.Identity.Pages.Account
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Verification email sent. Please check your email."
+                );
                 return Page();
             }
 
@@ -72,13 +73,18 @@ namespace QuickFinder.Areas.Identity.Pages.Account
                 "/Account/ConfirmEmail",
                 pageHandler: null,
                 values: new { userId = userId, code = code },
-                protocol: Request.Scheme);
+                protocol: Request.Scheme
+            );
             await _emailSender.SendEmailAsync(
                 Input.Email,
                 "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>."
+            );
 
-            ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
+            ModelState.AddModelError(
+                string.Empty,
+                "Verification email sent. Please check your email."
+            );
             return Page();
         }
     }

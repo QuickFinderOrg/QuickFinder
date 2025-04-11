@@ -1,12 +1,15 @@
-﻿using QuickFinder.Domain.DiscordDomain;
-using QuickFinder.Domain.Matchmaking;
+﻿using MediatR;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MediatR;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IMediator mediator) : IdentityDbContext<User>(options)
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    IMediator mediator
+) : IdentityDbContext<User>(options)
 {
     public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
@@ -17,18 +20,19 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<CoursePreferences>()
-           .HasKey(cp => new { cp.UserId, cp.CourseId });
+        builder.Entity<CoursePreferences>().HasKey(cp => new { cp.UserId, cp.CourseId });
 
-        builder.Entity<CoursePreferences>()
-        .HasOne(cp => cp.User)
-        .WithMany(u => u.CoursePreferences)
-        .HasForeignKey(cp => cp.UserId);
+        builder
+            .Entity<CoursePreferences>()
+            .HasOne(cp => cp.User)
+            .WithMany(u => u.CoursePreferences)
+            .HasForeignKey(cp => cp.UserId);
 
-        builder.Entity<CoursePreferences>()
-        .HasOne(cp => cp.Course)
-        .WithMany(c => c.CoursePreferences)
-        .HasForeignKey(cp => cp.CourseId);
+        builder
+            .Entity<CoursePreferences>()
+            .HasOne(cp => cp.Course)
+            .WithMany(c => c.CoursePreferences)
+            .HasForeignKey(cp => cp.CourseId);
 
         base.OnModelCreating(builder);
     }
@@ -38,10 +42,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         int result = await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         // ignore events if no dispatcher provided
-        if (mediator == null) return result;
+        if (mediator == null)
+            return result;
 
         // dispatch events only if save was successful
-        var entitiesWithEvents = ChangeTracker.Entries<BaseEntity>()
+        var entitiesWithEvents = ChangeTracker
+            .Entries<BaseEntity>()
             .Select(e => e.Entity)
             .Where(e => e.Events.Count != 0)
             .ToArray();
@@ -57,6 +63,4 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         }
         return result;
     }
-
 }
-

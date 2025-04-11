@@ -1,11 +1,15 @@
 using System.ComponentModel.DataAnnotations;
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingService matchmakingService, CourseRepository courseRepository) : PageModel
+public class CreateCourseModel(
+    ILogger<CreateCourseModel> logger,
+    MatchmakingService matchmakingService,
+    CourseRepository courseRepository
+) : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
 
@@ -28,7 +32,12 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, MatchmakingSer
             return Page();
         }
 
-        _logger.LogDebug("Create new course {Name} with group size {GroupSize} and allow custom size {AllowCustomSize}", Name, GroupSize, AllowCustomSize);
+        _logger.LogDebug(
+            "Create new course {Name} with group size {GroupSize} and allow custom size {AllowCustomSize}",
+            Name,
+            GroupSize,
+            AllowCustomSize
+        );
         await courseRepository.CreateCourse(Name, GroupSize, AllowCustomSize);
         return RedirectToPage();
     }

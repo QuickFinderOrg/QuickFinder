@@ -15,15 +15,14 @@ namespace QuickFinder.Migrations
                 table: "Server",
                 type: "TEXT",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Name",
-                table: "Server");
+            migrationBuilder.DropColumn(name: "Name", table: "Server");
         }
     }
 }

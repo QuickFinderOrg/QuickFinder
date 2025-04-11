@@ -12,11 +12,13 @@ namespace QuickFinder.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_DiscordChannels_Groups_OwningGroupId",
-                table: "DiscordChannels");
+                table: "DiscordChannels"
+            );
 
             migrationBuilder.DropIndex(
                 name: "IX_DiscordChannels_OwningGroupId",
-                table: "DiscordChannels");
+                table: "DiscordChannels"
+            );
         }
 
         /// <inheritdoc />
@@ -25,7 +27,8 @@ namespace QuickFinder.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_DiscordChannels_OwningGroupId",
                 table: "DiscordChannels",
-                column: "OwningGroupId");
+                column: "OwningGroupId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_DiscordChannels_Groups_OwningGroupId",
@@ -33,7 +36,8 @@ namespace QuickFinder.Migrations
                 column: "OwningGroupId",
                 principalTable: "Groups",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
     }
 }

@@ -3,7 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace QuickFinder.Pages.Admin;
 
-public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userService, AdminService adminService) : PageModel
+public class UserOverviewModel(
+    ILogger<StudentsModel> logger,
+    UserService userService,
+    AdminService adminService
+) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -45,10 +49,15 @@ public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userSe
 
         foreach (User user in users)
         {
-            if (!string.IsNullOrEmpty(SearchQuery)
+            if (
+                !string.IsNullOrEmpty(SearchQuery)
                 && user.UserName != null
                 && !user.UserName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)
-                && !(await userService.GetName(user)).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+                && !(await userService.GetName(user)).Contains(
+                    SearchQuery,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
             {
                 continue;
             }
@@ -66,5 +75,3 @@ public class UserOverviewModel(ILogger<StudentsModel> logger, UserService userSe
         _logger.LogInformation("LoadAsync");
     }
 }
-
-

@@ -1,16 +1,21 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-using QuickFinder.Data;
-using QuickFinder.Domain.DiscordDomain;
-using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using QuickFinder.Data;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder;
 
-public class UserService(UserManager<User> userManager, ApplicationDbContext db, DiscordService discord, IEmailSender emailSender)
+public class UserService(
+    UserManager<User> userManager,
+    ApplicationDbContext db,
+    DiscordService discord,
+    IEmailSender emailSender
+)
 {
     private readonly UserStore<User> userStore = new UserStore<User>(db);
 
@@ -38,7 +43,12 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         return user;
     }
 
-    public async Task<User> CreateDiscordUser(string email, string username, string discordId, string name)
+    public async Task<User> CreateDiscordUser(
+        string email,
+        string username,
+        string discordId,
+        string name
+    )
     {
         var user = new User();
 
@@ -67,10 +77,10 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
     {
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
-        var discordTokenClaim = c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("Discord token not found");
+        var discordTokenClaim =
+            c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("Discord token not found");
         return discordTokenClaim.Value;
     }
-
 
     public async Task<List<DiscordServer>> GetUserDiscordServers(User user)
     {
@@ -82,8 +92,14 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         }
 
         using var httpClient = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, "https://discord.com/api/users/@me/guilds");
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", discordToken);
+        var request = new HttpRequestMessage(
+            HttpMethod.Get,
+            "https://discord.com/api/users/@me/guilds"
+        );
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer",
+            discordToken
+        );
 
         var response = await httpClient.SendAsync(request);
 
@@ -93,7 +109,9 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         }
 
         var content = await response.Content.ReadAsStringAsync();
-        var servers = System.Text.Json.JsonSerializer.Deserialize<List<DiscordServer>>(content) ?? throw new Exception("Failed to parse Discord servers");
+        var servers =
+            System.Text.Json.JsonSerializer.Deserialize<List<DiscordServer>>(content)
+            ?? throw new Exception("Failed to parse Discord servers");
 
         return servers;
     }
@@ -102,8 +120,10 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
     {
         [JsonPropertyName("id")]
         public required string Id { get; set; }
+
         [JsonPropertyName("name")]
         public required string Name { get; set; }
+
         [JsonPropertyName("icon")]
         public required string Icon { get; set; }
 
@@ -124,7 +144,9 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         }
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
-        var discordIdClaim = c.Find(c => c.Type == "DiscordId") ?? throw new Exception("User already exists without Discord ID");
+        var discordIdClaim =
+            c.Find(c => c.Type == "DiscordId")
+            ?? throw new Exception("User already exists without Discord ID");
         if (discordIdClaim.Value != discordId)
         {
             throw new Exception("Discord ID mismatch");
@@ -181,6 +203,7 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
         return nameClaim.Value;
     }
+
     public async Task<Claim?> GetNameClaim(User user)
     {
         var claims = await userManager.GetClaimsAsync(user);
@@ -203,7 +226,11 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
 
         if (oldClaim.Value != newName)
         {
-            await userManager.ReplaceClaimAsync(user, oldClaim, new Claim(ClaimTypes.Name, newName));
+            await userManager.ReplaceClaimAsync(
+                user,
+                oldClaim,
+                new Claim(ClaimTypes.Name, newName)
+            );
             return true;
         }
 
@@ -221,8 +248,6 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
         if (discordIdClaim != null)
         {
             await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
-
-
         }
         else if (sendToEmailClaim != null)
         {
@@ -234,10 +259,8 @@ public class UserService(UserManager<User> userManager, ApplicationDbContext db,
             return false;
         }
 
-
         return true;
     }
-
 }
 
 public class NotifyUsersOnGroupFilled(UserService userService) : INotificationHandler<GroupFilled>
@@ -255,7 +278,10 @@ public class NotifyUsersOnGroupFilled(UserService userService) : INotificationHa
 
         foreach (var member in notification.Group.Members)
         {
-            await userService.NotifyUser(member, $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}");
+            await userService.NotifyUser(
+                member,
+                $"Group found for {notification.Group.Course.Name}.\n Your members: \n{name_list}"
+            );
         }
     }
 }

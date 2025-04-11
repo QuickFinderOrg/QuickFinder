@@ -1,13 +1,13 @@
+using System.Net.Http.Headers;
+using System.Text;
 using Discord;
 using Discord.WebSocket;
-using QuickFinder.Data;
-using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using System.Text;
-using System.Net.Http.Headers;
+using QuickFinder.Data;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Domain.DiscordDomain;
 
@@ -22,7 +22,8 @@ public class DiscordService : IHostedService
         IOptions<DiscordServiceOptions> options,
         ILogger<DiscordService> logger,
         IServiceProvider serviceProvider,
-        DiscordSocketClient client)
+        DiscordSocketClient client
+    )
     {
         _options = options.Value;
         _logger = logger;
@@ -59,15 +60,26 @@ public class DiscordService : IHostedService
             return Task.CompletedTask;
         }
 
-        _logger.LogInformation("Discord bot recieved message from {name} ({id}) in {channel}\n {msg}", message.Author.GlobalName, message.Author.Id, message.Channel.Name, message.Content);
+        _logger.LogInformation(
+            "Discord bot recieved message from {name} ({id}) in {channel}\n {msg}",
+            message.Author.GlobalName,
+            message.Author.Id,
+            message.Channel.Name,
+            message.Content
+        );
 
         return Task.CompletedTask;
     }
 
     private Task OnJoinedServer(SocketGuild socketServer)
     {
-
-        _logger.LogInformation("Discord bot invited to server {serverName} ({serverId}), owned by {username} {userId}", socketServer.Name, socketServer.Id, socketServer.Owner.GlobalName, socketServer.OwnerId);
+        _logger.LogInformation(
+            "Discord bot invited to server {serverName} ({serverId}), owned by {username} {userId}",
+            socketServer.Name,
+            socketServer.Id,
+            socketServer.Owner.GlobalName,
+            socketServer.OwnerId
+        );
 
         return Task.CompletedTask;
     }
@@ -84,17 +96,32 @@ public class DiscordService : IHostedService
         try
         {
             await user.SendMessageAsync(message);
-            _logger.LogInformation("Sent DM to {username} ({userid}): {message}", user.Username, userId, message);
+            _logger.LogInformation(
+                "Sent DM to {username} ({userid}): {message}",
+                user.Username,
+                userId,
+                message
+            );
             return true;
         }
         catch (Discord.Net.HttpException e)
         {
-            _logger.LogError(e, "Failed to send DM to {username}: DiscordErrorCode: {DiscordErrorCode}", user.Username, e.DiscordCode);
+            _logger.LogError(
+                e,
+                "Failed to send DM to {username}: DiscordErrorCode: {DiscordErrorCode}",
+                user.Username,
+                e.DiscordCode
+            );
             return false;
         }
     }
 
-    public async Task<ulong?> CreateChannel(ulong serverId, string channelName, ulong? categoryId, Guid? owningGroup)
+    public async Task<ulong?> CreateChannel(
+        ulong serverId,
+        string channelName,
+        ulong? categoryId,
+        Guid? owningGroup
+    )
     {
         var server = _client.GetGuild(serverId);
         if (server == null)
@@ -107,14 +134,29 @@ public class DiscordService : IHostedService
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            var serverDB = await dbContext.DiscordServers.FirstAsync(s => s.Id == serverId) ?? throw new Exception($"Server {_options.ServerId} not in db");
+            var serverDB =
+                await dbContext.DiscordServers.FirstAsync(s => s.Id == serverId)
+                ?? throw new Exception($"Server {_options.ServerId} not in db");
 
-            var channel = await server.CreateTextChannelAsync(channelName, p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId));
-            var channelDB = new Channel() { Id = channel.Id, CategoryId = ulong.Parse(_options.GroupChannelCategoryId), Server = serverDB, OwningGroupId = owningGroup };
+            var channel = await server.CreateTextChannelAsync(
+                channelName,
+                p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId)
+            );
+            var channelDB = new Channel()
+            {
+                Id = channel.Id,
+                CategoryId = ulong.Parse(_options.GroupChannelCategoryId),
+                Server = serverDB,
+                OwningGroupId = owningGroup,
+            };
             dbContext.Add(channelDB);
             // await channel.SendMessageAsync("@everyone");
 
-            _logger.LogInformation("Created Discord channel '{name}' ({id})", channel.ToString(), channel.Id);
+            _logger.LogInformation(
+                "Created Discord channel '{name}' ({id})",
+                channel.ToString(),
+                channel.Id
+            );
             await dbContext.SaveChangesAsync();
             return channel.Id;
         }
@@ -144,7 +186,10 @@ public class DiscordService : IHostedService
             return null;
         }
 
-        var permissions = new OverwritePermissions(viewChannel: PermValue.Allow, sendMessages: PermValue.Allow);
+        var permissions = new OverwritePermissions(
+            viewChannel: PermValue.Allow,
+            sendMessages: PermValue.Allow
+        );
         await discord_channel.AddPermissionOverwriteAsync(discord_user, permissions);
 
         return channelId;
@@ -187,7 +232,14 @@ public class DiscordService : IHostedService
 
         var channels = server.TextChannels.ToList();
 
-        var discord_channels = channels.Select(channel => new DiscordChannel() { Id = channel.Id, Name = channel.Name, Category = channel.Category?.Name }).ToArray();
+        var discord_channels = channels
+            .Select(channel => new DiscordChannel()
+            {
+                Id = channel.Id,
+                Name = channel.Name,
+                Category = channel.Category?.Name,
+            })
+            .ToArray();
 
         return discord_channels;
     }
@@ -199,7 +251,9 @@ public class DiscordService : IHostedService
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var servers = await dbContext.DiscordServers.ToArrayAsync();
-            return servers.Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name }).ToArray();
+            return servers
+                .Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name })
+                .ToArray();
         }
     }
 
@@ -216,8 +270,13 @@ public class DiscordService : IHostedService
                 return [];
             }
 
-            var servers = await dbContext.DiscordServers.Include(server => server.Courses).Where(server => server.Courses.Contains(course)).ToArrayAsync();
-            return servers.Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name }).ToArray();
+            var servers = await dbContext
+                .DiscordServers.Include(server => server.Courses)
+                .Where(server => server.Courses.Contains(course))
+                .ToArrayAsync();
+            return servers
+                .Select(s => new DiscordServerItem() { Id = s.Id, Name = s.Name })
+                .ToArray();
         }
     }
 
@@ -235,7 +294,9 @@ public class DiscordService : IHostedService
                 return false;
             }
 
-            var server = await dbContext.DiscordServers.Include(server => server.Courses).FirstOrDefaultAsync(server => server.Id == serverId);
+            var server = await dbContext
+                .DiscordServers.Include(server => server.Courses)
+                .FirstOrDefaultAsync(server => server.Id == serverId);
             if (server == null)
             {
                 _logger.LogError("Server {serverId} not found", serverId);
@@ -245,22 +306,32 @@ public class DiscordService : IHostedService
             server.Courses.Add(course);
             await dbContext.SaveChangesAsync();
 
-            _logger.LogInformation("Added server {serverId} to course {courseId}", serverId, courseId);
+            _logger.LogInformation(
+                "Added server {serverId} to course {courseId}",
+                serverId,
+                courseId
+            );
             return true;
         }
     }
 
     public DiscordServerItem[] GetBotServers()
     {
-        var servers = _client.Guilds.Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name }).ToArray();
+        var servers = _client
+            .Guilds.Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
+            .ToArray();
         return servers;
     }
 
     public DiscordServerItem[] GetServersOwnedByUser(ulong ownerDiscordId)
     {
-        var servers = _client.Guilds.Where(server => server.OwnerId == ownerDiscordId).Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name }).ToArray();
+        var servers = _client
+            .Guilds.Where(server => server.OwnerId == ownerDiscordId)
+            .Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
+            .ToArray();
         return servers;
     }
+
     /// <summary>
     /// Get servers that are owned by the user and are not already in the database.
     /// </summary>
@@ -272,11 +343,11 @@ public class DiscordService : IHostedService
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var existing_server_ids = db.DiscordServers.Select(server => server.Id).ToArray();
 
-        var servers = _client.Guilds
-                        .Where(server => server.OwnerId == ownerDiscordId)
-                        .Where(server => !existing_server_ids.Contains(server.Id))
-                        .Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
-                        .ToArray();
+        var servers = _client
+            .Guilds.Where(server => server.OwnerId == ownerDiscordId)
+            .Where(server => !existing_server_ids.Contains(server.Id))
+            .Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
+            .ToArray();
         return servers;
     }
 
@@ -290,22 +361,28 @@ public class DiscordService : IHostedService
         var existingServer = await dbContext.DiscordServers.FindAsync(serverId);
         if (existingServer != null)
         {
-            throw new InvalidOperationException($"Server {serverId} already exists in the database.");
+            throw new InvalidOperationException(
+                $"Server {serverId} already exists in the database."
+            );
         }
 
-        var socket_server = _client.GetGuild(serverId) ?? throw new Exception($"Server {serverId} not found in Discord or Bot is not in the server.");
+        var socket_server =
+            _client.GetGuild(serverId)
+            ?? throw new Exception(
+                $"Server {serverId} not found in Discord or Bot is not in the server."
+            );
 
         var server_name = socket_server.Name;
-        var new_server = new Server
-        {
-            Id = serverId,
-            Name = server_name
-        };
+        var new_server = new Server { Id = serverId, Name = server_name };
 
         dbContext.DiscordServers.Add(new_server);
         await dbContext.SaveChangesAsync();
 
-        _logger.LogInformation("Added new server {serverId} ({serverName}) to the database.", serverId, server_name);
+        _logger.LogInformation(
+            "Added new server {serverId} ({serverName}) to the database.",
+            serverId,
+            server_name
+        );
     }
 
     public async Task EnsureCourseServer(Guid courseId, ulong serverId)
@@ -322,7 +399,11 @@ public class DiscordService : IHostedService
         var server = await db.DiscordServers.FindAsync(serverId);
         if (server == null)
         {
-            var socket_server = _client.GetGuild(serverId) ?? throw new Exception($"Server {serverId} not found in Discord or Bot is not in the server.");
+            var socket_server =
+                _client.GetGuild(serverId)
+                ?? throw new Exception(
+                    $"Server {serverId} not found in Discord or Bot is not in the server."
+                );
             server = new Server { Id = serverId, Name = socket_server.Name };
             db.Add(server);
         }
@@ -331,9 +412,12 @@ public class DiscordService : IHostedService
         {
             server.Courses.Add(course);
             await db.SaveChangesAsync();
-            _logger.LogInformation("Added server {serverId} to course {courseId}", serverId, courseId);
+            _logger.LogInformation(
+                "Added server {serverId} to course {courseId}",
+                serverId,
+                courseId
+            );
         }
-
     }
 
     public async Task DeleteGroupChannels(Guid groupId)
@@ -349,8 +433,8 @@ public class DiscordService : IHostedService
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            var channels = await dbContext.DiscordChannels
-                .Where(ch => ch.OwningGroupId == groupId)
+            var channels = await dbContext
+                .DiscordChannels.Where(ch => ch.OwningGroupId == groupId)
                 .ToArrayAsync();
 
             foreach (var channel in channels)
@@ -366,15 +450,19 @@ public class DiscordService : IHostedService
 
         await AddGuildMember(_options.BotToken, guild.Id, userId, accessToken);
     }
-    public static async Task AddGuildMember(string botToken, ulong guildId, ulong userId, string accessToken)
+
+    public static async Task AddGuildMember(
+        string botToken,
+        ulong guildId,
+        ulong userId,
+        string accessToken
+    )
     {
         var client = new HttpClient();
-        var uri = $"https://discord.com/api/guilds/{guildId}/members/{userId}?scope=bot%20guilds.join";
+        var uri =
+            $"https://discord.com/api/guilds/{guildId}/members/{userId}?scope=bot%20guilds.join";
 
-        var properties = new
-        {
-            access_token = accessToken
-        };
+        var properties = new { access_token = accessToken };
 
         var json = JsonConvert.SerializeObject(properties);
         var data = new StringContent(json, Encoding.UTF8, "application/json");
@@ -383,18 +471,19 @@ public class DiscordService : IHostedService
 
         if (!response.IsSuccessStatusCode)
         {
-             //Log
+            //Log
             Console.WriteLine($"Error joining guild. Status code: {response.StatusCode}");
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
         else
         {
-          //Log to know it was a success.
-          Console.WriteLine("Sucess! user id was sent over");
+            //Log to know it was a success.
+            Console.WriteLine("Sucess! user id was sent over");
         }
     }
 
-    public string InviteURL => $"https://discord.com/oauth2/authorize?client_id={_options.ClientId}";
+    public string InviteURL =>
+        $"https://discord.com/oauth2/authorize?client_id={_options.ClientId}";
 }
 
 public record class DiscordChannel
@@ -434,7 +523,12 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
     private readonly UserService _userService;
     private readonly ILogger<NotifyUsersOnGroupFilled> _logger;
 
-    public CreateDiscordChannelOnGroupFilled(IOptions<DiscordServiceOptions> options, DiscordService discord, UserService userService, ILogger<NotifyUsersOnGroupFilled> logger)
+    public CreateDiscordChannelOnGroupFilled(
+        IOptions<DiscordServiceOptions> options,
+        DiscordService discord,
+        UserService userService,
+        ILogger<NotifyUsersOnGroupFilled> logger
+    )
     {
         _options = options;
         _discord = discord;
@@ -451,7 +545,12 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
 
         try
         {
-            var new_channel_id = await _discord.CreateChannel(defaultServerId, channelName, defaultCategoryId, notification.Group.Id);
+            var new_channel_id = await _discord.CreateChannel(
+                defaultServerId,
+                channelName,
+                defaultCategoryId,
+                notification.Group.Id
+            );
             if (new_channel_id == null)
             {
                 _logger.LogError("Could not create channel on {ServerId}.", defaultServerId);
@@ -465,14 +564,26 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
                 {
                     continue;
                 }
-                await _discord.SetUserPermissionsOnChannel((ulong)new_channel_id, (ulong)discord_id);
+                await _discord.SetUserPermissionsOnChannel(
+                    (ulong)new_channel_id,
+                    (ulong)discord_id
+                );
             }
 
-            _logger.LogInformation("Created new Discord channel {channelId} for group {groupId} in server {ServerId}", new_channel_id, notification.Group.Id, defaultServerId);
+            _logger.LogInformation(
+                "Created new Discord channel {channelId} for group {groupId} in server {ServerId}",
+                new_channel_id,
+                notification.Group.Id,
+                defaultServerId
+            );
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error creating Discord channel for group {GroupId}", notification.Group.Id);
+            _logger.LogError(
+                e,
+                "Error creating Discord channel for group {GroupId}",
+                notification.Group.Id
+            );
         }
     }
 }
@@ -482,7 +593,10 @@ public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDi
     private readonly DiscordService _discord;
     private readonly ILogger<DeleteDiscordChannelOnGroupDisbanded> _logger;
 
-    public DeleteDiscordChannelOnGroupDisbanded(DiscordService discord, ILogger<DeleteDiscordChannelOnGroupDisbanded> logger)
+    public DeleteDiscordChannelOnGroupDisbanded(
+        DiscordService discord,
+        ILogger<DeleteDiscordChannelOnGroupDisbanded> logger
+    )
     {
         _discord = discord;
         _logger = logger;
@@ -498,7 +612,11 @@ public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDi
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error deleting Discord channels for group {GroupId}", notification.GroupId);
+            _logger.LogError(
+                e,
+                "Error deleting Discord channels for group {GroupId}",
+                notification.GroupId
+            );
         }
     }
 }

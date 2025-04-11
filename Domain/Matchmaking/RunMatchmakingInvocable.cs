@@ -2,7 +2,10 @@ using Coravel.Invocable;
 
 namespace QuickFinder.Domain.Matchmaking;
 
-public class RunMatchmakingInvocable(ILogger<RunMatchmakingInvocable> logger, IServiceProvider serviceProvider) : IInvocable, ICancellableInvocable
+public class RunMatchmakingInvocable(
+    ILogger<RunMatchmakingInvocable> logger,
+    IServiceProvider serviceProvider
+) : IInvocable, ICancellableInvocable
 {
     public CancellationToken CancellationToken { get; set; }
 

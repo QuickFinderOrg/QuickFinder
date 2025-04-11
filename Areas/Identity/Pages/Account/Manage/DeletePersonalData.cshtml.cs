@@ -18,7 +18,8 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
         public DeletePersonalDataModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;

@@ -1,6 +1,6 @@
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Admin;
 
@@ -11,7 +11,7 @@ public class StudentsModel(
     UserService userService,
     CourseRepository courseRepository,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     private readonly ILogger<StudentsModel> _logger = logger;
 
@@ -28,7 +28,6 @@ public class StudentsModel(
     {
         await matchmaking.DoMatching();
         return RedirectToPage();
-
     }
 
     public async Task<IActionResult> OnPostResetAsync()
@@ -69,5 +68,3 @@ public class StudentsModel(
         _logger.LogInformation("LoadAsync");
     }
 }
-
-

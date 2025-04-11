@@ -1,11 +1,16 @@
-using QuickFinder.Data;
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Data;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Admin;
 
-public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbContext db, UserService userService, TicketRepository ticketRepository) : PageModel
+public class AddStudentsModel(
+    ILogger<AddStudentsModel> logger,
+    ApplicationDbContext db,
+    UserService userService,
+    TicketRepository ticketRepository
+) : PageModel
 {
     private readonly ILogger<AddStudentsModel> _logger = logger;
 
@@ -19,5 +24,3 @@ public class AddStudentsModel(ILogger<AddStudentsModel> logger, ApplicationDbCon
         return RedirectToPage(AdminRoutes.Students());
     }
 }
-
-

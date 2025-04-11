@@ -31,7 +31,8 @@ namespace QuickFinder.Pages.Student
 
         public async Task LoadAsync(User user)
         {
-            Input = new InputModel { 
+            Input = new InputModel
+            {
                 SpokenLanguages = user.Preferences.Language,
                 Availability = user.Preferences.GlobalAvailability,
                 Days = user.Preferences.GlobalDays,

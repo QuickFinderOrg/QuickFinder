@@ -1,7 +1,7 @@
-using QuickFinder.Domain.Matchmaking;
+using System.Collections;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Collections;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder;
 

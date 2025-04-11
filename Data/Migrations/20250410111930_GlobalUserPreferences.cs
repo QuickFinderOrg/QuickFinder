@@ -15,48 +15,47 @@ namespace QuickFinder.Migrations
                 table: "Preferences",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "GlobalDays",
                 table: "Preferences",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "Preferences_GlobalAvailability",
                 table: "AspNetUsers",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "Preferences_GlobalDays",
                 table: "AspNetUsers",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "GlobalAvailability",
-                table: "Preferences");
+            migrationBuilder.DropColumn(name: "GlobalAvailability", table: "Preferences");
 
-            migrationBuilder.DropColumn(
-                name: "GlobalDays",
-                table: "Preferences");
+            migrationBuilder.DropColumn(name: "GlobalDays", table: "Preferences");
 
             migrationBuilder.DropColumn(
                 name: "Preferences_GlobalAvailability",
-                table: "AspNetUsers");
+                table: "AspNetUsers"
+            );
 
-            migrationBuilder.DropColumn(
-                name: "Preferences_GlobalDays",
-                table: "AspNetUsers");
+            migrationBuilder.DropColumn(name: "Preferences_GlobalDays", table: "AspNetUsers");
         }
     }
 }

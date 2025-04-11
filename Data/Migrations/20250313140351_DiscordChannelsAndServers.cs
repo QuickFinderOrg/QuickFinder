@@ -14,10 +14,11 @@ namespace QuickFinder.Migrations
                 name: "Channel",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(type: "INTEGER", nullable: false)
+                    Id = table
+                        .Column<ulong>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ServerId = table.Column<ulong>(type: "INTEGER", nullable: false),
-                    OwningGroupId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    OwningGroupId = table.Column<Guid>(type: "TEXT", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -27,20 +28,22 @@ namespace QuickFinder.Migrations
                         column: x => x.OwningGroupId,
                         principalTable: "Groups",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_Channel_OwningGroupId",
                 table: "Channel",
-                column: "OwningGroupId");
+                column: "OwningGroupId"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Channel");
+            migrationBuilder.DropTable(name: "Channel");
         }
     }
 }

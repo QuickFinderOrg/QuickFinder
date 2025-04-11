@@ -11,24 +11,14 @@ public class MailJetEmailSender(IOptions<MailjetOptions> options) : IEmailSender
 
     public async Task SendEmailAsync(string email, string subject, string body)
     {
-        var client = new MailjetClient(
-            _options.Id,
-            _options.Secret
-        );
+        var client = new MailjetClient(_options.Id, _options.Secret);
 
-        var request = new MailjetRequest
-        {
-            Resource = Send.Resource
-        }
-        .Property(Send.FromEmail, _options.SenderEmail ?? "quickfinder@example.com")
-        .Property(Send.FromName, "QuickFinder")
-        .Property(Send.Subject, subject)
-        .Property(Send.HtmlPart, body)
-        .Property(Send.Recipients, new JArray {
-            new JObject {
-                { "Email", email }
-            }
-        });
+        var request = new MailjetRequest { Resource = Send.Resource }
+            .Property(Send.FromEmail, _options.SenderEmail ?? "quickfinder@example.com")
+            .Property(Send.FromName, "QuickFinder")
+            .Property(Send.Subject, subject)
+            .Property(Send.HtmlPart, body)
+            .Property(Send.Recipients, new JArray { new JObject { { "Email", email } } });
 
         await client.PostAsync(request);
     }

@@ -5,6 +5,7 @@ namespace QuickFinder.Domain.Matchmaking;
 public sealed class MatchmakingOptions
 {
     public const string Matchmaking = "Matchmaking";
+
     [Required]
     public string? Interval { get; set; }
     public TimeSpan IntervalTimeSpan

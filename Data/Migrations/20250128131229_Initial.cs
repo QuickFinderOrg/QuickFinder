@@ -14,35 +14,32 @@ namespace QuickFinder.Migrations
                 name: "CourseId",
                 table: "Tickets",
                 type: "TEXT",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_CourseId",
                 table: "Tickets",
-                column: "CourseId");
+                column: "CourseId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tickets_Courses_CourseId",
                 table: "Tickets",
                 column: "CourseId",
                 principalTable: "Courses",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Tickets_Courses_CourseId",
-                table: "Tickets");
+            migrationBuilder.DropForeignKey(name: "FK_Tickets_Courses_CourseId", table: "Tickets");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Tickets_CourseId",
-                table: "Tickets");
+            migrationBuilder.DropIndex(name: "IX_Tickets_CourseId", table: "Tickets");
 
-            migrationBuilder.DropColumn(
-                name: "CourseId",
-                table: "Tickets");
+            migrationBuilder.DropColumn(name: "CourseId", table: "Tickets");
         }
     }
 }

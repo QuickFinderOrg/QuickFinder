@@ -10,9 +10,7 @@ namespace QuickFinder.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Groups_Courses_CourseId",
-                table: "Groups");
+            migrationBuilder.DropForeignKey(name: "FK_Groups_Courses_CourseId", table: "Groups");
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "CourseId",
@@ -22,7 +20,8 @@ namespace QuickFinder.Migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
                 oldType: "TEXT",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Groups_Courses_CourseId",
@@ -30,15 +29,14 @@ namespace QuickFinder.Migrations
                 column: "CourseId",
                 principalTable: "Courses",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Groups_Courses_CourseId",
-                table: "Groups");
+            migrationBuilder.DropForeignKey(name: "FK_Groups_Courses_CourseId", table: "Groups");
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "CourseId",
@@ -46,14 +44,16 @@ namespace QuickFinder.Migrations
                 type: "TEXT",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "TEXT");
+                oldType: "TEXT"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Groups_Courses_CourseId",
                 table: "Groups",
                 column: "CourseId",
                 principalTable: "Courses",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
         }
     }
 }

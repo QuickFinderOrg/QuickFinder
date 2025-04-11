@@ -3,7 +3,8 @@ using QuickFinder.Data;
 
 namespace QuickFinder;
 
-public interface IRepository<T, U> where T : class
+public interface IRepository<T, U>
+    where T : class
 {
     Task<T?> GetByIdAsync(U id, CancellationToken cancellationToken = default);
     Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default);
@@ -12,7 +13,8 @@ public interface IRepository<T, U> where T : class
     Task DeleteAsync(U id, CancellationToken cancellationToken = default);
 }
 
-public class Repository<T, U> : IRepository<T, U> where T : class
+public class Repository<T, U> : IRepository<T, U>
+    where T : class
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly DbSet<T> _dbSet;

@@ -15,26 +15,24 @@ namespace QuickFinder.Migrations
                 table: "Groups",
                 type: "TEXT",
                 nullable: false,
-                defaultValue: "[]");
+                defaultValue: "[]"
+            );
 
             migrationBuilder.AddColumn<string>(
                 name: "Preferences_Language",
                 table: "AspNetUsers",
                 type: "TEXT",
                 nullable: false,
-                defaultValue: "[]");
+                defaultValue: "[]"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Preferences_Language",
-                table: "Groups");
+            migrationBuilder.DropColumn(name: "Preferences_Language", table: "Groups");
 
-            migrationBuilder.DropColumn(
-                name: "Preferences_Language",
-                table: "AspNetUsers");
+            migrationBuilder.DropColumn(name: "Preferences_Language", table: "AspNetUsers");
         }
     }
 }

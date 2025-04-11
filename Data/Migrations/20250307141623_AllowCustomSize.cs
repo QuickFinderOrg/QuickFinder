@@ -15,15 +15,14 @@ namespace QuickFinder.Migrations
                 table: "Courses",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "AllowCustomSize",
-                table: "Courses");
+            migrationBuilder.DropColumn(name: "AllowCustomSize", table: "Courses");
         }
     }
 }

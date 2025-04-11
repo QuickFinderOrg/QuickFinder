@@ -1,6 +1,6 @@
-using QuickFinder.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using QuickFinder.Data;
 
 namespace QuickFinder.Domain.Matchmaking;
 
@@ -8,9 +8,12 @@ public class MatchmakingService(
     ApplicationDbContext db,
     ILogger<MatchmakingService> logger,
     GroupRepository groupRepository
-    )
+)
 {
-    public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(ICandidate seedCandidate, IEnumerable<ICandidate> candidatePool)
+    public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(
+        ICandidate seedCandidate,
+        IEnumerable<ICandidate> candidatePool
+    )
     {
         var potentialMembers = new List<KeyValuePair<decimal, ICandidate>>();
 
@@ -25,7 +28,6 @@ public class MatchmakingService(
             {
                 potentialMembers.Add(KeyValuePair.Create(score, candidate));
             }
-
         }
 
         var sortedList = potentialMembers.OrderByDescending(pair => pair.Key).ToList();
@@ -40,13 +42,19 @@ public class MatchmakingService(
     /// <param name="candidatePool"></param>
     /// <param name="groupSize"></param>
     /// <returns></returns>
-    public static ICandidate[] Match(ICandidate seedCandidate, IEnumerable<ICandidate> candidatePool, int groupSize, DateTime time)
+    public static ICandidate[] Match(
+        ICandidate seedCandidate,
+        IEnumerable<ICandidate> candidatePool,
+        int groupSize,
+        DateTime time
+    )
     {
         var scoreRequirement = 0.5m;
         var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
         var waitTime = time - seedCandidate.CreatedAt; // TODO: account for wait time.
 
-        var orderedCandidates = OrderCandidates(seedCandidate, candidatePool).Where(pair => pair.Key >= scoreRequirement);
+        var orderedCandidates = OrderCandidates(seedCandidate, candidatePool)
+            .Where(pair => pair.Key >= scoreRequirement);
 
         var sortedList = orderedCandidates.Select(pair => pair.Value).ToList();
 
@@ -79,11 +87,14 @@ public class MatchmakingService(
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
-        var all_candidates = await db.Tickets.Include(t => t.Course).Include(t => t.Preferences).Include(t => t.User).ToListAsync(cancellationToken);
+        var all_candidates = await db
+            .Tickets.Include(t => t.Course)
+            .Include(t => t.Preferences)
+            .Include(t => t.User)
+            .ToListAsync(cancellationToken);
         // todo: handle open groups that need members.
         // pick a random candidate.
         var seedCandiate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
-
 
         if (seedCandiate == null)
         {
@@ -95,7 +106,12 @@ public class MatchmakingService(
 
         var candidates_in_course = all_candidates.Where(t => t.Course == course);
 
-        var matching_candidates = MatchmakingService.Match(seedCandiate, candidates_in_course, (int)course.GroupSize, DateTime.Now);
+        var matching_candidates = MatchmakingService.Match(
+            seedCandiate,
+            candidates_in_course,
+            (int)course.GroupSize,
+            DateTime.Now
+        );
 
         if (matching_candidates.Length == 0)
         {
@@ -104,19 +120,31 @@ public class MatchmakingService(
         }
 
         var matchingTickets = matching_candidates.Select(candidate =>
-            candidates_in_course.First(ticket => ticket == candidate));
+            candidates_in_course.First(ticket => ticket == candidate)
+        );
 
-        var matchingUsers = matching_candidates.Select(candidate =>
-        candidates_in_course.First(ticket => ticket == candidate)).Select(t => t.User);
+        var matchingUsers = matching_candidates
+            .Select(candidate => candidates_in_course.First(ticket => ticket == candidate))
+            .Select(t => t.User);
 
         var matchingUsernames = matchingTickets.Select(t => t.User.UserName);
 
         // TODO: make Match generic.
 
-        logger.LogInformation("New potential group in {course}: {leader}, Candidates: {candidates}",
-            seedCandiate.Course.Name, seedCandiate.User.UserName, string.Join(", ", matchingTickets));
+        logger.LogInformation(
+            "New potential group in {course}: {leader}, Candidates: {candidates}",
+            seedCandiate.Course.Name,
+            seedCandiate.User.UserName,
+            string.Join(", ", matchingTickets)
+        );
 
-        var group = new Group { Course = seedCandiate.Course, Preferences = seedCandiate.Preferences, GroupLimit = course.GroupSize, IsComplete = true };
+        var group = new Group
+        {
+            Course = seedCandiate.Course,
+            Preferences = seedCandiate.Preferences,
+            GroupLimit = course.GroupSize,
+            IsComplete = true,
+        };
         // assumes all created groups are filled
         db.Add(group);
         group.Members.AddRange([seedCandiate.User, .. matchingUsers]);
@@ -132,7 +160,11 @@ public class MatchmakingService(
 
     public async Task<CoursePreferences?> GetCoursePreferences(Guid courseId, string userId)
     {
-        return await db.CoursePreferences.Include(prefs => prefs.User).Include(prefs => prefs.Course).Where(prefs => prefs.UserId == userId && prefs.CourseId == courseId).SingleOrDefaultAsync();
+        return await db
+            .CoursePreferences.Include(prefs => prefs.User)
+            .Include(prefs => prefs.Course)
+            .Where(prefs => prefs.UserId == userId && prefs.CourseId == courseId)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<CoursePreferences?> CreateNewCoursePreferences(Guid courseId, string userId)
@@ -143,9 +175,12 @@ public class MatchmakingService(
         return coursePreferences;
     }
 
-    public async Task UpdateCoursePreferencesAsync(Guid courseId, string userId, CoursePreferences newPreferences)
+    public async Task UpdateCoursePreferencesAsync(
+        Guid courseId,
+        string userId,
+        CoursePreferences newPreferences
+    )
     {
-
         await db.SaveChangesAsync();
     }
 
@@ -154,5 +189,4 @@ public class MatchmakingService(
         // TODO: remove all references
         await Task.CompletedTask;
     }
-
 }

@@ -15,26 +15,24 @@ namespace QuickFinder.Migrations
                 table: "Groups",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0u);
+                defaultValue: 0u
+            );
 
             migrationBuilder.AddColumn<uint>(
                 name: "Preferences_GroupSize",
                 table: "AspNetUsers",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0u);
+                defaultValue: 0u
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Preferences_GroupSize",
-                table: "Groups");
+            migrationBuilder.DropColumn(name: "Preferences_GroupSize", table: "Groups");
 
-            migrationBuilder.DropColumn(
-                name: "Preferences_GroupSize",
-                table: "AspNetUsers");
+            migrationBuilder.DropColumn(name: "Preferences_GroupSize", table: "AspNetUsers");
         }
     }
 }

@@ -5,6 +5,7 @@ namespace QuickFinder.Domain.DiscordDomain;
 public class Server : BaseEntity
 {
     public ulong Id { get; init; }
+
     /// <summary>
     /// Which category to put new channels into
     /// </summary>

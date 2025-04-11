@@ -1,8 +1,8 @@
-using QuickFinder.Domain.DiscordDomain;
-using QuickFinder.Domain.Matchmaking;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Http.HttpResults;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
@@ -11,11 +11,12 @@ public class CourseOverviewModel(
     DiscordService discordService,
     CourseRepository courseRepository,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
     public List<Group> Groups = [];
     public Course[] Courses = [];
+
     [BindProperty]
     public Course Course { get; set; } = default!;
 
@@ -23,7 +24,6 @@ public class CourseOverviewModel(
 
     [BindProperty]
     public bool AllowCustomSize { get; set; }
-
 
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
@@ -76,5 +76,3 @@ public class CourseOverviewModel(
         _logger.LogInformation("LoadGroups");
     }
 }
-
-

@@ -15,7 +15,10 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
         private readonly ILogger<TwoFactorAuthenticationModel> _logger;
 
         public TwoFactorAuthenticationModel(
-            UserManager<User> userManager, SignInManager<User> signInManager, ILogger<TwoFactorAuthenticationModel> logger)
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            ILogger<TwoFactorAuthenticationModel> logger
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -79,7 +82,8 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.ForgetTwoFactorClientAsync();
-            StatusMessage = "The current browser has been forgotten. When you login again from this browser you will be prompted for your 2fa code.";
+            StatusMessage =
+                "The current browser has been forgotten. When you login again from this browser you will be prompted for your 2fa code.";
             return RedirectToPage();
         }
     }

@@ -15,19 +15,22 @@ namespace QuickFinder.Migrations
                 name: "CourseId",
                 table: "AspNetUsers",
                 type: "TEXT",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_CourseId",
                 table: "AspNetUsers",
-                column: "CourseId");
+                column: "CourseId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_AspNetUsers_Courses_CourseId",
                 table: "AspNetUsers",
                 column: "CourseId",
                 principalTable: "Courses",
-                principalColumn: "Id");
+                principalColumn: "Id"
+            );
         }
 
         /// <inheritdoc />
@@ -35,15 +38,12 @@ namespace QuickFinder.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_AspNetUsers_Courses_CourseId",
-                table: "AspNetUsers");
+                table: "AspNetUsers"
+            );
 
-            migrationBuilder.DropIndex(
-                name: "IX_AspNetUsers_CourseId",
-                table: "AspNetUsers");
+            migrationBuilder.DropIndex(name: "IX_AspNetUsers_CourseId", table: "AspNetUsers");
 
-            migrationBuilder.DropColumn(
-                name: "CourseId",
-                table: "AspNetUsers");
+            migrationBuilder.DropColumn(name: "CourseId", table: "AspNetUsers");
         }
     }
 }

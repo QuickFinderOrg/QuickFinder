@@ -15,26 +15,24 @@ namespace QuickFinder.Migrations
                 table: "Preferences",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.AddColumn<int>(
                 name: "Days",
                 table: "CoursePreferences",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Days",
-                table: "Preferences");
+            migrationBuilder.DropColumn(name: "Days", table: "Preferences");
 
-            migrationBuilder.DropColumn(
-                name: "Days",
-                table: "CoursePreferences");
+            migrationBuilder.DropColumn(name: "Days", table: "CoursePreferences");
         }
     }
 }

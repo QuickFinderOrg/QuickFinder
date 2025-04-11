@@ -1,6 +1,6 @@
-using QuickFinder.Domain.DiscordDomain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.DiscordDomain;
 
 namespace QuickFinder.Pages.Admin;
 
@@ -20,8 +20,4 @@ public class ServersModel(ILogger<StudentsModel> logger, DiscordService discordS
         InviteURL = discordService.InviteURL;
         return Page();
     }
-
-
 }
-
-

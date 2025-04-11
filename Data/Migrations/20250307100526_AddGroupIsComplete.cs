@@ -15,15 +15,14 @@ namespace QuickFinder.Migrations
                 table: "Groups",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsComplete",
-                table: "Groups");
+            migrationBuilder.DropColumn(name: "IsComplete", table: "Groups");
         }
     }
 }

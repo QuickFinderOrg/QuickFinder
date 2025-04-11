@@ -14,7 +14,19 @@ public class CustomUserManager(
     IdentityErrorDescriber errors,
     IServiceProvider services,
     ILogger<CustomUserManager> logger,
-    IMediator mediator) : UserManager<User>(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) // Replace User with your user type
+    IMediator mediator
+)
+    : UserManager<User>(
+        store,
+        optionsAccessor,
+        passwordHasher,
+        userValidators,
+        passwordValidators,
+        keyNormalizer,
+        errors,
+        services,
+        logger
+    ) // Replace User with your user type
 {
     private readonly ILogger<CustomUserManager> _logger = logger;
 
@@ -35,11 +47,15 @@ public class CustomUserManager(
 
         if (result.Succeeded)
         {
-            _logger.LogInformation($"User {user.UserName} (ID: {user.Id}) has been successfully deleted.");
+            _logger.LogInformation(
+                $"User {user.UserName} (ID: {user.Id}) has been successfully deleted."
+            );
         }
         else
         {
-            _logger.LogError($"Failed to delete user {user.UserName} (ID: {user.Id}). Errors: {string.Join(", ", result.Errors)}");
+            _logger.LogError(
+                $"Failed to delete user {user.UserName} (ID: {user.Id}). Errors: {string.Join(", ", result.Errors)}"
+            );
         }
 
         return result;

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
 
@@ -11,7 +11,7 @@ public class CreateGroupModel(
     UserManager<User> userManager,
     CourseRepository courseRepository,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     [TempData]
     public string StatusMessage { get; set; } = null!;
@@ -34,8 +34,8 @@ public class CreateGroupModel(
         [Required]
         [Display(Name = "Languages")]
         public Languages[] SelectedLanguages { get; set; } = [];
-
     }
+
     public Course Course { get; set; } = default!;
 
     public async Task<IActionResult> OnGetAsync(Guid courseId)
@@ -73,7 +73,7 @@ public class CreateGroupModel(
         {
             NewAvailability = Availability.Afternoons,
             GroupSize = 2,
-            SpokenLanguages = user.Preferences.Language
+            SpokenLanguages = user.Preferences.Language,
         };
         await Task.CompletedTask;
     }
@@ -104,7 +104,13 @@ public class CreateGroupModel(
             return Page();
         }
 
-        var coursePreferences = new CoursePreferences() { User = user, Course = Course, Availability = Input.NewAvailability, GroupSize = Input.GroupSize };
+        var coursePreferences = new CoursePreferences()
+        {
+            User = user,
+            Course = Course,
+            Availability = Input.NewAvailability,
+            GroupSize = Input.GroupSize,
+        };
         var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
         var groupPreferences = Preferences.From(userPreferences, coursePreferences);
 

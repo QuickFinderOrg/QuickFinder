@@ -1,11 +1,12 @@
-using QuickFinder.Domain.DiscordDomain;
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService) : PageModel
+public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService)
+    : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
     public DiscordServerItem[] Servers = [];
@@ -30,11 +31,8 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
 
     public void Load(ulong discordId)
     {
-
         Servers = discordService.GetServersOwnedByUser(discordId);
-
     }
-
 
     public async Task<IActionResult> OnPostAsync(ulong serverId, Guid courseId)
     {
@@ -52,7 +50,11 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
 
         await discordService.EnsureCourseServer(courseId, serverId);
 
-        _logger.LogInformation("Server with ID {ServerId} has been added to course {CourseId}.", serverId, CourseId);
+        _logger.LogInformation(
+            "Server with ID {ServerId} has been added to course {CourseId}.",
+            serverId,
+            CourseId
+        );
 
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = CourseId });
     }

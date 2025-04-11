@@ -1,10 +1,10 @@
-using QuickFinder.Domain.Matchmaking;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using QuickFinder.Domain.DiscordDomain;
-using System.Security.Claims;
 using Microsoft.Extensions.Options;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
 
@@ -17,7 +17,7 @@ public class MatchingModel(
     TicketRepository ticketRepository,
     CourseRepository courseRepository,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     public Course[] Courses = [];
 
@@ -35,10 +35,15 @@ public class MatchingModel(
             PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
             return Page();
         }
-        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
         if (await groupRepository.CheckIfInGroup(user, course))
         {
-            PageContext.ModelState.AddModelError(string.Empty, "You are already in a group for this course.");
+            PageContext.ModelState.AddModelError(
+                string.Empty,
+                "You are already in a group for this course."
+            );
             return Page();
         }
 
@@ -46,11 +51,18 @@ public class MatchingModel(
 
         if (!was_added_to_waitlist)
         {
-            PageContext.ModelState.AddModelError(string.Empty, "You are already in the waitlist for this course.");
+            PageContext.ModelState.AddModelError(
+                string.Empty,
+                "You are already in the waitlist for this course."
+            );
             return Page();
         }
 
-        logger.LogInformation("User {UserId} added to waitlist for course {CourseId}", user.Id, course.Id);
+        logger.LogInformation(
+            "User {UserId} added to waitlist for course {CourseId}",
+            user.Id,
+            course.Id
+        );
 
         return Redirect(StudentRoutes.Groups());
     }
@@ -59,7 +71,9 @@ public class MatchingModel(
     {
         await LoadAsync();
 
-        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
 
         var course = Courses.First(c => c.Id == courseId);
         if (course == null)
@@ -73,22 +87,36 @@ public class MatchingModel(
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims);
 
-        var discordIdClaim = c.Find(c => c.Type == "DiscordId") ?? throw new Exception("DiscordId claim not found");
-        var discordTokenClaim = c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("DiscordId claim not found");
+        var discordIdClaim =
+            c.Find(c => c.Type == "DiscordId") ?? throw new Exception("DiscordId claim not found");
+        var discordTokenClaim =
+            c.Find(c => c.Type == "DiscordToken")
+            ?? throw new Exception("DiscordId claim not found");
 
         var server = await discordService.GetCourseServer(course.Id);
         if (server.Length == 0)
         {
-            await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, ulong.Parse(options.Value.ServerId));
+            await discordService.InviteToServer(
+                ulong.Parse(discordIdClaim.Value),
+                discordTokenClaim.Value,
+                ulong.Parse(options.Value.ServerId)
+            );
         }
         else
         {
-            await discordService.InviteToServer(ulong.Parse(discordIdClaim.Value), discordTokenClaim.Value, server[0].Id);
+            await discordService.InviteToServer(
+                ulong.Parse(discordIdClaim.Value),
+                discordTokenClaim.Value,
+                server[0].Id
+            );
         }
 
         if (await matchmakingService.GetCoursePreferences(course.Id, user.Id) is null)
         {
-            return RedirectToPage(StudentRoutes.CoursePreferences(), new { courseId = course.Id, returnUrl = StudentRoutes.Matching() });
+            return RedirectToPage(
+                StudentRoutes.CoursePreferences(),
+                new { courseId = course.Id, returnUrl = StudentRoutes.Matching() }
+            );
         }
 
         return Page();
@@ -98,7 +126,9 @@ public class MatchingModel(
     {
         await LoadAsync();
 
-        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
 
         var course = Courses.First(c => c.Id == courseId);
         if (course == null)
@@ -114,7 +144,9 @@ public class MatchingModel(
 
     public async Task LoadAsync()
     {
-        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
         Courses = await courseRepository.GetAllAsync();
     }
 }

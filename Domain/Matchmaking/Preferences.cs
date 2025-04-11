@@ -62,14 +62,17 @@ public record class Preferences : IPreferences
         return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, GroupSize: {GroupSize}, Days: {Days}";
     }
 
-    public static Preferences From(UserPreferences userPreferences, CoursePreferences coursePreferences)
+    public static Preferences From(
+        UserPreferences userPreferences,
+        CoursePreferences coursePreferences
+    )
     {
         return new Preferences
         {
             Language = userPreferences.Language,
             Availability = coursePreferences.Availability,
             GroupSize = coursePreferences.GroupSize,
-            Days = coursePreferences.Days
+            Days = coursePreferences.Days,
         };
     }
 
@@ -108,7 +111,6 @@ public record class Preferences : IPreferences
 
     public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
     {
-
         return 1;
     }
 }
@@ -116,7 +118,7 @@ public record class Preferences : IPreferences
 public enum Availability
 {
     Daytime,
-    Afternoons
+    Afternoons,
 }
 
 public enum Languages
@@ -127,7 +129,7 @@ public enum Languages
     French,
     German,
     Chinese,
-    Arabic
+    Arabic,
 }
 
 [Flags]
@@ -143,9 +145,8 @@ public enum DaysOfTheWeek
     Sunday = 1 << 6,
     Weekdays = Monday | Tuesday | Wednesday | Thursday | Friday,
     Weekends = Saturday | Sunday,
-    All = Weekdays | Weekends
+    All = Weekdays | Weekends,
 }
-
 
 public static class DaysOfTheWeekHelper
 {
@@ -176,7 +177,6 @@ public static class DaysOfTheWeekHelper
             {
                 newDays = newDays.WithDay(day);
             }
-
         }
         return newDays;
     }
@@ -196,9 +196,7 @@ public static class DaysOfTheWeekHelper
             {
                 matches++;
             }
-
         }
         return matches;
     }
 }
-

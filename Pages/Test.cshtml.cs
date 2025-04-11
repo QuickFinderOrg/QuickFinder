@@ -1,13 +1,19 @@
-﻿using QuickFinder.Domain.DiscordDomain;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.DiscordDomain;
 
 namespace QuickFinder.Pages;
 
 [Authorize(Policy = "Admin")]
-public class TestModel(ILogger<TestModel> logger, DiscordService discordBotService, IWebHostEnvironment environment, UserService userService, UserManager<User> userManager) : PageModel
+public class TestModel(
+    ILogger<TestModel> logger,
+    DiscordService discordBotService,
+    IWebHostEnvironment environment,
+    UserService userService,
+    UserManager<User> userManager
+) : PageModel
 {
     private readonly ILogger<TestModel> _logger = logger;
 
@@ -55,7 +61,6 @@ public class TestModel(ILogger<TestModel> logger, DiscordService discordBotServi
             return RedirectToPage();
         }
 
-
         var discord_user_id = await userService.GetDiscordId(user.Id);
         if (discord_user_id == null)
         {
@@ -64,7 +69,10 @@ public class TestModel(ILogger<TestModel> logger, DiscordService discordBotServi
         }
 
         _logger.LogInformation("POST: update permissions for {channelId}", id);
-        var channelId = await discordBotService.SetUserPermissionsOnChannel(ulong.Parse(id), (ulong)discord_user_id);
+        var channelId = await discordBotService.SetUserPermissionsOnChannel(
+            ulong.Parse(id),
+            (ulong)discord_user_id
+        );
         if (channelId == null)
         {
             _logger.LogError("Failed to set permsissions");
@@ -74,8 +82,6 @@ public class TestModel(ILogger<TestModel> logger, DiscordService discordBotServi
 
     public async Task<IActionResult> OnPostAddServerAsync(string serverId)
     {
-
-
         if (string.IsNullOrWhiteSpace("id"))
         {
             return RedirectToPage();
@@ -85,6 +91,4 @@ public class TestModel(ILogger<TestModel> logger, DiscordService discordBotServi
         await discordBotService.AddServer(ulong.Parse(serverId));
         return RedirectToPage();
     }
-
 }
-

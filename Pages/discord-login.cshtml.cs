@@ -1,10 +1,10 @@
 using System.Net.Http.Headers;
 using System.Text;
-using QuickFinder.Domain.DiscordDomain;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
+using QuickFinder.Domain.DiscordDomain;
 
 namespace QuickFinder.Pages
 {
@@ -34,17 +34,31 @@ namespace QuickFinder.Pages
         {
             using var client = new HttpClient();
             var data = new FormUrlEncodedContent(
-            [
-                new KeyValuePair<string, string>("grant_type", "authorization_code"),
-                new KeyValuePair<string, string>("code", code),
-                new KeyValuePair<string, string>("redirect_uri", $"{Request.Scheme}://{Request.Host}{options.Value.CallbackPath}")
-            ]);
+                [
+                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                    new KeyValuePair<string, string>("code", code),
+                    new KeyValuePair<string, string>(
+                        "redirect_uri",
+                        $"{Request.Scheme}://{Request.Host}{options.Value.CallbackPath}"
+                    ),
+                ]
+            );
 
-            var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{options.Value.ClientId}:{options.Value.ClientSecret}"));
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authValue);
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));
+            var authValue = Convert.ToBase64String(
+                Encoding.UTF8.GetBytes($"{options.Value.ClientId}:{options.Value.ClientSecret}")
+            );
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Basic",
+                authValue
+            );
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
+            );
 
-            HttpResponseMessage response = await client.PostAsync(options.Value.TokenEndpoint, data);
+            HttpResponseMessage response = await client.PostAsync(
+                options.Value.TokenEndpoint,
+                data
+            );
             Console.WriteLine(await response.Content.ReadAsStringAsync());
             response.EnsureSuccessStatusCode();
 
@@ -66,10 +80,17 @@ namespace QuickFinder.Pages
         public async Task<DiscordUserVM> GetUserInformationAsync(string token)
         {
             using var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                token
+            );
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json")
+            );
 
-            HttpResponseMessage response = await client.GetAsync(options.Value.UserInformationEndpoint);
+            HttpResponseMessage response = await client.GetAsync(
+                options.Value.UserInformationEndpoint
+            );
             response.EnsureSuccessStatusCode();
 
             var response_json_string = await response.Content.ReadAsStringAsync();
@@ -82,7 +103,7 @@ namespace QuickFinder.Pages
                 Username = user.RootElement.GetProperty("username").GetString()!,
                 DisplayName = user.RootElement.GetProperty("global_name").GetString(),
                 Email = user.RootElement.GetProperty("email").GetString(),
-                IsEmailVerified = user.RootElement.GetProperty("verified").GetBoolean()
+                IsEmailVerified = user.RootElement.GetProperty("verified").GetBoolean(),
             };
         }
 
@@ -95,5 +116,4 @@ namespace QuickFinder.Pages
             public required bool? IsEmailVerified;
         }
     }
-
 }

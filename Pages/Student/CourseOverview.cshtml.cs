@@ -10,7 +10,7 @@ public class CourseOverviewModel(
     UserManager<User> userManager,
     CourseRepository courseRepository,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
 

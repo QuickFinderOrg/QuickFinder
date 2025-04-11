@@ -5,7 +5,6 @@ namespace QuickFinder.Email;
 
 public class SMTPEmailSender(ILogger<StubEmailSender> logger) : IEmailSender
 {
-
     public async Task SendEmailAsync(string email, string subject, string body)
     {
         logger.LogInformation($"MAILTO={email} SUBJECT=subject BODY={body}");
@@ -17,11 +16,12 @@ public class SMTPEmailSender(ILogger<StubEmailSender> logger) : IEmailSender
 
         message.Body = new TextPart("plain")
         {
-            Text = @"Hey Chandler,
+            Text =
+                @"Hey Chandler,
 
 I just wanted to let you know that Monica and I were going to go play some paintball, you in?
 
--- Joey"
+-- Joey",
         };
 
         using (var client = new SmtpClient())

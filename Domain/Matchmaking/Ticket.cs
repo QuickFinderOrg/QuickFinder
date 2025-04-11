@@ -26,14 +26,16 @@ public class Ticket() : BaseEntity, ICandidate
     }
 }
 
-
-
 public class TicketRepository : Repository<Ticket, Guid>
 {
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;
 
-    public TicketRepository(ApplicationDbContext applicationDbContext, ILogger<TicketRepository> ticketLogger) : base(applicationDbContext)
+    public TicketRepository(
+        ApplicationDbContext applicationDbContext,
+        ILogger<TicketRepository> ticketLogger
+    )
+        : base(applicationDbContext)
     {
         db = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
         logger = ticketLogger ?? throw new ArgumentNullException(nameof(ticketLogger));
@@ -41,15 +43,25 @@ public class TicketRepository : Repository<Ticket, Guid>
 
     public async Task<bool> AddToWaitlist(User user, Course course)
     {
-        var existing = await db.Tickets.Include(c => c.User).Include(c => c.Course).Where(t => t.User == user && t.Course == course).ToArrayAsync();
+        var existing = await db
+            .Tickets.Include(c => c.User)
+            .Include(c => c.Course)
+            .Where(t => t.User == user && t.Course == course)
+            .ToArrayAsync();
 
         if (existing.Length != 0)
         {
-            logger.LogError("User '{userId}' is already queued up for course '{courseId}'", user.Id, course.Id);
+            logger.LogError(
+                "User '{userId}' is already queued up for course '{courseId}'",
+                user.Id,
+                course.Id
+            );
             return false;
         }
 
-        var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p => p.User == user && p.Course == course);
+        var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p =>
+            p.User == user && p.Course == course
+        );
 
         if (course_prefs == null)
         {
@@ -59,14 +71,25 @@ public class TicketRepository : Repository<Ticket, Guid>
 
         var full_preferences = Preferences.From(user.Preferences, course_prefs);
 
-        db.Add(new Ticket() { User = user, Course = course, Preferences = full_preferences });
+        db.Add(
+            new Ticket()
+            {
+                User = user,
+                Course = course,
+                Preferences = full_preferences,
+            }
+        );
         await db.SaveChangesAsync();
         return true;
     }
 
     public async Task<Ticket[]> GetWaitlist()
     {
-        return await db.Tickets.Include(t => t.User).Include(t => t.Course).Include(t => t.Preferences).ToArrayAsync() ?? throw new Exception("WAITLIST");
+        return await db
+                .Tickets.Include(t => t.User)
+                .Include(t => t.Course)
+                .Include(t => t.Preferences)
+                .ToArrayAsync() ?? throw new Exception("WAITLIST");
     }
 
     /// <summary>
@@ -76,19 +99,24 @@ public class TicketRepository : Repository<Ticket, Guid>
     /// <returns></returns>
     public async Task<Ticket[]> GetWaitlist(Course course)
     {
-        return await db.Tickets.Include(t => t.User).Include(t => t.Course).Where(t => t.Course == course).ToArrayAsync();
+        return await db
+            .Tickets.Include(t => t.User)
+            .Include(t => t.Course)
+            .Where(t => t.Course == course)
+            .ToArrayAsync();
     }
 
     public async Task<bool> RemoveUserFromWaitlist(string userId)
     {
         var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
-        var tickets = await db.Tickets.Include(g => g.User).Where(t => t.User == user).ToArrayAsync();
+        var tickets = await db
+            .Tickets.Include(g => g.User)
+            .Where(t => t.User == user)
+            .ToArrayAsync();
         db.Tickets.RemoveRange(tickets);
 
         await db.SaveChangesAsync();
 
         return true;
     }
-
-
 }

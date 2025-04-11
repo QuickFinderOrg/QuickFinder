@@ -1,25 +1,32 @@
-using Microsoft.EntityFrameworkCore;
-using QuickFinder.Data;
-using QuickFinder;
-using QuickFinder.Domain.Matchmaking;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.DataProtection;
-using QuickFinder.Domain.DiscordDomain;
-using QuickFinder.Email;
-using Discord.WebSocket;
 using Coravel;
 using Coravel.Scheduling.Schedule.Interfaces;
+using Discord.WebSocket;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
+using QuickFinder;
+using QuickFinder.Data;
+using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
+using QuickFinder.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<DiscordServiceOptions>(builder.Configuration.GetSection(DiscordServiceOptions.Discord));
-builder.Services.Configure<MatchmakingOptions>(builder.Configuration.GetSection(MatchmakingOptions.Matchmaking));
-builder.Services.Configure<MailjetOptions>(builder.Configuration.GetSection(MailjetOptions.Mailjet));
+builder.Services.Configure<DiscordServiceOptions>(
+    builder.Configuration.GetSection(DiscordServiceOptions.Discord)
+);
+builder.Services.Configure<MatchmakingOptions>(
+    builder.Configuration.GetSection(MatchmakingOptions.Matchmaking)
+);
+builder.Services.Configure<MailjetOptions>(
+    builder.Configuration.GetSection(MailjetOptions.Mailjet)
+);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
@@ -35,10 +42,15 @@ builder.Services.AddScheduler();
 
 if (builder.Environment.IsProduction())
 {
-    builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration[Constants.DPKeysDirKey] ?? "./dpkeys"));
+    builder
+        .Services.AddDataProtection()
+        .PersistKeysToFileSystem(
+            new DirectoryInfo(builder.Configuration[Constants.DPKeysDirKey] ?? "./dpkeys")
+        );
 }
 
-builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
+builder
+    .Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddUserManager<CustomUserManager>();
 
@@ -53,11 +65,13 @@ builder.Services.AddAuthorization(options =>
     }
     else
     {
-        options.AddPolicy("Teacher", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim(c =>
-                c.Type == "IsTeacher" ||
-                c.Type == "IsAdmin")));
+        options.AddPolicy(
+            "Teacher",
+            policy =>
+                policy.RequireAssertion(context =>
+                    context.User.HasClaim(c => c.Type == "IsTeacher" || c.Type == "IsAdmin")
+                )
+        );
 
         options.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin"));
     }
@@ -74,7 +88,6 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/Admin", policy: "Admin");
 });
 
-
 builder.Services.AddSingleton<DiscordSocketClient>();
 builder.Services.AddScoped<DiscordService>();
 builder.Services.AddHostedService<DiscordService>();
@@ -87,21 +100,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
 });
 
-
 var app = builder.Build();
 
 app.Services.UseScheduler(scheduler =>
-{
-    scheduler
-        .Schedule<RunMatchmakingInvocable>()
-        .EveryThirtySeconds();
-
-}).OnError(e =>
-{
-    var logger = app.Services.GetRequiredService<ILogger<Startup>>();
-    logger.LogError(e, "Error in scheduled task: {Message}", e.Message);
-
-});
+    {
+        scheduler.Schedule<RunMatchmakingInvocable>().EveryThirtySeconds();
+    })
+    .OnError(e =>
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Startup>>();
+        logger.LogError(e, "Error in scheduled task: {Message}", e.Message);
+    });
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
 
@@ -11,7 +11,7 @@ public class CoursePreferencesModel(
     UserManager<User> userManager,
     ILogger<CoursePreferences> logger,
     CourseRepository courseRepository
-    ) : PageModel
+) : PageModel
 {
     [TempData]
     public string StatusMessage { get; set; } = null!;
@@ -42,7 +42,6 @@ public class CoursePreferencesModel(
         public Languages[] SelectedLanguages { get; set; } = [];
 
         public DaysOfTheWeek Days { get; set; }
-
     }
 
     public async Task<IActionResult> OnGetAsync(Guid courseId, string returnUrl)
@@ -60,7 +59,6 @@ public class CoursePreferencesModel(
             return NotFound("Course not found");
         }
         Console.WriteLine($"Course {course}");
-
 
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -122,7 +120,9 @@ public class CoursePreferencesModel(
 
         var userId = userManager.GetUserId(User) ?? throw new Exception("User not found");
         CourseId = courseId;
-        var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId) ?? throw new Exception("Preferences not found");
+        var coursePreferences =
+            await matchmaking.GetCoursePreferences(courseId, userId)
+            ?? throw new Exception("Preferences not found");
 
         logger.LogInformation("Days of: {days}", Input.Days);
         coursePreferences.Availability = Input.NewAvailability;
@@ -133,6 +133,5 @@ public class CoursePreferencesModel(
         await matchmaking.UpdateCoursePreferencesAsync(courseId, "user", coursePreferences);
 
         return RedirectToPage(ReturnUrl, new { courseId });
-
     }
 }

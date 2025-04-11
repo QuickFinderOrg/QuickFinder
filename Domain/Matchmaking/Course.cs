@@ -22,17 +22,27 @@ public class CourseRepository : Repository<Course, Guid>
     private readonly ILogger<TicketRepository> logger;
     private readonly GroupRepository groupRepository; // TODO: maybe we should merge course and group repository instead?
 
-    public CourseRepository(ApplicationDbContext applicationDbContext, ILogger<TicketRepository> ticketLogger, GroupRepository ticketGroupRepository) : base(applicationDbContext)
+    public CourseRepository(
+        ApplicationDbContext applicationDbContext,
+        ILogger<TicketRepository> ticketLogger,
+        GroupRepository ticketGroupRepository
+    )
+        : base(applicationDbContext)
     {
         db = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
         logger = ticketLogger ?? throw new ArgumentNullException(nameof(ticketLogger));
-        groupRepository = ticketGroupRepository ?? throw new ArgumentNullException(nameof(ticketGroupRepository));
+        groupRepository =
+            ticketGroupRepository ?? throw new ArgumentNullException(nameof(ticketGroupRepository));
     }
-
 
     public async Task<Course> CreateCourse(string name, uint groupSize, bool allowCustomSize)
     {
-        var course = new Course() { Name = name, GroupSize = groupSize, AllowCustomSize = allowCustomSize };
+        var course = new Course()
+        {
+            Name = name,
+            GroupSize = groupSize,
+            AllowCustomSize = allowCustomSize,
+        };
         db.Add(course);
         await db.SaveChangesAsync();
         return course;
@@ -53,7 +63,10 @@ public class CourseRepository : Repository<Course, Guid>
     {
         if (await groupRepository.CheckIfInGroup(user, course))
         {
-            var group = await db.Groups.Where(g => g.Course == course && g.Members.Contains(user)).FirstOrDefaultAsync() ?? throw new Exception("Group not found");
+            var group =
+                await db
+                    .Groups.Where(g => g.Course == course && g.Members.Contains(user))
+                    .FirstOrDefaultAsync() ?? throw new Exception("Group not found");
             await groupRepository.RemoveUserFromGroup(user.Id, group.Id);
         }
         course.Members.Remove(user);

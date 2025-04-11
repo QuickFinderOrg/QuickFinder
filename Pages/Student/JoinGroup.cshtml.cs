@@ -1,8 +1,8 @@
-using QuickFinder.Domain.Matchmaking;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
 
@@ -11,14 +11,14 @@ public class JoinGroupModel(
     UserManager<User> userManager,
     CourseRepository courseRepository,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     [BindProperty]
     public Course Course { get; set; } = default!;
     public Group[] Groups = [];
+
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
-
         if (id == Guid.Empty)
         {
             return NotFound();

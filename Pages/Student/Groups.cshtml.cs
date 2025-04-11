@@ -1,7 +1,7 @@
-using QuickFinder.Domain.Matchmaking;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
 
@@ -10,7 +10,7 @@ public class GroupsModel(
     UserManager<User> userManager,
     UserService userService,
     GroupRepository groupRepository
-    ) : PageModel
+) : PageModel
 {
     private readonly ILogger<GroupsModel> _logger = logger;
 
@@ -18,12 +18,19 @@ public class GroupsModel(
 
     public async Task<IActionResult> OnGetAsync()
     {
-        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
         var groups = await groupRepository.GetGroups(user);
 
         foreach (var g in groups)
         {
-            var group_vm = new GroupVM() { Id = g.Id.ToString(), Course = g.Course.Name, GroupLimit = g.GroupLimit };
+            var group_vm = new GroupVM()
+            {
+                Id = g.Id.ToString(),
+                Course = g.Course.Name,
+                GroupLimit = g.GroupLimit,
+            };
             foreach (var member in g.Members)
             {
                 if (member == null)
@@ -34,12 +41,16 @@ public class GroupsModel(
                 {
                     _logger.LogDebug("User {}", member.UserName);
                     var name = await userService.GetName(member);
-                    group_vm.Members.Add(new GroupMemberVM() { name = name, email = member.UserName ?? throw new Exception("username not found") });
+                    group_vm.Members.Add(
+                        new GroupMemberVM()
+                        {
+                            name = name,
+                            email = member.UserName ?? throw new Exception("username not found"),
+                        }
+                    );
                 }
-
             }
             Groups.Add(group_vm);
-
         }
 
         return Page();
@@ -47,13 +58,14 @@ public class GroupsModel(
 
     public async Task<IActionResult> OnPostLeaveAsync(Guid groupId)
     {
-        var user = await userManager.GetUserAsync(HttpContext.User) ?? throw new Exception("User not found");
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
         await groupRepository.RemoveUserFromGroup(user.Id, groupId);
         // TODO: add load functions and model errors
         // TODO: don't match again with a group you left
 
         return Redirect("Groups");
-
     }
 
     public class GroupVM

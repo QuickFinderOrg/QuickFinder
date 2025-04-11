@@ -8,14 +8,8 @@ public class MatchmakingTests
     [Fact]
     public void ScoreBetweenSameLanguageIsOne()
     {
-        var preferences1 = new Preferences
-        {
-            Language = [Languages.English]
-        };
-        var preferences2 = new Preferences
-        {
-            Language = [Languages.English]
-        };
+        var preferences1 = new Preferences { Language = [Languages.English] };
+        var preferences2 = new Preferences { Language = [Languages.English] };
         var score = Preferences.GetLanguageScore(preferences1, preferences2);
         Assert.Equal(1, score);
     }
@@ -23,14 +17,8 @@ public class MatchmakingTests
     [Fact]
     public void ScoreBetweenSameAvailabilityIsOne()
     {
-        var preferences1 = new Preferences
-        {
-            Availability = Availability.Afternoons
-        };
-        var preferences2 = new Preferences
-        {
-            Availability = Availability.Afternoons
-        };
+        var preferences1 = new Preferences { Availability = Availability.Afternoons };
+        var preferences2 = new Preferences { Availability = Availability.Afternoons };
         var score = Preferences.GetAvailabilityScore(preferences1, preferences2);
         Assert.Equal(1, score);
     }
@@ -38,14 +26,8 @@ public class MatchmakingTests
     [Fact]
     public void ScoreBetweenSamePreferencesShouldBeOne()
     {
-        var preferences1 = new Preferences
-        {
-            Language = [Languages.English]
-        };
-        var preferences2 = new Preferences
-        {
-            Language = [Languages.English]
-        };
+        var preferences1 = new Preferences { Language = [Languages.English] };
+        var preferences2 = new Preferences { Language = [Languages.English] };
         var score = MatchmakingService.GetScore(preferences1, preferences2);
         Assert.Equal(1, score);
     }
@@ -53,14 +35,8 @@ public class MatchmakingTests
     [Fact]
     public void ScoreBetweenOneSharedLanguageShouldBeOne()
     {
-        var preferences1 = new Preferences
-        {
-            Language = [Languages.English],
-        };
-        var preferences2 = new Preferences
-        {
-            Language = [Languages.English],
-        };
+        var preferences1 = new Preferences { Language = [Languages.English] };
+        var preferences2 = new Preferences { Language = [Languages.English] };
         var distance = Preferences.GetLanguageScore(preferences1, preferences2);
         Assert.Equal(1, distance);
     }
@@ -71,12 +47,12 @@ public class MatchmakingTests
         var preferences1 = new Preferences
         {
             Language = [Languages.English],
-            Days = DaysOfTheWeek.All
+            Days = DaysOfTheWeek.All,
         };
         var preferences2 = new Preferences
         {
             Language = [Languages.English],
-            Days = DaysOfTheWeek.All
+            Days = DaysOfTheWeek.All,
         };
         var distance = Preferences.GetDaysScore(preferences1, preferences2);
         Assert.Equal(1, distance);
@@ -85,9 +61,21 @@ public class MatchmakingTests
     [Fact]
     public void TwoEqualCandidatesShouldBeTheBestMatch()
     {
-        var seedCandidate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.English] }, CreatedAt = DateTime.UnixEpoch };
-        var bestCandidate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.English] }, CreatedAt = DateTime.UnixEpoch };
-        var otherCandiadate = new TestCandidate() { Preferences = new Preferences { Language = [Languages.German] }, CreatedAt = DateTime.UnixEpoch };
+        var seedCandidate = new TestCandidate()
+        {
+            Preferences = new Preferences { Language = [Languages.English] },
+            CreatedAt = DateTime.UnixEpoch,
+        };
+        var bestCandidate = new TestCandidate()
+        {
+            Preferences = new Preferences { Language = [Languages.English] },
+            CreatedAt = DateTime.UnixEpoch,
+        };
+        var otherCandiadate = new TestCandidate()
+        {
+            Preferences = new Preferences { Language = [Languages.German] },
+            CreatedAt = DateTime.UnixEpoch,
+        };
         ICandidate[] pool = [seedCandidate, bestCandidate, otherCandiadate];
 
         var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
@@ -99,14 +87,25 @@ public class MatchmakingTests
     [Fact]
     public void PreferCandidatesWithMoreMatchingDays()
     {
-        var seedCandidate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Weekdays }, CreatedAt = DateTime.UnixEpoch };
-        var bestCandidate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday }, CreatedAt = DateTime.UnixEpoch };
-        var otherCandiadate = new TestCandidate() { Preferences = new Preferences { Days = DaysOfTheWeek.Wednesday }, CreatedAt = DateTime.UnixEpoch };
+        var seedCandidate = new TestCandidate()
+        {
+            Preferences = new Preferences { Days = DaysOfTheWeek.Weekdays },
+            CreatedAt = DateTime.UnixEpoch,
+        };
+        var bestCandidate = new TestCandidate()
+        {
+            Preferences = new Preferences { Days = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday },
+            CreatedAt = DateTime.UnixEpoch,
+        };
+        var otherCandiadate = new TestCandidate()
+        {
+            Preferences = new Preferences { Days = DaysOfTheWeek.Wednesday },
+            CreatedAt = DateTime.UnixEpoch,
+        };
         ICandidate[] pool = [seedCandidate, otherCandiadate, bestCandidate];
 
         var orderedCandidates = MatchmakingService.OrderCandidates(seedCandidate, pool);
         Assert.Equal(bestCandidate, orderedCandidates.First().Value);
-
 
         var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
 
