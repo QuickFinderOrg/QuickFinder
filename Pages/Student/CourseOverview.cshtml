@@ -1,5 +1,6 @@
 @page
 @model CourseOverviewModel
+@inject UserService userService;
 @{
     ViewData["Title"] = "Course Overview";
 }
@@ -10,4 +11,33 @@
        asp-route-courseId="@Model.Course.Id"
        asp-route-returnUrl="@StudentRoutes.CourseOverview()">
        <button>Change preferences</button></a>
+
+<table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Course</th>
+                <th>Members</th>
+                <th>Complete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var group in Model.Groups)
+            {
+                <tr>
+                    <td>@group.Id</td>
+                    <td>@group.Course.Name</td>
+                    <td>
+                        @foreach (var member in group.Members)
+                        {
+                            <p>@await userService.GetName(member)</p>
+                        }
+                    </td>
+                    <td>
+                        <p>@group.Members.Count / @group.GroupLimit</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
