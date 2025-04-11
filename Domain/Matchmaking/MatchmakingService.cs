@@ -119,9 +119,9 @@ public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingServ
             candidates_in_course.First(ticket => ticket == candidate)
         );
 
-        var matchingUsers = matching_candidates
-            .Select(candidate => candidates_in_course.First(ticket => ticket == candidate))
-            .Select(t => t.User);
+        Ticket[] groupTickets = [seedCandidate, .. matchingTickets];
+
+        var groupMembers = groupTickets.Select(t => t.User);
 
         var matchingUsernames = matchingTickets.Select(t => t.User.UserName);
 
@@ -143,10 +143,10 @@ public class MatchmakingService(ApplicationDbContext db, ILogger<MatchmakingServ
         };
         // assumes all created groups are filled
         db.Add(group);
-        group.Members.AddRange([seedCandidate.User, .. matchingUsers]);
+        group.Members.AddRange(groupMembers);
         group.Events.Add(new GroupFilled { Group = group });
 
-        foreach (var ticket in matchingTickets)
+        foreach (var ticket in groupTickets)
         {
             db.Remove(ticket);
         }
