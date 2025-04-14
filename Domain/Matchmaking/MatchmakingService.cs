@@ -8,108 +8,10 @@ namespace QuickFinder.Domain.Matchmaking;
 public class MatchmakingService(
     ApplicationDbContext db,
     ILogger<MatchmakingService> logger,
-    GroupRepository groupRepository,
-    IOptions<MatchmakingOptions> matchmakingOptions
+    GroupRepository groupRepository
 )
 {
-    public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(
-        ICandidate seedCandidate,
-        IEnumerable<ICandidate> candidatePool
-    )
-    {
-        var potentialMembers = new List<KeyValuePair<decimal, ICandidate>>();
-
-        foreach (var candidate in candidatePool)
-        {
-            if (candidate.Id == seedCandidate.Id)
-            {
-                continue; // skip the seed candidate
-            }
-            var score = GetScore(seedCandidate.Preferences, candidate.Preferences);
-            if (score > 0)
-            {
-                potentialMembers.Add(KeyValuePair.Create(score, candidate));
-            }
-        }
-
-        var sortedList = potentialMembers.OrderByDescending(pair => pair.Key).ToList();
-        return sortedList;
-    }
-
-    /// <summary>
-    /// Returns the group members that match the seed candidate's preferences.
-    /// The seed candidate is not included in the result.
-    /// </summary>
-    /// <param name="seedCandidate"></param>
-    /// <param name="candidatePool"></param>
-    /// <param name="groupSize"></param>
-    /// <returns></returns>
-    public static ICandidate[] Match(
-        ICandidate seedCandidate,
-        IEnumerable<ICandidate> candidatePool,
-        int groupSize,
-        DateTime time
-    )
-    {
-        var waitTime = time - seedCandidate.CreatedAt;
-        var scoreRequirement = MatchmakingService.GetRequiredScore(waitTime);
-        var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
-
-        var orderedCandidates = OrderCandidates(seedCandidate, candidatePool)
-            .Where(pair => pair.Key >= scoreRequirement);
-
-        var sortedList = orderedCandidates.Select(pair => pair.Value).ToList();
-
-        var bestCandidates = sortedList.Take(groupSizeLimit).ToArray();
-        return bestCandidates;
-    }
-
-    /// <summary>
-    /// Get the score between two candidates.
-    /// The score is a number between 0 and 1, where 0 means no match and 1 means perfect match.
-    /// </summary>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
-    /// <returns></returns>
-    public static decimal GetScore(IPreferences from, IPreferences to)
-    {
-        var languageWeight = 1;
-        var availabilityWeight = 1;
-        var daysWeight = 1;
-        var groupSizeWeight = 1;
-        var weights = languageWeight + availabilityWeight + daysWeight + groupSizeWeight;
-
-        var languageScore = Preferences.GetLanguageScore(from, to) * languageWeight;
-        var availabilityScore = Preferences.GetAvailabilityScore(from, to) * availabilityWeight;
-        var daysScore = Preferences.GetDaysScore(from, to) * daysWeight;
-        var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * groupSizeWeight;
-
-        return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
-    }
-
-    public static decimal GetRequiredScore(TimeSpan timeInQueue)
-    {
-        if (timeInQueue < TimeSpan.FromHours(1))
-        {
-            // t0
-            return 0.9m;
-        }
-        else if (timeInQueue < TimeSpan.FromHours(6))
-        {
-            // t1
-            return 0.7m;
-        }
-        else if (timeInQueue < TimeSpan.FromHours(12))
-        {
-            // t2
-            return 0.6m;
-        }
-        else
-        {
-            // t3
-            return 0.5m;
-        }
-    }
+    public readonly Matchmaker<Ticket> matchmaker = new Matchmaker<Ticket>(new MatchmakerConfig());
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
@@ -131,12 +33,15 @@ public class MatchmakingService(
         var course = seedCandidate.Course;
 
         var candidates_in_course = all_candidates.Where(t => t.Course == course);
+        var waitTime = DateTime.Now - seedCandidate.CreatedAt;
 
-        var matching_candidates = MatchmakingService.Match(
+        var requiredScore = matchmaker.GetRequiredScore(waitTime);
+
+        var matching_candidates = matchmaker.Match(
             seedCandidate,
             candidates_in_course,
             (int)course.GroupSize,
-            DateTime.Now
+            requiredScore
         );
 
         if (matching_candidates.Length == 0)

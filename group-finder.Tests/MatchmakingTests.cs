@@ -5,6 +5,10 @@ namespace group_finder.Tests;
 
 public class MatchmakingTests
 {
+    private readonly Matchmaker<TestCandidate> deafaultMatchmaker = new Matchmaker<TestCandidate>(
+        new MatchmakerConfig()
+    );
+
     [Fact]
     public void ScoreBetweenSameLanguageIsOne()
     {
@@ -28,7 +32,7 @@ public class MatchmakingTests
     {
         var preferences1 = new Preferences { Language = [Languages.English] };
         var preferences2 = new Preferences { Language = [Languages.English] };
-        var score = MatchmakingService.GetScore(preferences1, preferences2);
+        var score = deafaultMatchmaker.GetScore(preferences1, preferences2);
         Assert.Equal(1, score);
     }
 
@@ -76,9 +80,14 @@ public class MatchmakingTests
             Preferences = new Preferences { Language = [Languages.German] },
             CreatedAt = DateTime.UnixEpoch,
         };
-        ICandidate[] pool = [seedCandidate, bestCandidate, otherCandiadate];
+        TestCandidate[] pool = [seedCandidate, bestCandidate, otherCandiadate];
 
-        var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
+        var matches = deafaultMatchmaker.Match(
+            seedCandidate,
+            pool,
+            groupSize: 2,
+            scoreRequirement: 0.0m
+        );
 
         Assert.NotEmpty(matches);
         Assert.Contains(bestCandidate, matches);
@@ -102,12 +111,17 @@ public class MatchmakingTests
             Preferences = new Preferences { Days = DaysOfTheWeek.Wednesday },
             CreatedAt = DateTime.UnixEpoch,
         };
-        ICandidate[] pool = [seedCandidate, otherCandiadate, bestCandidate];
+        TestCandidate[] pool = [seedCandidate, otherCandiadate, bestCandidate];
 
-        var orderedCandidates = MatchmakingService.OrderCandidates(seedCandidate, pool);
+        var orderedCandidates = deafaultMatchmaker.OrderCandidates(seedCandidate, pool);
         Assert.Equal(bestCandidate, orderedCandidates.First().Value);
 
-        var matches = MatchmakingService.Match(seedCandidate, pool, 2, DateTime.UnixEpoch);
+        var matches = deafaultMatchmaker.Match(
+            seedCandidate,
+            pool,
+            groupSize: 2,
+            scoreRequirement: 0.0m
+        );
 
         Assert.NotEmpty(matches);
         Assert.Contains(bestCandidate, matches);
