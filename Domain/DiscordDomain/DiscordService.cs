@@ -422,16 +422,19 @@ public class DiscordService : IHostedService
 
     public async Task DeleteGroupChannels(Guid groupId)
     {
-        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
-        if (server == null)
-        {
-            return;
-        }
-
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var groupRepository = scope.ServiceProvider.GetRequiredService<GroupRepository>();
+            var group = await groupRepository.GetGroup(groupId);
+            var courseServer = await GetCourseServer(group.Course.Id);
+
+            var server = _client.GetGuild(courseServer[0].Id);
+            if (server == null)
+            {
+                return;
+            }
 
             var channels = await dbContext
                 .DiscordChannels.Where(ch => ch.OwningGroupId == groupId)

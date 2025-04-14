@@ -257,20 +257,21 @@ public class GroupRepository : Repository<Group, Guid>
     }
 
     // TODO: replace with DeleteAsync
-    public async Task DeleteGroup(Guid id)
+    public async Task DeleteGroup(Guid id, CancellationToken cancellationToken = default)
     {
         var group =
-            await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == id)
+            await db
+                .Groups.Include(g => g.Members)
+                .FirstAsync(g => g.Id == id, cancellationToken: cancellationToken)
             ?? throw new Exception("Group not found");
-        db.Remove(group);
         var disband_event = new GroupDisbanded()
         {
             GroupId = group.Id,
             Course = group.Course,
             Members = [.. group.Members],
         };
-        await mediator.Publish(disband_event);
-        await db.SaveChangesAsync();
+        await mediator.Publish(disband_event, cancellationToken);
+        await base.DeleteAsync(id, cancellationToken);
     }
 
     public async Task<bool> CheckIfInGroup(User user, Course course)
