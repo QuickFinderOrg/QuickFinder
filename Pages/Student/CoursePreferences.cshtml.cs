@@ -7,10 +7,10 @@ using QuickFinder.Domain.Matchmaking;
 namespace QuickFinder.Pages.Student;
 
 public class CoursePreferencesModel(
-    MatchmakingService matchmaking,
     UserManager<User> userManager,
     ILogger<CoursePreferences> logger,
-    CourseRepository courseRepository
+    CourseRepository courseRepository,
+    PreferencesRepository preferencesRepository
 ) : PageModel
 {
     [TempData]
@@ -77,10 +77,10 @@ public class CoursePreferencesModel(
         var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
         CourseId = courseId;
 
-        var coursePreferences = await matchmaking.GetCoursePreferences(courseId, userId);
+        var coursePreferences = await preferencesRepository.GetCoursePreferences(courseId, userId);
         if (coursePreferences is null)
         {
-            await matchmaking.CreateNewCoursePreferences(courseId, userId);
+            await preferencesRepository.CreateNewCoursePreferences(courseId, userId);
             Input = new InputModel
             {
                 NewAvailability = user.Preferences.GlobalAvailability,
@@ -121,7 +121,7 @@ public class CoursePreferencesModel(
         var userId = userManager.GetUserId(User) ?? throw new Exception("User not found");
         CourseId = courseId;
         var coursePreferences =
-            await matchmaking.GetCoursePreferences(courseId, userId)
+            await preferencesRepository.GetCoursePreferences(courseId, userId)
             ?? throw new Exception("Preferences not found");
 
         logger.LogInformation("Days of: {days}", Input.Days);
@@ -130,7 +130,11 @@ public class CoursePreferencesModel(
         coursePreferences.Days = Input.Days;
         user.Preferences.Language = Input.SelectedLanguages;
 
-        await matchmaking.UpdateCoursePreferencesAsync(courseId, "user", coursePreferences);
+        await preferencesRepository.UpdateCoursePreferencesAsync(
+            courseId,
+            "user",
+            coursePreferences
+        );
 
         return RedirectToPage(ReturnUrl, new { courseId });
     }

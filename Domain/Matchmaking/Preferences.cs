@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using QuickFinder.Data;
 
 namespace QuickFinder.Domain.Matchmaking;
 
@@ -198,5 +199,52 @@ public static class DaysOfTheWeekHelper
             }
         }
         return matches;
+    }
+}
+
+public class PreferencesRepository : Repository<Preferences, Guid>
+{
+    private readonly ApplicationDbContext db;
+    private readonly ILogger<TicketRepository> logger;
+    private readonly GroupRepository groupRepository; // TODO: maybe we should merge course and group repository instead?
+
+    public PreferencesRepository(
+        ApplicationDbContext applicationDbContext,
+        ILogger<TicketRepository> preferencesLogger,
+        GroupRepository preferencesGroupRepository
+    )
+        : base(applicationDbContext)
+    {
+        db = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
+        logger = preferencesLogger ?? throw new ArgumentNullException(nameof(preferencesLogger));
+        groupRepository =
+            preferencesGroupRepository
+            ?? throw new ArgumentNullException(nameof(preferencesGroupRepository));
+    }
+
+    public async Task<CoursePreferences?> GetCoursePreferences(Guid courseId, string userId)
+    {
+        return await db
+            .CoursePreferences.Include(prefs => prefs.User)
+            .Include(prefs => prefs.Course)
+            .Where(prefs => prefs.UserId == userId && prefs.CourseId == courseId)
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<CoursePreferences?> CreateNewCoursePreferences(Guid courseId, string userId)
+    {
+        var coursePreferences = new CoursePreferences() { CourseId = courseId, UserId = userId };
+        db.Add(coursePreferences);
+        await db.SaveChangesAsync();
+        return coursePreferences;
+    }
+
+    public async Task UpdateCoursePreferencesAsync(
+        Guid courseId,
+        string userId,
+        CoursePreferences newPreferences
+    )
+    {
+        await db.SaveChangesAsync();
     }
 }

@@ -65,9 +65,21 @@ public class JoinGroupModel(
 
     public async Task<IActionResult> OnPostLeaveGroupAsync(Guid groupId)
     {
-        var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
+        var user = await userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
         var group = await groupRepository.GetGroup(groupId);
-        await groupRepository.RemoveUserFromGroup(user.Id, group.Id);
+        if (group == null)
+        {
+            return NotFound();
+        }
+
+        group.Members.Remove(user);
+        await groupRepository.UpdateAsync(group);
+
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
 

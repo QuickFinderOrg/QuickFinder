@@ -10,13 +10,13 @@ namespace QuickFinder.Pages.Student;
 
 public class MatchingModel(
     ILogger<MatchingModel> logger,
-    MatchmakingService matchmakingService,
     UserManager<User> userManager,
     DiscordService discordService,
     IOptions<DiscordServiceOptions> options,
     TicketRepository ticketRepository,
     CourseRepository courseRepository,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    PreferencesRepository preferencesRepository
 ) : PageModel
 {
     public Course[] Courses = [];
@@ -111,7 +111,7 @@ public class MatchingModel(
             );
         }
 
-        if (await matchmakingService.GetCoursePreferences(course.Id, user.Id) is null)
+        if (await preferencesRepository.GetCoursePreferences(course.Id, user.Id) is null)
         {
             return RedirectToPage(
                 StudentRoutes.CoursePreferences(),

@@ -36,6 +36,113 @@ public class GroupRepository : Repository<Group, Guid>
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
     }
 
+    // TODO: findbyid with includes
+
+    public new async Task AddAsync(Group group, CancellationToken cancellationToken = default)
+    {
+        var errors = await ValidateAsync(group, cancellationToken);
+        if (errors.Length > 0)
+        {
+            throw new Exception("Cannot create group: " + string.Join(", ", errors));
+        }
+
+        if (group.Members.Count >= group.GroupLimit)
+        {
+            group.Events.Add(new GroupFilled { Group = group });
+        }
+
+        await base.AddAsync(group, cancellationToken);
+    }
+
+    public new async Task UpdateAsync(
+        Group modifiedGroup,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // Skip all update logic if we're going to delete the group anyway.
+        if (modifiedGroup.Members.Count == 0)
+        {
+            await DeleteAsync(modifiedGroup.Id, cancellationToken);
+            return;
+        }
+
+        var errors = await ValidateAsync(modifiedGroup, cancellationToken);
+        if (errors.Length > 0)
+        {
+            throw new Exception("Cannot update group: " + string.Join(", ", errors));
+        }
+
+        // for comparing changes
+        var existingGroupSnapshot =
+            await db
+                .Groups.Include(g => g.Members)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    g => g.Id == modifiedGroup.Id,
+                    cancellationToken: cancellationToken
+                ) ?? throw new NullReferenceException("Group does not exist already");
+
+        var membersToRemove = existingGroupSnapshot
+            .Members.Where(originalMember =>
+                !modifiedGroup.Members.Any(modifiedMember => modifiedMember.Id == originalMember.Id)
+            )
+            .ToList();
+
+        foreach (var member in membersToRemove)
+        {
+            await mediator.Publish(
+                new GroupMemberLeft() { User = member, Group = modifiedGroup },
+                cancellationToken
+            );
+            logger.LogInformation("{user} was removed from group", member.UserName);
+        }
+
+        // TODO: Handle group members added notifciations.
+
+        // TODO: handle other changes, if necessary.
+
+        await base.UpdateAsync(modifiedGroup, cancellationToken);
+    }
+
+    private async Task<string[]> ValidateAsync(
+        Group groupToValidate,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var errors = new List<string>();
+
+        var course = groupToValidate.Course ?? throw new NullReferenceException("Course is null");
+
+        if (course.AllowCustomSize == false && groupToValidate.GroupLimit != course.GroupSize)
+        {
+            errors.Add($"Custom sizes are not allowed for course {course.Name}");
+        }
+
+        if (groupToValidate.Members.Count > groupToValidate.GroupLimit)
+        {
+            errors.Add("Members are over group member limit");
+        }
+
+        foreach (var member in groupToValidate.Members)
+        {
+            var otherGroups = await db
+                .Groups.Include(g => g.Course)
+                .Include(g => g.Members)
+                .Where(g => g.Course == course)
+                .Where(g => g.Members.Contains(member))
+                .ToListAsync(cancellationToken);
+            otherGroups.Remove(groupToValidate); // ignore current group
+            if (otherGroups.Count > 0)
+            {
+                errors.Add(
+                    $"Group member {member.UserName} {member.Id} is already in another group in course {course.Name}"
+                );
+            }
+        }
+
+        return errors.ToArray();
+    }
+
     public async Task<bool> IsUserInGroup(User user, Course course)
     {
         var groups = await GetGroups(user);
@@ -80,6 +187,7 @@ public class GroupRepository : Repository<Group, Guid>
             .ToArrayAsync();
     }
 
+    // TODO: move to course
     public async Task<Group[]> GetGroups(Guid id)
     {
         return await db
@@ -99,6 +207,7 @@ public class GroupRepository : Repository<Group, Guid>
             .ToListAsync();
     }
 
+    // TODO: move to course
     public async Task<Group[]> GetAvailableGroups(Guid id)
     {
         return await db
@@ -147,6 +256,7 @@ public class GroupRepository : Repository<Group, Guid>
             .ToArrayAsync();
     }
 
+    // TODO: replace with DeleteAsync
     public async Task DeleteGroup(Guid id)
     {
         var group =
@@ -163,32 +273,6 @@ public class GroupRepository : Repository<Group, Guid>
         await db.SaveChangesAsync();
     }
 
-    public async Task<bool> RemoveUserFromGroup(
-        string userId,
-        Guid groupId,
-        GroupMemberRemovedReason reason = GroupMemberRemovedReason.None
-    )
-    {
-        var group =
-            await db.Groups.Include(g => g.Members).FirstAsync(g => g.Id == groupId)
-            ?? throw new Exception("Group not found");
-        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
-        var was_user_removed = group.Members.Remove(user);
-
-        await db.SaveChangesAsync();
-
-        if (group.Members.Count == 0)
-        {
-            await mediator.Publish(new GroupEmpty() { GroupId = group.Id });
-            await DeleteGroup(group.Id);
-        }
-        else
-        {
-            await mediator.Publish(new GroupMemberLeft() { Group = group, User = user });
-        }
-        return was_user_removed;
-    }
-
     public async Task<bool> CheckIfInGroup(User user, Course course)
     {
         var group = await db
@@ -201,28 +285,7 @@ public class GroupRepository : Repository<Group, Guid>
         return true;
     }
 
-    public async Task<Group> CreateGroup(User user, Course course, Preferences groupPreferences)
-    {
-        if (await IsUserInGroup(user, course))
-        {
-            throw new Exception("User is already in group");
-        }
-        var group = new Group() { Preferences = groupPreferences, Course = course };
-        group.Members.Add(user);
-
-        if (course.AllowCustomSize)
-        {
-            group.GroupLimit = groupPreferences.GroupSize;
-        }
-        else
-        {
-            group.GroupLimit = course.GroupSize;
-        }
-
-        db.Add(group);
-        await db.SaveChangesAsync();
-        return group;
-    }
+    // TODO: replace with updateasync
 
     public async Task<Group> CreateGroup(List<User> users, Course course)
     {

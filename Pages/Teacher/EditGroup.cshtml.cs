@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class EditGroupModel(GroupRepository groupRepository) : PageModel
+public class EditGroupModel(GroupRepository groupRepository, UserService userService) : PageModel
 {
     public Group? Group;
     public User[] Members = [];
@@ -20,7 +21,14 @@ public class EditGroupModel(GroupRepository groupRepository) : PageModel
         await LoadAsync(groupId);
         if (Group is not null)
         {
-            await groupRepository.RemoveUserFromGroup(userId, Group.Id);
+            var user = await userService.GetUser(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            Group.Members.Remove(user);
+            await groupRepository.UpdateAsync(Group);
             if (Members.Length == 1)
             {
                 return RedirectToPage(TeacherRoutes.CourseOverview());

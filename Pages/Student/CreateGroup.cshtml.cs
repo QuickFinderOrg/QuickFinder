@@ -112,8 +112,10 @@ public class CreateGroupModel(
         };
         var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
         var groupPreferences = Preferences.From(userPreferences, coursePreferences);
+        var group = new Group() { Course = Course, Preferences = groupPreferences };
+        group.Members.Add(user);
 
-        await groupRepository.CreateGroup(user, Course, groupPreferences);
+        await groupRepository.AddAsync(group);
 
         return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
     }
