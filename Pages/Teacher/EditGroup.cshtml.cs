@@ -5,11 +5,7 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class EditGroupModel(
-    MatchmakingService matchmaking,
-    GroupRepository groupRepository,
-    UserService userService
-) : PageModel
+public class EditGroupModel(GroupRepository groupRepository, UserService userService) : PageModel
 {
     public Group? Group;
     public User[] Members = [];

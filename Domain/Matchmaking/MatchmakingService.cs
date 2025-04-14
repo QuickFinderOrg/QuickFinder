@@ -158,32 +158,6 @@ public class MatchmakingService(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<CoursePreferences?> GetCoursePreferences(Guid courseId, string userId)
-    {
-        return await db
-            .CoursePreferences.Include(prefs => prefs.User)
-            .Include(prefs => prefs.Course)
-            .Where(prefs => prefs.UserId == userId && prefs.CourseId == courseId)
-            .SingleOrDefaultAsync();
-    }
-
-    public async Task<CoursePreferences?> CreateNewCoursePreferences(Guid courseId, string userId)
-    {
-        var coursePreferences = new CoursePreferences() { CourseId = courseId, UserId = userId };
-        db.Add(coursePreferences);
-        await db.SaveChangesAsync();
-        return coursePreferences;
-    }
-
-    public async Task UpdateCoursePreferencesAsync(
-        Guid courseId,
-        string userId,
-        CoursePreferences newPreferences
-    )
-    {
-        await db.SaveChangesAsync();
-    }
-
     public async Task Reset()
     {
         // TODO: remove all references

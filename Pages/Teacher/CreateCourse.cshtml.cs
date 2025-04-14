@@ -5,11 +5,8 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class CreateCourseModel(
-    ILogger<CreateCourseModel> logger,
-    MatchmakingService matchmakingService,
-    CourseRepository courseRepository
-) : PageModel
+public class CreateCourseModel(ILogger<CreateCourseModel> logger, CourseRepository courseRepository)
+    : PageModel
 {
     private readonly ILogger<CreateCourseModel> _logger = logger;
 
