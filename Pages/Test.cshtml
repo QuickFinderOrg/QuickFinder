@@ -11,6 +11,8 @@
     var headers = HttpContext.Request.Headers.Select(h => $"{h.Key}: {h.Value}");
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var discordUserId = await userService.GetDiscordId(user.Id);
+
+    var matchmaker = new Matchmaker<TestCandidate>(new MatchmakerConfig());
 }
 
 <h2>Test</h2>
@@ -157,21 +159,21 @@ p>Current Timestamp: @DateTime.Now</p>
     };
 
     TestCandidate[] pool = [p2, p3, p4];
-    var orderedCandidates = MatchmakingService.OrderCandidates(p1, pool);
+    var orderedCandidates = matchmaker.OrderCandidates(p1, pool);
 
-    var matches = MatchmakingService.Match(p1, pool, 2, DateTime.Now);
+    var matches = matchmaker.Match(p1, pool, 2, scoreRequirement: 0.0m);
 }
 <p>@p1</p>
 <hr>
 <div style="display: flex;" class="gap-1">
     <p>@p2</p>
-    <p>@MatchmakingService.GetScore(p1.Preferences, p2.Preferences)</p>
+    <p>@matchmaker.GetScore(p1.Preferences, p2.Preferences)</p>
     <p>s=@Preferences.GetDaysScore(p1.Preferences, p2.Preferences)</p>
 </div>
 <p>@p3</p>
-<p>@MatchmakingService.GetScore(p1.Preferences, p3.Preferences)</p>
+<p>@matchmaker.GetScore(p1.Preferences, p3.Preferences)</p>
 <p>@p4</p>
-<p>@MatchmakingService.GetScore(p1.Preferences, p4.Preferences)</p>
+<p>@matchmaker.GetScore(p1.Preferences, p4.Preferences)</p>
 
 <ol style="border: 1px solid yellow;">
 
