@@ -94,6 +94,7 @@ builder.Services.AddScoped<DiscordService>();
 builder.Services.AddHostedService<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 builder.Services.AddTransient<RunMatchmakingInvocable>();
+builder.Services.AddTransient<DeleteUnusedGroupsInvocable>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -106,6 +107,7 @@ var app = builder.Build();
 app.Services.UseScheduler(scheduler =>
     {
         scheduler.Schedule<RunMatchmakingInvocable>().EveryThirtySeconds();
+        scheduler.Schedule<DeleteUnusedGroupsInvocable>().EveryMinute();
     })
     .OnError(e =>
     {

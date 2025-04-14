@@ -447,6 +447,39 @@ public class DiscordService : IHostedService
         }
     }
 
+    public async Task DeleteUnusedGroupChannels()
+    {
+        // Create a new scope to resolve the DbContext
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var servers = await dbContext.DiscordServers.Include(s => s.Courses).ToArrayAsync();
+            foreach (var server in servers)
+            {
+                var course =
+                    await dbContext
+                        .Courses.Include(c => c.Groups)
+                        .SingleOrDefaultAsync(c => c.Id == server.Courses[0].Id)
+                    ?? throw new Exception("Course not found.");
+
+                var groups = dbContext.Groups.Where(g => g.Course.Id == course.Id).ToArray();
+
+                var channels = await dbContext
+                    .DiscordChannels.Where(c => c.Server.Id == server.Id)
+                    .ToArrayAsync();
+
+                foreach (var channel in channels)
+                {
+                    if (!course.Groups.Any(g => g.Id == channel.OwningGroupId))
+                    {
+                        await DeleteChannel(channel.Id);
+                    }
+                }
+            }
+        }
+    }
+
     public async Task InviteToServer(ulong userId, string accessToken, ulong serverId)
     {
         var guild = _client.GetGuild(serverId);
