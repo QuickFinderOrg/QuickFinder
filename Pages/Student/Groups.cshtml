@@ -22,7 +22,7 @@
             @foreach (var group in Model.Groups)
             {
                 <tr>
-                    <td>@group.Id</td>
+                    <td title="@group.Id">@group.Name</td>
                     <td>@group.Course</td>
                     <td>
                         @foreach (var member in group.Members)

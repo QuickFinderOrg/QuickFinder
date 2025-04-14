@@ -28,6 +28,7 @@ public class GroupsModel(
             var group_vm = new GroupVM()
             {
                 Id = g.Id.ToString(),
+                Name = g.Name,
                 Course = g.Course.Name,
                 GroupLimit = g.GroupLimit,
             };
@@ -80,6 +81,7 @@ public class GroupsModel(
     public class GroupVM
     {
         public required string Id;
+        public required string Name;
         public List<GroupMemberVM> Members = [];
         public string Course = "";
         public uint GroupLimit = 2;

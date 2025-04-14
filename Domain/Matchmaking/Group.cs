@@ -1,12 +1,14 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using QuickFinder.Data;
+using RandomFriendlyNameGenerator;
 
 namespace QuickFinder.Domain.Matchmaking;
 
 public class Group() : BaseEntity
 {
     public Guid Id { get; init; }
+    public string Name { get; set; } = "";
     public List<User> Members { get; } = [];
     public required Course Course { get; init; }
     public required Preferences Preferences { get; init; }
@@ -49,6 +51,11 @@ public class GroupRepository : Repository<Group, Guid>
         if (group.Members.Count >= group.GroupLimit)
         {
             group.Events.Add(new GroupFilled { Group = group });
+        }
+
+        if (string.IsNullOrEmpty(group.Name))
+        {
+            group.Name = NameGenerator.Identifiers.Get();
         }
 
         await base.AddAsync(group, cancellationToken);
@@ -100,6 +107,11 @@ public class GroupRepository : Repository<Group, Guid>
         // TODO: Handle group members added notifciations.
 
         // TODO: handle other changes, if necessary.
+
+        if (string.IsNullOrEmpty(modifiedGroup.Name))
+        {
+            modifiedGroup.Name = NameGenerator.Identifiers.Get();
+        }
 
         await base.UpdateAsync(modifiedGroup, cancellationToken);
     }
