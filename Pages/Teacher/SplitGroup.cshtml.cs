@@ -30,9 +30,10 @@ public class SplitGroupModel(
         await LoadAsync(groupId);
         foreach (var userId in SelectedMembers)
         {
-            await groupRepository.RemoveUserFromGroup(userId, groupId);
             var user =
                 await userManager.FindByIdAsync(userId) ?? throw new Exception("User not found");
+            Group.Members.Remove(user);
+            await groupRepository.UpdateAsync(Group);
             NewGroupMembers.Add(user);
         }
         var course = await courseRepository.GetByIdAsync(Group.Course.Id);
