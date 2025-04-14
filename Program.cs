@@ -35,6 +35,7 @@ builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<TicketRepository>();
 builder.Services.AddScoped<CourseRepository>();
 builder.Services.AddScoped<GroupRepository>();
+builder.Services.AddScoped<PreferencesRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
