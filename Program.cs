@@ -18,6 +18,10 @@ builder.Services.Configure<DiscordServiceOptions>(
 builder.Services.Configure<MatchmakingOptions>(
     builder.Configuration.GetSection(MatchmakingOptions.Matchmaking)
 );
+builder
+    .Services.AddOptions<MatchmakingOptions>()
+    .Bind(builder.Configuration.GetSection(MatchmakingOptions.Matchmaking))
+    .ValidateDataAnnotations();
 builder.Services.Configure<MailjetOptions>(
     builder.Configuration.GetSection(MailjetOptions.Mailjet)
 );

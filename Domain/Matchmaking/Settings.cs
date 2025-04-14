@@ -14,7 +14,7 @@ public sealed class MatchmakingOptions
         {
             if (string.IsNullOrEmpty(Interval))
             {
-                return TimeSpan.Zero; // Or throw an exception, depending on your needs
+                return TimeSpan.Zero;
             }
             return System.Xml.XmlConvert.ToTimeSpan(Interval);
         }

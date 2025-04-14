@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using QuickFinder.Data;
 
 namespace QuickFinder.Domain.Matchmaking;
@@ -7,7 +8,8 @@ namespace QuickFinder.Domain.Matchmaking;
 public class MatchmakingService(
     ApplicationDbContext db,
     ILogger<MatchmakingService> logger,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    IOptions<MatchmakingOptions> matchmakingOptions
 )
 {
     public static IEnumerable<KeyValuePair<decimal, ICandidate>> OrderCandidates(
@@ -49,9 +51,9 @@ public class MatchmakingService(
         DateTime time
     )
     {
-        var scoreRequirement = 0.5m;
+        var waitTime = time - seedCandidate.CreatedAt;
+        var scoreRequirement = MatchmakingService.GetRequiredScore(waitTime);
         var groupSizeLimit = groupSize - 1; // seed candidate is already in the group
-        var waitTime = time - seedCandidate.CreatedAt; // TODO: account for wait time.
 
         var orderedCandidates = OrderCandidates(seedCandidate, candidatePool)
             .Where(pair => pair.Key >= scoreRequirement);
@@ -83,6 +85,30 @@ public class MatchmakingService(
         var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * groupSizeWeight;
 
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
+    }
+
+    public static decimal GetRequiredScore(TimeSpan timeInQueue)
+    {
+        if (timeInQueue < TimeSpan.FromHours(1))
+        {
+            // t0
+            return 0.9m;
+        }
+        else if (timeInQueue < TimeSpan.FromHours(6))
+        {
+            // t1
+            return 0.7m;
+        }
+        else if (timeInQueue < TimeSpan.FromHours(12))
+        {
+            // t2
+            return 0.6m;
+        }
+        else
+        {
+            // t3
+            return 0.5m;
+        }
     }
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
