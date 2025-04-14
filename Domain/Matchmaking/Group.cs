@@ -224,6 +224,27 @@ public class GroupRepository : Repository<Group, Guid>
         return group;
     }
 
+    public async Task<Group> CreateGroup(List<User> users, Course course)
+    {
+        var group = new Group() { Course = course, Preferences = new Preferences() };
+        foreach (var user in users)
+        {
+            group.Members.Add(user);
+        }
+        if (course.AllowCustomSize)
+        {
+            group.GroupLimit = (uint)users.Count;
+        }
+        else
+        {
+            group.GroupLimit = course.GroupSize;
+        }
+
+        db.Add(group);
+        await db.SaveChangesAsync();
+        return group;
+    }
+
     public async Task<Task> AddToGroup(User user, Group group)
     {
         if (group.Members.Contains(user))

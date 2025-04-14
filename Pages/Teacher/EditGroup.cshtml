@@ -1,37 +1,45 @@
 @page
 @model EditGroupModel
+@inject UserService userService;
 @{
     ViewData["Title"] = "Edit Page";
 }
 
 @if (Model.Group is not null && Model.Members is not null)
 {
-<div class="text-center">
-    <h1 class="display-4">Edit Group @Model.Group.Id</h1>
-    <table>
-        @foreach (var member in Model.Members)
-        {
-            <tr>
-                <td>@member.UserName</td>
-                <td>
-                    <form asp-page-handler="DeleteMember" method="post">
-                        <input hidden value="@member.Id" name="userId">
-                        <input hidden value="@Model.Group.Id" name="groupId">
-                        <button class="btn btn-danger">
-                            <i class="bi-trash"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </table>
-
-</div>
+    <div class="text-center">
+        <h1 class="display-4">Edit Group @Model.Group.Id</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in Model.Group.Members)
+                {
+                    <tr>
+                        <td>@await userService.GetName(member)</td>
+                        <td>
+                            <form asp-page-handler="DeleteMember" method="post">
+                                <input hidden value="@member.Id" name="userId">
+                                <input hidden value="@Model.Group.Id" name="groupId">
+                                <button class="btn btn-danger">
+                                    <i class="bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
-<div class="text-center">
-    <h1 class="display-4">Edit Group</h1>
-    <p>No group found</p>
-</div>
+    <div class="text-center">
+        <h1 class="display-4">Edit Group</h1>
+        <p>No group found</p>
+    </div>
 }

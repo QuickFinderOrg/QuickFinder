@@ -43,16 +43,9 @@ public class StudentsModel(
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
+    public async Task<IActionResult> OnPostDeleteGroupAsync(Guid groupId)
     {
-        var users = await groupRepository.GetGroupMembers(id);
-        await groupRepository.DeleteGroup(id);
-        var courses = await courseRepository.GetAllAsync();
-        var course = courses[0];
-        foreach (var user in users)
-        {
-            await ticketRepository.AddToWaitlist(user, course);
-        }
+        await groupRepository.DeleteGroup(groupId);
         return RedirectToPage();
     }
 

@@ -39,16 +39,16 @@ public class CourseOverviewModel(
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
-    public async Task<IActionResult> OnPostDeleteGroupAsync(Guid id)
+    public async Task<IActionResult> OnPostDeleteGroupAsync(Guid groupId)
     {
-        await groupRepository.DeleteGroup(id);
+        await groupRepository.DeleteGroup(groupId);
         Course =
             await courseRepository.GetByIdAsync(Course.Id)
             ?? throw new Exception("Course not found");
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
-    public async Task<IActionResult> OnPostChangeGroupSIzeAsync()
+    public async Task<IActionResult> OnPostChangeGroupSizeAsync()
     {
         await groupRepository.ChangeGroupSize(Course.Id, Course.GroupSize);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });

@@ -4,15 +4,14 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class EditGroupModel(MatchmakingService matchmaking, GroupRepository groupRepository)
-    : PageModel
+public class EditGroupModel(GroupRepository groupRepository) : PageModel
 {
     public Group? Group;
     public User[] Members = [];
 
-    public async Task<IActionResult> OnGetAsync(Guid id)
+    public async Task<IActionResult> OnGetAsync(Guid groupId)
     {
-        await LoadAsync(id);
+        await LoadAsync(groupId);
         return Page();
     }
 
@@ -28,7 +27,7 @@ public class EditGroupModel(MatchmakingService matchmaking, GroupRepository grou
             }
             await LoadAsync(groupId);
         }
-        return RedirectToPage(TeacherRoutes.EditGroup(), new { id = groupId });
+        return RedirectToPage(TeacherRoutes.EditGroup(), new { groupId });
     }
 
     public async Task LoadAsync(Guid id)

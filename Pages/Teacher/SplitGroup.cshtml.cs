@@ -1,0 +1,48 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
+
+namespace QuickFinder.Pages.Teacher;
+
+public class SplitGroupModel(
+    GroupRepository groupRepository,
+    CourseRepository courseRepository,
+    UserManager<User> userManager
+) : PageModel
+{
+    public Group Group { get; set; } = default!;
+
+    public User[] Members { get; set; } = [];
+
+    [BindProperty]
+    public string[] SelectedMembers { get; set; } = [];
+    public List<User> NewGroupMembers { get; set; } = [];
+
+    public async Task<IActionResult> OnGetAsync(Guid groupId)
+    {
+        await LoadAsync(groupId);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostSplitAsync(Guid groupId)
+    {
+        await LoadAsync(groupId);
+        foreach (var userId in SelectedMembers)
+        {
+            await groupRepository.RemoveUserFromGroup(userId, groupId);
+            var user =
+                await userManager.FindByIdAsync(userId) ?? throw new Exception("User not found");
+            NewGroupMembers.Add(user);
+        }
+        var course = await courseRepository.GetByIdAsync(Group.Course.Id);
+        await groupRepository.CreateGroup(NewGroupMembers, course);
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = course.Id });
+    }
+
+    public async Task LoadAsync(Guid id)
+    {
+        Group = await groupRepository.GetGroup(id);
+        Members = [.. Group.Members];
+    }
+}

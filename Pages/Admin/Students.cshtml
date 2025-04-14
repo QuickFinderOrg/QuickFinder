@@ -66,9 +66,9 @@
                         <p>@group.Members.Count / @group.GroupLimit</p>
                     </td>
                     <td>
-                        <form asp-page-handler="DeleteGroup" asp-route-id="@group.Id" method="post">
-                            <a asp-page="@TeacherRoutes.EditGroup()" asp-route-id="@group.Id" class="btn btn-primary"><i
-                                    class="bi-pencil"></i></a>
+                        <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">
+                            <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
+                                class="btn btn-primary"><i class="bi-pencil"></i></a>
                             <button class="btn btn-danger">
                                 <i class="bi-trash"></i>
                             </button>

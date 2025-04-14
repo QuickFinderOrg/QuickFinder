@@ -30,6 +30,10 @@ public static class TeacherRoutes
     public static string CreateCourse() => "/Teacher/CreateCourse";
 
     public static string CourseOverview() => "/Teacher/CourseOverview";
+
+    public static string AddServer() => "/Teacher/AddServer";
+
+    public static string SplitGroup() => "/Teacher/SplitGroup";
 }
 
 public static class AdminRoutes

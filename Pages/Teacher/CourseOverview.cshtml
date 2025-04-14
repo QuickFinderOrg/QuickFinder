@@ -30,7 +30,7 @@
 
     @if (Model.CourseDiscordServer == null)
     {
-        <form asp-page="/Teacher/AddServer" asp-route-CourseId="@Model.Course.Id" method="get">
+        <form asp-page="@TeacherRoutes.AddServer()" asp-route-CourseId="@Model.Course.Id" method="get">
             <input name="CourseId" value="@Model.Course.Id" hidden />
             <button class="btn btn-primary">Add Discord Server</button>
         </form>
@@ -73,10 +73,15 @@
                             <p>@group.Members.Count / @group.GroupLimit</p>
                         </td>
                         <td>
-                            <form asp-page-handler="DeleteGroup" asp-route-id="@group.Id" method="post">
+                            <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">
                                 <input asp-for="Course.Id" hidden />
-                                <a asp-page="@TeacherRoutes.EditGroup()" asp-route-id="@group.Id" asp-page-handler="EditGroup"
+
+                                <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
                                     class="btn btn-primary"><i class="bi-pencil"></i></a>
+
+                                <a asp-page="@TeacherRoutes.SplitGroup()" asp-route-groupId="@group.Id"
+                                    class="btn btn-warning"><i class="bi-slash"></i></a>
+
                                 <button class="btn btn-danger">
                                     <i class="bi-trash"></i>
                                 </button>

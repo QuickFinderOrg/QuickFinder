@@ -1,0 +1,46 @@
+@page
+@model SplitGroupModel
+@inject UserService userService;
+@{
+    ViewData["Title"] = "Split Group";
+}
+
+@if (Model.Group is not null && Model.Members is not null)
+{
+    <div class="text-center">
+        <h1 class="display-4">Split Group @Model.Group.Id</h1>
+        <form asp-page-handler="Split" method="post">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var member in Model.Members)
+                    {
+                        <tr>
+                            <td>@await userService.GetName(member)</td>
+                            <td>
+                                <input type="checkbox" value="@member.Id" name="SelectedMembers[]" />
+                            </td>
+                        </tr>
+                    }
+                    <input value="@Model.Group.Id" name="groupId" hidden />
+                </tbody>
+            </table>
+            <button class="btn btn-primary">
+                Split Group
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Split Group</h1>
+        <p>No group found</p>
+    </div>
+}
