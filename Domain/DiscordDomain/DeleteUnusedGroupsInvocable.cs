@@ -4,7 +4,7 @@ using QuickFinder.Domain.DiscordDomain;
 namespace QuickFinder.Domain.Matchmaking;
 
 public class DeleteUnusedGroupsInvocable(
-    ILogger<RunMatchmakingInvocable> logger,
+    ILogger<DeleteUnusedGroupsInvocable> logger,
     IServiceProvider serviceProvider
 ) : IInvocable, ICancellableInvocable
 {
