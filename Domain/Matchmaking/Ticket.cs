@@ -59,7 +59,7 @@ public class TicketRepository : Repository<Ticket, Guid>
                 user.Id,
                 course.Id
             );
-            throw new Exception("Already in queue.");
+            throw new AlreadyInQueueException();
         }
 
         var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p =>
@@ -83,7 +83,7 @@ public class TicketRepository : Repository<Ticket, Guid>
                 Preferences = full_preferences,
             }
         );
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     public new async Task<Ticket?> GetByIdAsync(

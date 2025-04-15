@@ -61,7 +61,7 @@ public class MatchingModel(
             case AddToQueueResult.AlreadyInQueue:
                 PageContext.ModelState.AddModelError(
                     string.Empty,
-                    "You are already in the matchmaking queue for this course."
+                    $"You are already in the matchmaking queue for {course.Name}."
                 );
                 return Page();
 
