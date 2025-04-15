@@ -92,14 +92,11 @@ public class MatchmakingService(
         {
             throw new Exception($"Course with ID '{courseId}' does not exist.");
         }
-        var userPrefs = user.Preferences;
-        var coursePrefs = await preferencesRepository.GetCoursePreferences(courseId, userId);
-        if (coursePrefs == null)
+        var preferences = await preferencesRepository.GetPreferencesAsync(courseId, userId);
+        if (preferences == null)
         {
-            coursePrefs = new CoursePreferences();
+            throw new Exception($"Preferences do not exist.");
         }
-
-        var preferences = Preferences.From(userPrefs, coursePrefs);
 
         var ticket = new Ticket()
         {

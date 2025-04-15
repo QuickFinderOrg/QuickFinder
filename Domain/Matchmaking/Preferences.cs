@@ -207,11 +207,13 @@ public class PreferencesRepository : Repository<Preferences, Guid>
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;
     private readonly GroupRepository groupRepository; // TODO: maybe we should merge course and group repository instead?
+    private readonly UserService userService;
 
     public PreferencesRepository(
         ApplicationDbContext applicationDbContext,
         ILogger<TicketRepository> preferencesLogger,
-        GroupRepository preferencesGroupRepository
+        GroupRepository preferencesGroupRepository,
+        UserService preferencesUserService
     )
         : base(applicationDbContext)
     {
@@ -220,6 +222,28 @@ public class PreferencesRepository : Repository<Preferences, Guid>
         groupRepository =
             preferencesGroupRepository
             ?? throw new ArgumentNullException(nameof(preferencesGroupRepository));
+        userService =
+            preferencesUserService
+            ?? throw new ArgumentNullException(nameof(preferencesUserService));
+    }
+
+    public async Task<Preferences?> GetPreferencesAsync(Guid courseId, string userId)
+    {
+        var user = await userService.GetUser(userId);
+        var user_prefs = user.Preferences;
+
+        var course_prefs =
+            await db.CoursePreferences.FirstOrDefaultAsync(p =>
+                p.UserId == userId && p.CourseId == courseId
+            )
+            ?? new CoursePreferences()
+            {
+                Availability = user_prefs.GlobalAvailability,
+                Days = user_prefs.GlobalDays,
+            };
+
+        // parent function or matchmaking service should get this from preference repository.
+        return Preferences.From(user.Preferences, course_prefs);
     }
 
     public async Task<CoursePreferences?> GetCoursePreferences(Guid courseId, string userId)

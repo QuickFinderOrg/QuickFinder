@@ -62,27 +62,7 @@ public class TicketRepository : Repository<Ticket, Guid>
             throw new AlreadyInQueueException();
         }
 
-        var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p =>
-            p.User == user && p.Course == course
-        );
-
-        if (course_prefs == null)
-        {
-            course_prefs = new CoursePreferences() { User = user, Course = course };
-            db.Add(course_prefs);
-        }
-
-        // parent function or matchmaking service should get this from preference repository.
-        var full_preferences = Preferences.From(user.Preferences, course_prefs);
-
-        db.Add(
-            new Ticket()
-            {
-                User = user,
-                Course = course,
-                Preferences = full_preferences,
-            }
-        );
+        db.Add(ticket);
         await db.SaveChangesAsync(cancellationToken);
     }
 
