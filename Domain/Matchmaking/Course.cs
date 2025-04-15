@@ -71,7 +71,8 @@ public class CourseRepository : Repository<Course, Guid>
         {
             var group =
                 await db
-                    .Groups.Where(g => g.Course == course && g.Members.Contains(user))
+                    .Groups.Include(g => g.Members)
+                    .Where(g => g.Course == course && g.Members.Contains(user))
                     .FirstOrDefaultAsync() ?? throw new Exception("Group not found");
             group.Members.Remove(user);
             await groupRepository.UpdateAsync(group);
