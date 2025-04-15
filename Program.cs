@@ -37,10 +37,12 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<St
 
 builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<TicketRepository>();
+builder.Services.AddScoped<GroupTicketRepository>();
 builder.Services.AddScoped<CourseRepository>();
 builder.Services.AddScoped<GroupRepository>();
 builder.Services.AddScoped<PreferencesRepository>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<GroupMatchmakingService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
 builder.Services.AddScheduler();
@@ -98,6 +100,7 @@ builder.Services.AddScoped<DiscordService>();
 builder.Services.AddHostedService<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 builder.Services.AddTransient<RunMatchmakingInvocable>();
+builder.Services.AddTransient<RunGroupMatchmakingInvocable>();
 builder.Services.AddTransient<DeleteUnusedGroupsInvocable>();
 
 // Configure forwarded headers
@@ -111,6 +114,7 @@ var app = builder.Build();
 app.Services.UseScheduler(scheduler =>
     {
         scheduler.Schedule<RunMatchmakingInvocable>().EveryThirtySeconds();
+        scheduler.Schedule<RunGroupMatchmakingInvocable>().EveryThirtySeconds();
         scheduler.Schedule<DeleteUnusedGroupsInvocable>().EveryMinute();
     })
     .OnError(e =>

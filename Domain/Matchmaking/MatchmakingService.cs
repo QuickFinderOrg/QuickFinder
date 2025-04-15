@@ -14,7 +14,6 @@ public class MatchmakingService(
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
         var all_candidates = await ticketRepository.GetAllAsync(cancellationToken);
-        // todo: handle open groups that need members.
         // pick a random candidate.
         var seedCandidate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
 

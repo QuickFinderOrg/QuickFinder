@@ -9,11 +9,10 @@ public class GroupsModel(
     ILogger<GroupsModel> logger,
     UserManager<User> userManager,
     UserService userService,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    GroupMatchmakingService groupMatchmakingService
 ) : PageModel
 {
-    private readonly ILogger<GroupsModel> _logger = logger;
-
     public List<GroupVM> Groups = [];
 
     public async Task<IActionResult> OnGetAsync()
@@ -36,11 +35,11 @@ public class GroupsModel(
             {
                 if (member == null)
                 {
-                    _logger.LogDebug("User not found");
+                    logger.LogDebug("User not found");
                 }
                 else
                 {
-                    _logger.LogDebug("User {}", member.UserName);
+                    logger.LogDebug("User {}", member.UserName);
                     var name = await userService.GetName(member);
                     group_vm.Members.Add(
                         new GroupMemberVM()
@@ -78,6 +77,53 @@ public class GroupsModel(
         return Redirect("Groups");
     }
 
+    public async Task<IActionResult> OnPostSearchAsync(
+        Guid groupId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var group = await groupRepository.GetGroup(groupId);
+        if (group == null)
+        {
+            return Page();
+        }
+
+        var result = await groupMatchmakingService.QueueForMatchmakingAsync(
+            group.Id,
+            group.Course.Id,
+            cancellationToken
+        );
+
+        switch (result)
+        {
+            case AddToQueueResult.AlreadyInQueue:
+                PageContext.ModelState.AddModelError(
+                    string.Empty,
+                    $"You are already in the matchmaking queue for {group.Course.Name}."
+                );
+                return Page();
+
+            case AddToQueueResult.Failure:
+                PageContext.ModelState.AddModelError(
+                    string.Empty,
+                    "Failed to add you to the matchmaking queue. Please try again later."
+                );
+                return Page();
+
+            case AddToQueueResult.Success:
+                logger.LogInformation(
+                    "Group {GroupId} successfully added to matchmaking queue for course {CourseId}",
+                    group.Id,
+                    group.Course.Id
+                );
+                return Redirect(StudentRoutes.Groups());
+
+            default:
+                PageContext.ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
+                return Page();
+        }
+    }
+
     public class GroupVM
     {
         public required string Id;
@@ -85,6 +131,7 @@ public class GroupsModel(
         public List<GroupMemberVM> Members = [];
         public string Course = "";
         public uint GroupLimit = 2;
+        public bool IsFull => Members.Count >= GroupLimit;
     }
 
     public class GroupMemberVM

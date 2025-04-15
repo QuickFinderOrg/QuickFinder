@@ -12,6 +12,7 @@ public class ApplicationDbContext(
 ) : IdentityDbContext<User>(options)
 {
     public DbSet<Ticket> Tickets { get; set; } = null!;
+    public DbSet<GroupTicket> GroupTickets { get; set; } = null!;
     public DbSet<Group> Groups { get; set; } = null!;
     public DbSet<Course> Courses { get; set; } = null!;
     public DbSet<CoursePreferences> CoursePreferences { get; set; } = null!;

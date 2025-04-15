@@ -38,6 +38,13 @@
                             <input name="groupId" hidden value="@group.Id">
                             <button type="submit">Leave Group</button>
                         </form>
+                        @if (!group.IsFull)
+                        {
+                            <form asp-page-handler="Search">
+                                <input name="groupId" hidden value="@group.Id">
+                                <button type="submit">Find member</button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }
