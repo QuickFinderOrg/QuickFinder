@@ -1,13 +1,6 @@
-using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using QuickFinder.Data;
-
 namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(
-    ApplicationDbContext db,
     ILogger<MatchmakingService> logger,
     GroupRepository groupRepository,
     TicketRepository ticketRepository,
@@ -20,11 +13,7 @@ public class MatchmakingService(
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
-        var all_candidates = await db
-            .Tickets.Include(t => t.Course)
-            .Include(t => t.Preferences)
-            .Include(t => t.User)
-            .ToListAsync(cancellationToken);
+        var all_candidates = await ticketRepository.GetAllAsync(cancellationToken);
         // todo: handle open groups that need members.
         // pick a random candidate.
         var seedCandidate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
@@ -55,43 +44,30 @@ public class MatchmakingService(
             return;
         }
 
-        var matchingTickets = matching_candidates.Select(candidate =>
-            candidates_in_course.First(ticket => ticket == candidate)
-        );
-
-        Ticket[] groupTickets = [seedCandidate, .. matchingTickets];
+        var groupTickets = new List<Ticket>([.. matching_candidates, seedCandidate]);
 
         var groupMembers = groupTickets.Select(t => t.User);
-
-        var matchingUsernames = matchingTickets.Select(t => t.User.UserName);
-
-        // TODO: make Match generic.
 
         logger.LogInformation(
             "New potential group in {course}: {leader}, Candidates: {candidates}",
             seedCandidate.Course.Name,
             seedCandidate.User.UserName,
-            string.Join(", ", matchingTickets)
+            string.Join(", ", matching_candidates.Select(t => t.User.UserName))
         );
 
         var group = new Group
         {
             Course = seedCandidate.Course,
             Preferences = seedCandidate.Preferences,
-            GroupLimit = course.GroupSize,
+            GroupLimit = course.GroupSize, //TODO: accept custom group size.
             IsComplete = true,
         };
+
         // assumes all created groups are filled
         group.Members.AddRange(groupMembers);
 
         await groupRepository.AddAsync(group, cancellationToken);
-
-        foreach (var ticket in groupTickets)
-        {
-            db.Remove(ticket);
-        }
-
-        await db.SaveChangesAsync(cancellationToken);
+        await ticketRepository.RemoveRangeAsync(groupTickets, cancellationToken);
     }
 
     public async Task Reset()

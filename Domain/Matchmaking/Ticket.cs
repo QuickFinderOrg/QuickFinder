@@ -107,32 +107,13 @@ public class TicketRepository : Repository<Ticket, Guid>
                 .ToArrayAsync(cancellationToken) ?? throw new Exception("WAITLIST");
     }
 
-    /// <summary>
-    /// Get tickets for a particular course
-    /// </summary>
-    /// <param name="course"></param>
-    /// <returns></returns>
-    public async Task<Ticket[]> GetWaitlist(Course course)
+    public async Task RemoveRangeAsync(
+        IEnumerable<Ticket> tickets,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await db
-            .Tickets.Include(t => t.User)
-            .Include(t => t.Course)
-            .Where(t => t.Course == course)
-            .ToArrayAsync();
-    }
-
-    public async Task<bool> RemoveUserFromWaitlist(string userId)
-    {
-        var user = await db.Users.FindAsync(userId) ?? throw new Exception("User not found");
-        var tickets = await db
-            .Tickets.Include(g => g.User)
-            .Where(t => t.User == user)
-            .ToArrayAsync();
         db.Tickets.RemoveRange(tickets);
-
-        await db.SaveChangesAsync();
-
-        return true;
+        await db.SaveChangesAsync(cancellationToken);
     }
 }
 
