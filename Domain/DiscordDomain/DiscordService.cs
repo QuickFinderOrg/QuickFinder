@@ -610,7 +610,7 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
         _logger.LogInformation("Group filled {groupId}", notification.Group.Id);
         var defaultServerId = ulong.Parse(_options.Value.ServerId);
         var defaultCategoryId = ulong.Parse(_options.Value.GroupChannelCategoryId);
-        var channelName = notification.Group.Id.ToString();
+        var channelName = notification.Group.Name;
 
         try
         {
@@ -717,9 +717,7 @@ public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<Group
         try
         {
             var channel =
-                _discord
-                    .GetChannels()
-                    .SingleOrDefault(c => c.Name == notification.Group.Id.ToString())
+                _discord.GetChannels().SingleOrDefault(c => c.Name == notification.Group.Name)
                 ?? throw new Exception($"Channel {notification.Group.Id} not found.");
 
             var discord_id = await _userService.GetDiscordId(notification.User.Id);
