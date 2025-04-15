@@ -12,7 +12,7 @@ class SeedDB(
     UserManager<User> userManager,
     ApplicationDbContext db,
     IOptions<DiscordServiceOptions> discordOptions,
-    TicketRepository ticketRepository
+    MatchmakingService matchmakingService
 )
 {
     public async void Seed()
@@ -90,7 +90,7 @@ class SeedDB(
         foreach (var account in test_accounts)
         {
             var user = await userService.CreateUser(account.Email, account.Name, account.Password);
-            await ticketRepository.AddToWaitlist(user, TestCourse1);
+            await matchmakingService.QueueForMatchmakingAsync(user.Id, TestCourse1.Id);
         }
 
         foreach (var account in admin_accounts)

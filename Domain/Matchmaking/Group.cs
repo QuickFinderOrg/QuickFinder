@@ -38,7 +38,19 @@ public class GroupRepository : Repository<Group, Guid>
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
     }
 
-    // TODO: findbyid with includes
+    /// <summary>
+    /// Gets group including members and course.
+    /// </summary>
+    public new async Task<Group?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+            .Groups.Include(g => g.Members)
+            .Include(g => g.Course)
+            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+    }
 
     public new async Task AddAsync(Group group, CancellationToken cancellationToken = default)
     {

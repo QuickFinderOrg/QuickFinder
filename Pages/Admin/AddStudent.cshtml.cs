@@ -9,18 +9,27 @@ public class AddStudentsModel(
     ILogger<AddStudentsModel> logger,
     ApplicationDbContext db,
     UserService userService,
-    TicketRepository ticketRepository
+    MatchmakingService matchmakingService,
+    CourseRepository courseRepository
 ) : PageModel
 {
     private readonly ILogger<AddStudentsModel> _logger = logger;
 
-    public async Task<IActionResult> OnPostAsync(string name, Availability availability)
+    public async Task<IActionResult> OnPostAsync(
+        string name,
+        Availability availability,
+        CancellationToken cancellationToken = default
+    )
     {
         _logger.LogDebug(" Add {name} {availability}", name, availability);
-        Course course = new() { Name = "Course" };
-        var user = await userService.CreateUser("Test@mail.com", name, "Lego1!");
-        await ticketRepository.AddToWaitlist(user, course);
-        await db.SaveChangesAsync();
+        var courses = await courseRepository.GetAllAsync(cancellationToken);
+        var user = await userService.CreateUser(Guid.NewGuid() + "@example.com", name, "Lego1!");
+        await matchmakingService.QueueForMatchmakingAsync(
+            user.Id,
+            courses[0].Id,
+            cancellationToken
+        );
+        await db.SaveChangesAsync(cancellationToken);
         return RedirectToPage(AdminRoutes.Students());
     }
 }

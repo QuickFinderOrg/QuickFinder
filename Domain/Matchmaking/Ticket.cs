@@ -41,22 +41,25 @@ public class TicketRepository : Repository<Ticket, Guid>
         logger = ticketLogger ?? throw new ArgumentNullException(nameof(ticketLogger));
     }
 
-    public async Task<bool> AddToWaitlist(User user, Course course)
+    public new async Task AddAsync(Ticket ticket, CancellationToken cancellationToken = default)
     {
-        var existing = await db
+        var course = ticket.Course ?? throw new Exception("Course");
+        var user = ticket.User ?? throw new Exception("User");
+
+        var existing_tickets = await db
             .Tickets.Include(c => c.User)
             .Include(c => c.Course)
             .Where(t => t.User == user && t.Course == course)
-            .ToArrayAsync();
+            .ToArrayAsync(cancellationToken);
 
-        if (existing.Length != 0)
+        if (existing_tickets.Length != 0)
         {
             logger.LogError(
                 "User '{userId}' is already queued up for course '{courseId}'",
                 user.Id,
                 course.Id
             );
-            return false;
+            throw new Exception("Already in queue.");
         }
 
         var course_prefs = await db.CoursePreferences.FirstOrDefaultAsync(p =>
@@ -69,6 +72,7 @@ public class TicketRepository : Repository<Ticket, Guid>
             db.Add(course_prefs);
         }
 
+        // parent function or matchmaking service should get this from preference repository.
         var full_preferences = Preferences.From(user.Preferences, course_prefs);
 
         db.Add(
@@ -80,16 +84,27 @@ public class TicketRepository : Repository<Ticket, Guid>
             }
         );
         await db.SaveChangesAsync();
-        return true;
     }
 
-    public async Task<Ticket[]> GetWaitlist()
+    public new async Task<Ticket?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+            .Tickets.Include(t => t.User)
+            .Include(t => t.Course)
+            .Include(t => t.Preferences)
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken: cancellationToken);
+    }
+
+    public new async Task<Ticket[]> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await db
                 .Tickets.Include(t => t.User)
                 .Include(t => t.Course)
                 .Include(t => t.Preferences)
-                .ToArrayAsync() ?? throw new Exception("WAITLIST");
+                .ToArrayAsync(cancellationToken) ?? throw new Exception("WAITLIST");
     }
 
     /// <summary>
@@ -120,3 +135,5 @@ public class TicketRepository : Repository<Ticket, Guid>
         return true;
     }
 }
+
+public class AlreadyInQueueException : Exception { }

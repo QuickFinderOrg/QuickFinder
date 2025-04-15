@@ -13,7 +13,7 @@ public class MatchingModel(
     UserManager<User> userManager,
     DiscordService discordService,
     IOptions<DiscordServiceOptions> options,
-    TicketRepository ticketRepository,
+    MatchmakingService matchmakingService,
     CourseRepository courseRepository,
     GroupRepository groupRepository,
     PreferencesRepository preferencesRepository
@@ -26,7 +26,10 @@ public class MatchingModel(
         await LoadAsync();
     }
 
-    public async Task<IActionResult> OnPostFindGroupAsync(Guid courseId)
+    public async Task<IActionResult> OnPostFindGroupAsync(
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
     {
         await LoadAsync();
         var course = Courses.First(c => c.Id == courseId);
@@ -47,24 +50,41 @@ public class MatchingModel(
             return Page();
         }
 
-        var was_added_to_waitlist = await ticketRepository.AddToWaitlist(user, course);
-
-        if (!was_added_to_waitlist)
-        {
-            PageContext.ModelState.AddModelError(
-                string.Empty,
-                "You are already in the waitlist for this course."
-            );
-            return Page();
-        }
-
-        logger.LogInformation(
-            "User {UserId} added to waitlist for course {CourseId}",
+        var result = await matchmakingService.QueueForMatchmakingAsync(
             user.Id,
-            course.Id
+            course.Id,
+            cancellationToken
         );
 
-        return Redirect(StudentRoutes.Groups());
+        switch (result)
+        {
+            case AddToQueueResult.AlreadyInQueue:
+                PageContext.ModelState.AddModelError(
+                    string.Empty,
+                    "You are already in the matchmaking queue for this course."
+                );
+                return Page();
+
+            case AddToQueueResult.Failure:
+                PageContext.ModelState.AddModelError(
+                    string.Empty,
+                    "Failed to add you to the matchmaking queue. Please try again later."
+                );
+                return Page();
+
+            case AddToQueueResult.Success:
+                logger.LogInformation(
+                    "User {UserId} successfully added to matchmaking queue for course {CourseId}",
+                    user.Id,
+                    course.Id
+                );
+                return Redirect(StudentRoutes.Groups());
+
+            default:
+                PageContext.ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
+                await LoadAsync();
+                return Page();
+        }
     }
 
     public async Task<IActionResult> OnPostJoinCourseAsync(Guid courseId)

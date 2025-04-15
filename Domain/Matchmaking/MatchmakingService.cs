@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using QuickFinder.Data;
@@ -8,7 +9,11 @@ namespace QuickFinder.Domain.Matchmaking;
 public class MatchmakingService(
     ApplicationDbContext db,
     ILogger<MatchmakingService> logger,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    TicketRepository ticketRepository,
+    CourseRepository courseRepository,
+    PreferencesRepository preferencesRepository,
+    UserService userService
 )
 {
     public readonly Matchmaker<Ticket> matchmaker = new Matchmaker<Ticket>(new MatchmakerConfig());
@@ -94,4 +99,58 @@ public class MatchmakingService(
         // TODO: remove all references
         await Task.CompletedTask;
     }
+
+    public async Task<AddToQueueResult> QueueForMatchmakingAsync(
+        string userId,
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var user = await userService.GetUser(userId);
+        if (user == null)
+        {
+            throw new Exception($"User with ID '{userId}' does not exist.");
+        }
+        var course = await courseRepository.GetByIdAsync(courseId, cancellationToken);
+        if (course == null)
+        {
+            throw new Exception($"Course with ID '{courseId}' does not exist.");
+        }
+        var userPrefs = user.Preferences;
+        var coursePrefs = await preferencesRepository.GetCoursePreferences(courseId, userId);
+        if (coursePrefs == null)
+        {
+            coursePrefs = new CoursePreferences();
+        }
+
+        var preferences = Preferences.From(userPrefs, coursePrefs);
+
+        var ticket = new Ticket()
+        {
+            Course = course,
+            User = user,
+            Preferences = preferences,
+        };
+        try
+        {
+            await ticketRepository.AddAsync(ticket, cancellationToken);
+        }
+        catch (AlreadyInQueueException)
+        {
+            return AddToQueueResult.AlreadyInQueue;
+        }
+        catch (Exception)
+        {
+            return AddToQueueResult.Failure;
+        }
+
+        return AddToQueueResult.Success;
+    }
+}
+
+public enum AddToQueueResult
+{
+    Success,
+    AlreadyInQueue,
+    Failure,
 }

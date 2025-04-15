@@ -38,7 +38,7 @@ public class StudentsModel(
         var users = await userService.GetAllUsers();
         foreach (var user in users)
         {
-            await ticketRepository.AddToWaitlist(user, course);
+            await matchmaking.QueueForMatchmakingAsync(user.Id, course.Id);
         }
         return RedirectToPage();
     }
@@ -51,7 +51,7 @@ public class StudentsModel(
 
     public async Task LoadAsync()
     {
-        var waitlist = await ticketRepository.GetWaitlist();
+        var waitlist = await ticketRepository.GetAllAsync();
         foreach (Ticket ticket in waitlist)
         {
             Students.Add(ticket);
