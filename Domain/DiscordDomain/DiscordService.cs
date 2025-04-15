@@ -195,6 +195,39 @@ public class DiscordService : IHostedService
         return channelId;
     }
 
+    public async Task<ulong?> DeleteUserPermissionsOnChannel(ulong channelId, ulong userId)
+    {
+        var server = _client.GetGuild(ulong.Parse(_options.ServerId));
+        if (server == null)
+        {
+            _logger.LogError("Server not found '{userId}'", userId);
+            return null;
+        }
+
+        var discord_user = await _client.GetUserAsync(userId);
+
+        if (discord_user == null)
+        {
+            _logger.LogError("User not found '{userId}'", userId);
+            return null;
+        }
+
+        var discord_channel = server.GetChannel(channelId);
+        if (discord_user == null)
+        {
+            _logger.LogError("Channel not found '{channelId}'", channelId);
+            return null;
+        }
+
+        var permissions = new OverwritePermissions(
+            viewChannel: PermValue.Deny,
+            sendMessages: PermValue.Deny
+        );
+        await discord_channel.AddPermissionOverwriteAsync(discord_user, permissions);
+
+        return channelId;
+    }
+
     public async Task<ulong?> DeleteChannel(ulong channelId)
     {
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
@@ -652,6 +685,53 @@ public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDi
                 e,
                 "Error deleting Discord channels for group {GroupId}",
                 notification.GroupId
+            );
+        }
+    }
+}
+
+public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<GroupMemberLeft>
+{
+    private readonly DiscordService _discord;
+    private readonly ILogger<DeleteDiscordChannelOnGroupDisbanded> _logger;
+    private readonly UserService _userService;
+
+    public DeleteUserPermissionsOnGroupMemberLeft(
+        DiscordService discord,
+        ILogger<DeleteDiscordChannelOnGroupDisbanded> logger,
+        UserService userService
+    )
+    {
+        _discord = discord;
+        _logger = logger;
+        _userService = userService;
+    }
+
+    public async Task Handle(GroupMemberLeft notification, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation(
+            $"Group member {notification.User.Id} left",
+            notification.User.Id.ToString()
+        );
+
+        try
+        {
+            var channel =
+                _discord
+                    .GetChannels()
+                    .SingleOrDefault(c => c.Name == notification.Group.Id.ToString())
+                ?? throw new Exception($"Channel {notification.Group.Id} not found.");
+
+            var discord_id = await _userService.GetDiscordId(notification.User.Id);
+
+            await _discord.DeleteUserPermissionsOnChannel(channel.Id, (ulong)discord_id);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(
+                e,
+                "Error deleting Discord channels for user {userId}",
+                notification.User
             );
         }
     }
