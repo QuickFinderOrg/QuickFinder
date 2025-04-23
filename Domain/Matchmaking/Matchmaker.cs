@@ -81,6 +81,15 @@ public class Matchmaker<T>(MatchmakerConfig options)
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
+    public decimal GetNormalizedPreferenceScore(MatchmakingData from, MatchmakingData to)
+    {
+        var score = options
+            .WeightedPreferenceList.Select((pair) => pair.preference.Check(from, to) * pair.weight)
+            .Sum();
+        var sum_weights = options.WeightedPreferenceList.Select(pair => pair.weight).Sum();
+        return score / sum_weights;
+    }
+
     public decimal GetRequiredScore(TimeSpan timeInQueue)
     {
         if (timeInQueue < TimeSpan.FromHours(1))
@@ -112,4 +121,45 @@ public record class MatchmakerConfig
     public readonly decimal availabilityWeight = 1;
     public readonly decimal daysWeight = 1;
     public readonly decimal groupSizeWeight = 1;
+    public ICriteriaFunc[] CriteriaList = [new MustHaveAtLeastOneDayInCommonCritera()];
+    public (decimal weight, IPreference preference)[] WeightedPreferenceList =
+    [
+        (1m, new DaysInCommonPreference()),
+    ];
+}
+
+public record class MatchmakingData
+{
+    public required string UserId { get; init; }
+    public Languages Language { get; init; }
+    public Availability Availability { get; init; }
+    public DaysOfTheWeek Days { get; init; }
+    public TimeSpan WaitTime { get; init; }
+}
+
+public interface IPreference
+{
+    public decimal Check(MatchmakingData from, MatchmakingData to);
+}
+
+class DaysInCommonPreference : IPreference
+{
+    public decimal Check(MatchmakingData from, MatchmakingData to)
+    {
+        return from.Days.GetNumberOfMatchingDays(to.Days) / 7;
+    }
+}
+
+// must be symmertric, e.g. can switch from and to to and get the same result.
+public interface ICriteriaFunc
+{
+    public bool Check(MatchmakingData from, MatchmakingData to);
+}
+
+class MustHaveAtLeastOneDayInCommonCritera : ICriteriaFunc
+{
+    public bool Check(MatchmakingData from, MatchmakingData to)
+    {
+        return from.Days.GetNumberOfMatchingDays(to.Days) > 0;
+    }
 }
