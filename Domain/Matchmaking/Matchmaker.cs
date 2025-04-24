@@ -81,6 +81,45 @@ public class Matchmaker<T>(MatchmakerConfig options)
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
+    public IMatchmakingData[] GetSortedMatches(
+        IMatchmakingData seed,
+        IEnumerable<IMatchmakingData> candidatePool
+    )
+    {
+        List<(IMatchmakingData candidate, decimal score)> compatibleCandiates = candidatePool
+            .Where(candidate => CheckMatchCriteria(seed, candidate))
+            .Select(candiate => (candiate, GetNormalizedPreferenceScore(seed, candiate)))
+            .ToList();
+
+        compatibleCandiates.Sort((a, b) => a.score.CompareTo(b.score));
+
+        return compatibleCandiates.Select(pair => pair.candidate).ToArray();
+    }
+
+    public (bool result, string[] errors) CheckMatchCriteriaWithErrors(
+        IMatchmakingData from,
+        IMatchmakingData to
+    )
+    {
+        var errors = new List<string>();
+
+        foreach (var critaria in options.CriteriaList)
+        {
+            var isCompatible = critaria.Check(from, to);
+            if (isCompatible == false)
+            {
+                errors.Add(nameof(critaria));
+            }
+        }
+
+        return (errors.Count == 0, errors.ToArray());
+    }
+
+    public bool CheckMatchCriteria(IMatchmakingData from, IMatchmakingData to)
+    {
+        return CheckMatchCriteriaWithErrors(from, to).result;
+    }
+
     public decimal GetNormalizedPreferenceScore(IMatchmakingData from, IMatchmakingData to)
     {
         var score = options
