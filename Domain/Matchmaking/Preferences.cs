@@ -116,14 +116,12 @@ public record class Preferences : IPreferences
     }
 }
 
-[Flags]
 public enum Availability
 {
     Daytime,
     Afternoons,
 }
 
-[Flags]
 public enum Languages
 {
     English,

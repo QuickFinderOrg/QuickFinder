@@ -81,7 +81,7 @@ public class Matchmaker<T>(MatchmakerConfig options)
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
-    public decimal GetNormalizedPreferenceScore(MatchmakingData from, MatchmakingData to)
+    public decimal GetNormalizedPreferenceScore(IMatchmakingData from, IMatchmakingData to)
     {
         var score = options
             .WeightedPreferenceList.Select((pair) => pair.preference.Check(from, to) * pair.weight)
@@ -128,10 +128,27 @@ public record class MatchmakerConfig
     ];
 }
 
-public record class MatchmakingData
+public interface IMatchmakingData
+{
+    public Languages[] Languages { get; init; }
+    public Availability Availability { get; init; }
+    public DaysOfTheWeek Days { get; init; }
+    public TimeSpan WaitTime { get; init; }
+}
+
+public record class UserMatchmakingData : IMatchmakingData
 {
     public required string UserId { get; init; }
-    public Languages Language { get; init; }
+    public required Languages[] Languages { get; init; }
+    public Availability Availability { get; init; }
+    public DaysOfTheWeek Days { get; init; }
+    public TimeSpan WaitTime { get; init; }
+}
+
+public record class GroupMatchmakingData : IMatchmakingData
+{
+    public required Guid GroupId { get; init; }
+    public required Languages[] Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
     public TimeSpan WaitTime { get; init; }
@@ -139,12 +156,12 @@ public record class MatchmakingData
 
 public interface IPreference
 {
-    public decimal Check(MatchmakingData from, MatchmakingData to);
+    public decimal Check(IMatchmakingData from, IMatchmakingData to);
 }
 
 class DaysInCommonPreference : IPreference
 {
-    public decimal Check(MatchmakingData from, MatchmakingData to)
+    public decimal Check(IMatchmakingData from, IMatchmakingData to)
     {
         return from.Days.GetNumberOfMatchingDays(to.Days) / 7;
     }
@@ -153,12 +170,12 @@ class DaysInCommonPreference : IPreference
 // must be symmertric, e.g. can switch from and to to and get the same result.
 public interface ICriteriaFunc
 {
-    public bool Check(MatchmakingData from, MatchmakingData to);
+    public bool Check(IMatchmakingData from, IMatchmakingData to);
 }
 
 class MustHaveAtLeastOneDayInCommonCritera : ICriteriaFunc
 {
-    public bool Check(MatchmakingData from, MatchmakingData to)
+    public bool Check(IMatchmakingData from, IMatchmakingData to)
     {
         return from.Days.GetNumberOfMatchingDays(to.Days) > 0;
     }
