@@ -96,6 +96,70 @@ public class Matchmaker<T>(MatchmakerConfig options)
         return compatibleCandiates.Select(pair => pair.candidate).ToArray();
     }
 
+    // O(N^2)
+    public bool CheckGroupCompatibility(IEnumerable<IMatchmakingData> candidates)
+    {
+        foreach (var x in candidates)
+        {
+            foreach (var y in candidates)
+            {
+                var isCompatible = CheckMatchCriteria(x, y);
+                // short circuit
+                if (isCompatible == false)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public IMatchmakingData[] Match2(
+        IMatchmakingData seed,
+        IEnumerable<IMatchmakingData> candidates,
+        int noOfGroupMembers
+    )
+    {
+        var compatible_candidates = GetSortedMatches(seed, candidates);
+        var valid_group_combinations = new List<(decimal score, IMatchmakingData[] members)>();
+
+        foreach (var members in GenerateMemberCombinations(compatible_candidates, noOfGroupMembers))
+        {
+            if (CheckGroupCompatibility(members))
+            {
+                var average_score = members
+                    .Select(member => GetNormalizedPreferenceScore(seed, member))
+                    .Average();
+                valid_group_combinations.Add((average_score, members));
+            }
+        }
+
+        valid_group_combinations.Sort((a, b) => a.score.CompareTo(b.score));
+
+        return valid_group_combinations.Select(g => g.members).FirstOrDefault() ?? [];
+    }
+
+    private IEnumerable<IMatchmakingData[]> GenerateMemberCombinations(
+        IMatchmakingData[] potentials,
+        int noOfGroupMembers
+    )
+    {
+        if (noOfGroupMembers == 0)
+        {
+            yield return Array.Empty<IMatchmakingData>();
+            yield break;
+        }
+
+        for (int i = 0; i < potentials.Length; i++)
+        {
+            var remaining = potentials.Skip(i + 1).ToArray();
+            foreach (var combination in GenerateMemberCombinations(remaining, noOfGroupMembers - 1))
+            {
+                yield return new[] { potentials[i] }.Concat(combination).ToArray();
+            }
+        }
+    }
+
     public (bool result, string[] errors) CheckMatchCriteriaWithErrors(
         IMatchmakingData from,
         IMatchmakingData to
