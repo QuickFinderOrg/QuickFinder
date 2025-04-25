@@ -81,19 +81,12 @@ public class Matchmaker<T>(MatchmakerConfig options)
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
-    public IMatchmakingData[] GetSortedMatches(
+    public IEnumerable<IMatchmakingData> FilterMatchesByCriteria(
         IMatchmakingData seed,
         IEnumerable<IMatchmakingData> candidatePool
     )
     {
-        List<(IMatchmakingData candidate, decimal score)> compatibleCandiates = candidatePool
-            .Where(candidate => CheckMatchCriteria(seed, candidate))
-            .Select(candiate => (candiate, GetNormalizedPreferenceScore(seed, candiate)))
-            .ToList();
-
-        compatibleCandiates.Sort((a, b) => a.score.CompareTo(b.score));
-
-        return compatibleCandiates.Select(pair => pair.candidate).ToArray();
+        return candidatePool.Where(candidate => CheckMatchCriteria(seed, candidate));
     }
 
     // O(N^2)
@@ -120,7 +113,7 @@ public class Matchmaker<T>(MatchmakerConfig options)
         int noOfGroupMembers
     )
     {
-        var compatible_candidates = GetSortedMatches(seed, candidates);
+        var compatible_candidates = FilterMatchesByCriteria(seed, candidates);
         var valid_group_combinations = new List<(decimal score, IMatchmakingData[] members)>();
 
         foreach (var members in GenerateMemberCombinations(compatible_candidates, noOfGroupMembers))
@@ -140,22 +133,23 @@ public class Matchmaker<T>(MatchmakerConfig options)
     }
 
     private IEnumerable<IMatchmakingData[]> GenerateMemberCombinations(
-        IMatchmakingData[] potentials,
+        IEnumerable<IMatchmakingData> potentials,
         int noOfGroupMembers
     )
     {
+        var potentialMembers = potentials.ToArray();
         if (noOfGroupMembers == 0)
         {
             yield return Array.Empty<IMatchmakingData>();
             yield break;
         }
 
-        for (int i = 0; i < potentials.Length; i++)
+        for (int i = 0; i < potentialMembers.Length; i++)
         {
             var remaining = potentials.Skip(i + 1).ToArray();
             foreach (var combination in GenerateMemberCombinations(remaining, noOfGroupMembers - 1))
             {
-                yield return new[] { potentials[i] }.Concat(combination).ToArray();
+                yield return new[] { potentialMembers[i] }.Concat(combination).ToArray();
             }
         }
     }
