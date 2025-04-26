@@ -229,6 +229,7 @@ public record class MatchmakerConfig
 
 public interface IMatchmakingData
 {
+    public LanguageFlags Language { get; init; }
     public Languages[] Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
@@ -239,6 +240,7 @@ public record class UserMatchmakingData : IMatchmakingData
 {
     public required string UserId { get; init; }
     public required Languages[] Languages { get; init; }
+    public LanguageFlags Language { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
     public TimeSpan WaitTime { get; init; }
@@ -248,6 +250,7 @@ public record class GroupMatchmakingData : IMatchmakingData
 {
     public required Guid GroupId { get; init; }
     public required Languages[] Languages { get; init; }
+    public LanguageFlags Language { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
     public TimeSpan WaitTime { get; init; }
@@ -272,10 +275,18 @@ public interface ICriteriaFunc
     public bool Check(IMatchmakingData from, IMatchmakingData to);
 }
 
-class MustHaveAtLeastOneDayInCommonCritera : ICriteriaFunc
+public class MustHaveAtLeastOneDayInCommonCritera : ICriteriaFunc
 {
     public bool Check(IMatchmakingData from, IMatchmakingData to)
     {
         return from.Days.GetNumberOfMatchingDays(to.Days) > 0;
+    }
+}
+
+public class MustHaveAtLeastOneLanguageInCommonCritera : ICriteriaFunc
+{
+    public bool Check(IMatchmakingData from, IMatchmakingData to)
+    {
+        return from.Language.IntersectWith(to.Language) > 0;
     }
 }
