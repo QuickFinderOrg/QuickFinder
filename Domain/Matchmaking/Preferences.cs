@@ -134,6 +134,18 @@ public enum Languages
 }
 
 [Flags]
+public enum LanguageFlags
+{
+    English = 1 << 0,
+    Norwegian = 1 << 1,
+    Spanish = 1 << 2,
+    French = 1 << 3,
+    German = 1 << 4,
+    Chinese = 1 << 5,
+    Arabic = 1 << 6,
+}
+
+[Flags]
 public enum DaysOfTheWeek
 {
     None = 0,
@@ -199,6 +211,39 @@ public static class DaysOfTheWeekHelper
             }
         }
         return matches;
+    }
+}
+
+public static class LanguageFlagsExtensions
+{
+    public static readonly LanguageFlags None = 0;
+
+    public static LanguageFlags IntersectWith(this LanguageFlags LanguageFlags, LanguageFlags value)
+    {
+        return LanguageFlags & value;
+    }
+
+    public static bool Any(this LanguageFlags LanguageFlags, LanguageFlags value)
+    {
+        return (LanguageFlags & value) != 0;
+    }
+
+    public static int Count(this LanguageFlags lValue)
+    {
+        int iCount = 0;
+
+        //Loop the value while there are still bits
+        while (lValue != 0)
+        {
+            //Remove the end bit
+            lValue = lValue & (lValue - 1);
+
+            //Increment the count
+            iCount++;
+        }
+
+        //Return the count
+        return iCount;
     }
 }
 

@@ -20,7 +20,7 @@
         UserId = "Joseph Seed",
         Days = DaysOfTheWeek.Thursday
     };
-    var candidates = Enumerable.Range(1, 200).Select(i => new UserMatchmakingData
+    var candidates = Enumerable.Range(1, 10).Select(i => new UserMatchmakingData
     {
         Languages = [Languages.English],
         Availability = Availability.Daytime,
@@ -31,9 +31,14 @@
     var matched_members = matchmaker.Match2(seed, candidates, 4).Select(m => (UserMatchmakingData)m);
     UserMatchmakingData[] matched_group = [seed, .. matched_members];
     var timer = DateTime.Now - time_pre;
+    var a = LanguageFlags.Norwegian | LanguageFlags.English;
+    var b = LanguageFlags.English | LanguageFlags.Norwegian;
 }
 
 <h2>Test</h2>
+<p>@a</p>
+<p>@b</p>
+<p>@a.IntersectWith(b) @a.IntersectWith(b).Count() </p>
 
 @foreach (var member in matched_group)
 {
