@@ -1,11 +1,11 @@
 ﻿@page
-@model PreferencesModel
+@model Student.PreferencesModel
 @using QuickFinder.Domain.Matchmaking;
 @{
     ViewData["Title"] = "Preferences";
 
-    DaysOfTheWeek[] days = [DaysOfTheWeek.Monday, DaysOfTheWeek.Tuesday, DaysOfTheWeek.Wednesday, 
-    DaysOfTheWeek.Thursday, DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
+    DaysOfTheWeek[] days = [DaysOfTheWeek.Monday, DaysOfTheWeek.Tuesday, DaysOfTheWeek.Wednesday,
+DaysOfTheWeek.Thursday, DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
 }
 @{
     <div>
@@ -42,18 +42,18 @@
 
             <label>Language:</label>
             <br></br>
-                @foreach (var language in Enum.GetValues<Languages>())
+            @foreach (var language in Enum.GetValues<Languages>())
+            {
+                if (Model.Input.SpokenLanguages.Contains(language))
                 {
-                    if (Model.Input.SpokenLanguages.Contains(language))
-                    {
-                        <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
-                    }
-                    else
-                    {
-                        <input type="checkbox" value="@language" name="Input.SelectedLanguages" />
-                    }
-                    <label>@language</label>
+                    <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
                 }
+                else
+                {
+                    <input type="checkbox" value="@language" name="Input.SelectedLanguages" />
+                }
+                <label>@language</label>
+            }
             <br></br>
 
             <button type="submit">Submit</button>
