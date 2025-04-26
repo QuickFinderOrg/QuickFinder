@@ -116,7 +116,9 @@ public class Matchmaker<T>(MatchmakerConfig options)
         var compatible_candidates = FilterMatchesByCriteria(seed, candidates);
         var valid_group_combinations = new List<(decimal score, IMatchmakingData[] members)>();
 
-        foreach (var members in GenerateMemberCombinations(compatible_candidates, noOfGroupMembers))
+        foreach (
+            var members in GenerateMemberCombinations(compatible_candidates, noOfGroupMembers - 1)
+        )
         {
             if (CheckGroupCompatibility(members))
             {
@@ -146,7 +148,7 @@ public class Matchmaker<T>(MatchmakerConfig options)
 
         for (int i = 0; i < potentialMembers.Length; i++)
         {
-            var remaining = potentials.Skip(i + 1).ToArray();
+            var remaining = potentialMembers.Skip(i + 1).ToArray();
             foreach (var combination in GenerateMemberCombinations(remaining, noOfGroupMembers - 1))
             {
                 yield return new[] { potentialMembers[i] }.Concat(combination).ToArray();

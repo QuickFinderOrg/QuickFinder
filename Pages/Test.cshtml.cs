@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QuickFinder.Domain.DiscordDomain;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages;
 
@@ -16,6 +17,10 @@ public class TestModel(
 ) : PageModel
 {
     private readonly ILogger<TestModel> _logger = logger;
+
+    public readonly Matchmaker<TestCandidate> Matchmaker = new Matchmaker<TestCandidate>(
+        new MatchmakerConfig()
+    );
 
     public string TestResult = "";
 
