@@ -15,18 +15,19 @@
     var matchmaker = new Matchmaker<TestCandidate>(new MatchmakerConfig());
     var seed = new UserMatchmakingData
     {
-        Languages = [Languages.English],
-        Availability = Availability.Afternoons,
-        UserId = "Joseph Seed",
-        Days = DaysOfTheWeek.Thursday
-    };
-    var candidates = Enumerable.Range(1, 10).Select(i => new UserMatchmakingData
-    {
-        Languages = [Languages.English],
+        Languages = LanguageFlags.English | LanguageFlags.Norwegian,
         Availability = Availability.Daytime,
-        UserId = Guid.NewGuid().ToString(),
+        UserId = "Joseph Seed",
+        Days = DaysOfTheWeek.Monday
+    };
+    var candidates = Enumerable.Range(1, 20).Select(i => new UserMatchmakingData
+    {
+        Languages = i % 2 == 0 ? LanguageFlags.Norwegian : LanguageFlags.English,
+        Availability = Availability.Daytime,
+        UserId = i % 2 == 0 ? LanguageFlags.Norwegian.ToString() : LanguageFlags.English.ToString(),
         Days = DaysOfTheWeek.Monday
     }).ToArray();
+
     var time_pre = DateTime.Now;
     var matched_members = matchmaker.Match2(seed, candidates, 4).Select(m => (UserMatchmakingData)m);
     UserMatchmakingData[] matched_group = [seed, .. matched_members];
@@ -40,10 +41,18 @@
 <p>@b</p>
 <p>@a.IntersectWith(b) @a.IntersectWith(b).Count() </p>
 
-@foreach (var member in matched_group)
+<div style="border:  2px solid rgb(174, 4, 4); border-radius: 5px; padding: 4px;">
+    @foreach (var member in matched_group)
+    {
+        <p>@member.ToString()</p>
+    }
+</div>
+
+@foreach (var member in candidates)
 {
     <p>@member.ToString()</p>
 }
+
 @($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}")
 
 <details title="Headers">

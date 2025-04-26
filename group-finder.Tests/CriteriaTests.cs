@@ -29,14 +29,12 @@ public class LanguageTests
         var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
         var a = new UserMatchmakingData
         {
-            Languages = [],
-            Language = LanguageFlags.English | LanguageFlags.Spanish,
+            Languages = LanguageFlags.English | LanguageFlags.Spanish,
             UserId = "a",
         };
         var b = new UserMatchmakingData
         {
-            Languages = [],
-            Language = LanguageFlags.English | LanguageFlags.Norwegian,
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian,
             UserId = "b",
         };
 
@@ -49,14 +47,12 @@ public class LanguageTests
         var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
         var a = new UserMatchmakingData
         {
-            Languages = [],
-            Language = LanguageFlags.English | LanguageFlags.Norwegian | LanguageFlags.Spanish,
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian | LanguageFlags.Spanish,
             UserId = "a",
         };
         var b = new UserMatchmakingData
         {
-            Languages = [],
-            Language = LanguageFlags.English | LanguageFlags.Norwegian,
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian,
             UserId = "b",
         };
 
@@ -67,18 +63,8 @@ public class LanguageTests
     public void FailsOnZeroSharedLanguage()
     {
         var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
-        var a = new UserMatchmakingData
-        {
-            Languages = [],
-            Language = LanguageFlags.English,
-            UserId = "a",
-        };
-        var b = new UserMatchmakingData
-        {
-            Languages = [],
-            Language = LanguageFlags.Norwegian,
-            UserId = "b",
-        };
+        var a = new UserMatchmakingData { Languages = LanguageFlags.English, UserId = "a" };
+        var b = new UserMatchmakingData { Languages = LanguageFlags.Norwegian, UserId = "b" };
 
         Assert.False(criteria.Check(a, b));
     }
