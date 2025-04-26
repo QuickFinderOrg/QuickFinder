@@ -10,11 +10,13 @@ public class CourseOverviewModel(
     ILogger<CourseOverviewModel> logger,
     DiscordService discordService,
     CourseRepository courseRepository,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    TicketRepository ticketRepository
 ) : PageModel
 {
     private readonly ILogger<CourseOverviewModel> _logger = logger;
     public List<Group> Groups = [];
+    public List<Ticket> Tickets = [];
     public Course[] Courses = [];
 
     [BindProperty]
@@ -72,6 +74,14 @@ public class CourseOverviewModel(
             Course =
                 await courseRepository.GetByIdAsync(courseId)
                 ?? throw new Exception("Course not found");
+        }
+        var waitlist = await ticketRepository.GetAllAsync();
+        foreach (Ticket ticket in waitlist)
+        {
+            if (ticket.Course.Id == Course.Id)
+            {
+                Tickets.Add(ticket);
+            }
         }
         var grouplist = await groupRepository.GetGroups(Course.Id);
         var CourseDiscordServers = await discordService.GetCourseServer(Course.Id);

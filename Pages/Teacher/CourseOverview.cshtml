@@ -92,4 +92,36 @@
             </tbody>
         </table>
     }
+
+    @if (Model.Tickets.Count() == 0)
+    {
+        <p>No students in matching</p>
+    }
+    else
+    {
+        <h1 class="display-4">Students in matchmaking</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.Tickets)
+                {
+                    <tr>
+                        <td>@await userService.GetName(ticket.User)</td>
+                        <td>@ticket.Course.Name</td>
+                        <td>@ticket.Preferences.Availability</td>
+                        <td>
+                            <a asp-page="/EditStudent" asp-route-id="@ticket.Id" class="btn btn-primary">💀</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>
