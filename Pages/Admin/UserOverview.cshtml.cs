@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace QuickFinder.Pages.Admin;
 
 public class UserOverviewModel(
-    ILogger<StudentsModel> logger,
+    ILogger<UserOverviewModel> logger,
     UserService userService,
     AdminService adminService
 ) : PageModel
 {
-    private readonly ILogger<StudentsModel> _logger = logger;
+    private readonly ILogger<UserOverviewModel> _logger = logger;
 
     public List<User> Users = [];
     public List<User> Teachers = [];

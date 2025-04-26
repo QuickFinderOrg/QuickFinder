@@ -4,9 +4,9 @@ using QuickFinder.Domain.DiscordDomain;
 
 namespace QuickFinder.Pages.Admin;
 
-public class ServersModel(ILogger<StudentsModel> logger, DiscordService discordService) : PageModel
+public class ServersModel(ILogger<ServersModel> logger, DiscordService discordService) : PageModel
 {
-    private readonly ILogger<StudentsModel> _logger = logger;
+    private readonly ILogger<ServersModel> _logger = logger;
 
     public DiscordServerItem[] Servers = [];
     public string InviteURL = "";
