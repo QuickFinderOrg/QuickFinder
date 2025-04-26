@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace QuickFinder.Areas.Identity.Pages.Account
 {
-    [Authorize(Policy = "Admin")]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<User> _signInManager;

@@ -84,15 +84,26 @@ builder.Services.AddAuthorization(options =>
     }
 });
 
-builder.Services.ConfigureApplicationCookie(options => options.LoginPath = StudentRoutes.Login());
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = StudentRoutes.Login();
+    options.AccessDeniedPath = StudentRoutes.Home();
+});
 
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/Student", policy: "Student");
-
     options.Conventions.AuthorizeFolder("/Teacher", policy: "Teacher");
-
     options.Conventions.AuthorizeFolder("/Admin", policy: "Admin");
+
+    options.Conventions.AuthorizeAreaFolder("Identity", "/Account", policy: "Admin");
+
+    var pages = new[] { "/Login", "/Logout", "/Manage/Index", "/Manage/PersonalData" };
+
+    foreach (var page in pages)
+    {
+        options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account" + page);
+    }
 });
 
 builder.Services.AddSingleton<DiscordSocketClient>();
