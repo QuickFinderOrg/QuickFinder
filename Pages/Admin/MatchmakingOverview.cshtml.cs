@@ -4,16 +4,14 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Admin;
 
-public class StudentsModel(
-    ILogger<StudentsModel> logger,
+public class MatchmakingOverviewModel(
+    ILogger<MatchmakingOverviewModel> logger,
     MatchmakingService matchmaking,
     TicketRepository ticketRepository,
-    UserService userService,
-    CourseRepository courseRepository,
     GroupRepository groupRepository
 ) : PageModel
 {
-    private readonly ILogger<StudentsModel> _logger = logger;
+    private readonly ILogger<MatchmakingOverviewModel> _logger = logger;
 
     public List<Ticket> Students = [];
     public List<Group> Groups = [];
@@ -27,19 +25,6 @@ public class StudentsModel(
     public async Task<IActionResult> OnPostMatchAsync()
     {
         await matchmaking.DoMatching();
-        return RedirectToPage();
-    }
-
-    public async Task<IActionResult> OnPostResetAsync()
-    {
-        await matchmaking.Reset();
-        var courses = await courseRepository.GetAllAsync();
-        var course = courses[0];
-        var users = await userService.GetAllUsers();
-        foreach (var user in users)
-        {
-            await matchmaking.QueueForMatchmakingAsync(user.Id, course.Id);
-        }
         return RedirectToPage();
     }
 

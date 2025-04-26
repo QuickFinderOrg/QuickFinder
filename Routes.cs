@@ -38,7 +38,7 @@ public static class TeacherRoutes
 
 public static class AdminRoutes
 {
-    public static string Students() => "/Admin/Students";
+    public static string MatchmakingOverview() => "/Admin/MatchmakingOverview";
 
     public static string AddStudent() => "/Admin/AddStudents";
 

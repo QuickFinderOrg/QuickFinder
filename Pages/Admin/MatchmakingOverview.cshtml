@@ -1,19 +1,17 @@
 ﻿@page
-@model Admin.StudentsModel
+@model Admin.MatchmakingOverviewModel
 @inject UserService userService;
 @{
     ViewData["Title"] = "Students";
 }
 <div class="text-center">
-    <h1 class="display-4">Students list</h1>
-    <a asp-page="@AdminRoutes.AddStudent()" class="btn btn-primary">Add Student</a>
+    <h1 class="display-4">Matchmaking queue</h1>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Course</th>
                 <th>Availability</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -23,22 +21,16 @@
                     <td>@await userService.GetName(ticket.User)</td>
                     <td>@ticket.Course.Name</td>
                     <td>@ticket.Preferences.Availability</td>
-                    <td>
-                        <a asp-page="/EditStudent" asp-route-id="@ticket.Id" class="btn btn-primary">Edit</a>
-                    </td>
                 </tr>
             }
         </tbody>
     </table>
-    <p>Groups</p>
     <div>
         <form asp-page-handler="Match" method="post">
-            <button class="btn btn-primary">MATCH</button>
-        </form>
-        <form asp-page-handler="Reset" method="post">
-            <button class="btn btn-secondary">RESET</button>
+            <button class="btn btn-primary">FORCE MATCHMAKING</button>
         </form>
     </div>
+    <h1 class="display-4">Groups</h1>
     <table class="table table-striped">
         <thead>
             <tr>
