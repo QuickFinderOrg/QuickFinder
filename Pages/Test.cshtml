@@ -13,9 +13,32 @@
     var discordUserId = await userService.GetDiscordId(user.Id);
 
     var matchmaker = new Matchmaker<TestCandidate>(new MatchmakerConfig());
+    var seed = new UserMatchmakingData
+    {
+        Languages = [Languages.English],
+        Availability = Availability.Afternoons,
+        UserId = "Joseph Seed",
+        Days = DaysOfTheWeek.Thursday
+    };
+    var candidates = Enumerable.Range(1, 200).Select(i => new UserMatchmakingData
+    {
+        Languages = [Languages.English],
+        Availability = Availability.Daytime,
+        UserId = Guid.NewGuid().ToString(),
+        Days = DaysOfTheWeek.Monday
+    }).ToArray();
+    var time_pre = DateTime.Now;
+    var matched_members = matchmaker.Match2(seed, candidates, 4).Select(m => (UserMatchmakingData)m);
+    UserMatchmakingData[] matched_group = [seed, .. matched_members];
+    var timer = DateTime.Now - time_pre;
 }
 
 <h2>Test</h2>
+
+@foreach (var member in matched_group)
+{
+    <p>@member.ToString()</p>
+}
 @($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}")
 
 <details title="Headers">
@@ -31,9 +54,9 @@
     <button type="submit">TEST</button>
 </form>
 <p>@Model.TestResult</p>
-using QuickFinder.Domain.Matchmaking;
-using QuickFinder.Domain.Matchmaking;
-p>Current Timestamp: @DateTime.Now</p>
+
+<p>Current Timestamp: @DateTime.Now</p>
+<p>@timer.TotalSeconds seconds spent matchmaking</p>
 
 
 
