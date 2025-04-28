@@ -1,8 +1,10 @@
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using Discord;
 using Discord.WebSocket;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -731,12 +733,12 @@ public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDi
 public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<GroupMemberLeft>
 {
     private readonly DiscordService _discord;
-    private readonly ILogger<DeleteDiscordChannelOnGroupDisbanded> _logger;
+    private readonly ILogger<DeleteUserPermissionsOnGroupMemberLeft> _logger;
     private readonly UserService _userService;
 
     public DeleteUserPermissionsOnGroupMemberLeft(
         DiscordService discord,
-        ILogger<DeleteDiscordChannelOnGroupDisbanded> logger,
+        ILogger<DeleteUserPermissionsOnGroupMemberLeft> logger,
         UserService userService
     )
     {
@@ -768,6 +770,65 @@ public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<Group
                 e,
                 "Error deleting Discord channels for user {userId}",
                 notification.User
+            );
+        }
+    }
+}
+
+public class InviteToServerOnCourseJoined(
+    DiscordService discord,
+    ILogger<InviteToServerOnCourseJoined> logger,
+    UserManager<User> userManager,
+    IOptions<DiscordServiceOptions> options
+) : INotificationHandler<CourseJoined>
+{
+    private readonly DiscordService _discord = discord;
+    private readonly ILogger<InviteToServerOnCourseJoined> _logger = logger;
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly IOptions<DiscordServiceOptions> _options = options;
+
+    public async Task Handle(CourseJoined notification, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation(
+            $"User {notification.User.Id} joined course {notification.Course.Id}"
+        );
+        try
+        {
+            var claims = await _userManager.GetClaimsAsync(notification.User);
+            var c = new List<Claim>(claims);
+
+            var discordIdClaim =
+                c.Find(c => c.Type == "DiscordId")
+                ?? throw new Exception("DiscordId claim not found");
+            var discordTokenClaim =
+                c.Find(c => c.Type == "DiscordToken")
+                ?? throw new Exception("DiscordId claim not found");
+
+            var server = await _discord.GetCourseServer(notification.Course.Id);
+            if (server.Length == 0)
+            {
+                await _discord.InviteToServer(
+                    ulong.Parse(discordIdClaim.Value),
+                    discordTokenClaim.Value,
+                    ulong.Parse(_options.Value.ServerId)
+                );
+            }
+            else
+            {
+                await _discord.InviteToServer(
+                    ulong.Parse(discordIdClaim.Value),
+                    discordTokenClaim.Value,
+                    server[0].Id
+                );
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(
+                e,
+                "Error inviting user {userId} to server for course {courseId}",
+                notification.User.Id,
+                notification.Course.Id
             );
         }
     }
