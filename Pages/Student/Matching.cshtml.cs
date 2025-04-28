@@ -73,7 +73,50 @@ public class MatchingModel(
                     user.Id,
                     course.Id
                 );
-                return Redirect(StudentRoutes.Groups());
+                await LoadAsync();
+                return Page();
+
+            default:
+                PageContext.ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
+                await LoadAsync();
+                return Page();
+        }
+    }
+
+    public async Task<IActionResult> OnPostLeaveQueue(
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await LoadAsync();
+        var course = Courses.First(c => c.Id == courseId);
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
+        var result = await matchmakingService.RemoveFromQueueAsync(
+            user.Id,
+            course.Id,
+            cancellationToken
+        );
+        switch (result)
+        {
+            case RemoveFromQueueResult.Failure:
+                PageContext.ModelState.AddModelError(
+                    string.Empty,
+                    "Failed to remove you from the matchmaking queue. Please try again later or check if you are in a group."
+                );
+                return Page();
+
+            case RemoveFromQueueResult.Success:
+                PageContext.ViewData["SuccessMessage"] =
+                    "You have successfully been removed from the matchmaking queue.";
+                logger.LogInformation(
+                    "User {UserId} successfully removed from matchmaking queue for course {CourseId}",
+                    user.Id,
+                    course.Id
+                );
+                await LoadAsync();
+                return Page();
 
             default:
                 PageContext.ModelState.AddModelError(string.Empty, "An unexpected error occurred.");

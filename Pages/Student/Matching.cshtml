@@ -4,6 +4,7 @@
 @inject UserManager<User> userManager
 @inject MatchmakingService matchmakingService
 @inject GroupRepository groupRepository
+@inject TicketRepository ticketRepository
 @{
     ViewData["Title"] = "Matchmaking";
 
@@ -13,6 +14,13 @@
 <div class="text-center">
     <h1 class="display-4">Matchmaking</h1>
     <p>Courses</p>
+
+    @if (ViewData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @ViewData["SuccessMessage"]
+        </div>
+    }
 
     @if (!ViewData.ModelState.IsValid)
     {
@@ -47,11 +55,20 @@
                         <td class="d-flex justify-content-center gap-2">
                             @if (user != null && !await groupRepository.CheckIfInGroup(user, Course))
                             {
-                                <form asp-page-handler="FindGroup" method="post">
-                                    <input name="CourseId" hidden value="@Course.Id">
-                                    <button type="submit">Find Group</button>
-                                </form>
-
+                                @if (await ticketRepository.CheckIfInQueue(user, Course))
+                                {
+                                    <form asp-page-handler="LeaveQueue" method="post">
+                                        <input name="CourseId" hidden value="@Course.Id">
+                                        <button type="submit">Leave queue</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-page-handler="FindGroup" method="post">
+                                        <input name="CourseId" hidden value="@Course.Id">
+                                        <button type="submit">Find Group</button>
+                                    </form>
+                                }
                                 <a asp-page="@StudentRoutes.JoinGroup()" asp-route-id="@Course.Id"><button>Join/Create
                                         Group</button></a>
                             }

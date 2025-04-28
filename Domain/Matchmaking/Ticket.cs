@@ -87,6 +87,17 @@ public class TicketRepository : Repository<Ticket, Guid>
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken: cancellationToken);
     }
 
+    public async Task<Ticket?> GetByCourseAsync(
+        string userId,
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+            .Tickets.Where(t => t.User.Id == userId && t.Course.Id == courseId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+    }
+
     public new async Task<Ticket[]> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await db
@@ -103,6 +114,18 @@ public class TicketRepository : Repository<Ticket, Guid>
     {
         db.Tickets.RemoveRange(tickets);
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> CheckIfInQueue(User user, Course course)
+    {
+        var ticket = await db
+            .Tickets.Where(g => g.Course == course && g.User == user)
+            .FirstOrDefaultAsync();
+        if (ticket is null)
+        {
+            return false;
+        }
+        return true;
     }
 }
 

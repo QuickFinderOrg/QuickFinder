@@ -203,11 +203,54 @@ public class MatchmakingService(
 
         return AddToQueueResult.Success;
     }
+
+    public async Task<RemoveFromQueueResult> RemoveFromQueueAsync(
+        string userId,
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var user = await userService.GetUser(userId);
+        if (user == null)
+        {
+            throw new Exception($"User with ID '{userId}' does not exist.");
+        }
+        var course = await courseRepository.GetByIdAsync(courseId, cancellationToken);
+        if (course == null)
+        {
+            throw new Exception($"Course with ID '{courseId}' does not exist.");
+        }
+
+        try
+        {
+            var ticket = await ticketRepository.GetByCourseAsync(
+                userId,
+                courseId,
+                cancellationToken
+            );
+            if (ticket == null)
+            {
+                return RemoveFromQueueResult.Failure;
+            }
+            await ticketRepository.DeleteAsync(ticket.Id, cancellationToken);
+        }
+        catch (Exception)
+        {
+            return RemoveFromQueueResult.Failure;
+        }
+        return RemoveFromQueueResult.Success;
+    }
 }
 
 public enum AddToQueueResult
 {
     Success,
     AlreadyInQueue,
+    Failure,
+}
+
+public enum RemoveFromQueueResult
+{
+    Success,
     Failure,
 }
