@@ -8,13 +8,15 @@ public class MatchmakingOverviewModel(
     ILogger<MatchmakingOverviewModel> logger,
     MatchmakingService matchmaking,
     TicketRepository ticketRepository,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    CourseRepository courseRepository
 ) : PageModel
 {
     private readonly ILogger<MatchmakingOverviewModel> _logger = logger;
 
     public List<Ticket> Students = [];
     public List<Group> Groups = [];
+    public Course[] Courses = [];
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -34,6 +36,20 @@ public class MatchmakingOverviewModel(
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostResetCourseAsync(Guid courseId)
+    {
+        var groups = await groupRepository.GetGroups(courseId);
+        foreach (var group in groups)
+        {
+            foreach (var member in group.Members)
+            {
+                await matchmaking.QueueForMatchmakingAsync(member.Id, courseId);
+            }
+            await groupRepository.DeleteGroup(group.Id);
+        }
+        return RedirectToPage();
+    }
+
     public async Task LoadAsync()
     {
         var waitlist = await ticketRepository.GetAllAsync();
@@ -43,6 +59,7 @@ public class MatchmakingOverviewModel(
         }
         var grouplist = await groupRepository.GetGroups();
         Groups = grouplist.ToList();
+        Courses = await courseRepository.GetAllAsync();
         _logger.LogInformation("LoadAsync");
     }
 }

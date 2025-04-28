@@ -69,4 +69,27 @@
             }
         </tbody>
     </table>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var Course in Model.Courses)
+            {
+                <tr>
+                    <td>@Course.Name</td>
+                    <td>
+                        <form asp-page-handler="ResetCourse" method="post">
+                            <input hidden name="CourseId" value="@Course.Id" />
+                            <button class="btn btn-primary">RESET</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
