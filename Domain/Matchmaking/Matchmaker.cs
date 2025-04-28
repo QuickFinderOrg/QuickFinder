@@ -81,6 +81,35 @@ public class Matchmaker<T>(MatchmakerConfig options)
         return (languageScore + availabilityScore + daysScore + groupSizeScore) / weights;
     }
 
+    public decimal GetRequiredScore(TimeSpan timeInQueue)
+    {
+        if (timeInQueue < TimeSpan.FromHours(1))
+        {
+            // t0
+            return 0.9m;
+        }
+        else if (timeInQueue < TimeSpan.FromHours(6))
+        {
+            // t1
+            return 0.7m;
+        }
+        else if (timeInQueue < TimeSpan.FromHours(12))
+        {
+            // t2
+            return 0.6m;
+        }
+        else
+        {
+            // t3
+            return 0.5m;
+        }
+    }
+}
+
+public class Matchmaker2<U, G>(MatchmakerConfig2 options)
+    where U : UserMatchmakingData
+    where G : GroupMatchmakingData
+{
     public IEnumerable<IMatchmakingData> FilterMatchesByCriteria(
         IMatchmakingData seed,
         IEnumerable<IMatchmakingData> candidatePool
@@ -188,30 +217,6 @@ public class Matchmaker<T>(MatchmakerConfig options)
         var sum_weights = options.WeightedPreferenceList.Select(pair => pair.weight).Sum();
         return score / sum_weights;
     }
-
-    public decimal GetRequiredScore(TimeSpan timeInQueue)
-    {
-        if (timeInQueue < TimeSpan.FromHours(1))
-        {
-            // t0
-            return 0.9m;
-        }
-        else if (timeInQueue < TimeSpan.FromHours(6))
-        {
-            // t1
-            return 0.7m;
-        }
-        else if (timeInQueue < TimeSpan.FromHours(12))
-        {
-            // t2
-            return 0.6m;
-        }
-        else
-        {
-            // t3
-            return 0.5m;
-        }
-    }
 }
 
 public record class MatchmakerConfig
@@ -220,6 +225,10 @@ public record class MatchmakerConfig
     public readonly decimal availabilityWeight = 1;
     public readonly decimal daysWeight = 1;
     public readonly decimal groupSizeWeight = 1;
+}
+
+public record class MatchmakerConfig2
+{
     public ICriteriaFunc[] CriteriaList =
     [
         new MustHaveAtLeastOneDayInCommonCritera(),

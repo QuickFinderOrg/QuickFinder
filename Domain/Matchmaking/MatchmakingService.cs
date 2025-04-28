@@ -10,6 +10,9 @@ public class MatchmakingService(
 )
 {
     public readonly Matchmaker<Ticket> matchmaker = new Matchmaker<Ticket>(new MatchmakerConfig());
+    public readonly Matchmaker2<UserMatchmakingData, GroupMatchmakingData> matchmaker2 = new(
+        new MatchmakerConfig2()
+    );
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
@@ -87,22 +90,11 @@ public class MatchmakingService(
             .Where(t => t.Course == course)
             .Where(t => t.Id != seedCandidate.Id);
 
-        var waitTime = DateTime.Now - seedCandidate.CreatedAt;
-
-        var requiredScore = matchmaker.GetRequiredScore(waitTime);
-
-        var matching_candidates = matchmaker.Match(
-            seedCandidate,
-            candidates_in_course,
-            (int)course.GroupSize,
-            requiredScore
-        );
-
         var seedData = CreateUserMatchmakingData(seedCandidate);
 
         var candidatesData = candidates_in_course.Select(CreateUserMatchmakingData);
 
-        var matchingMembersData = matchmaker.Match2(
+        var matchingMembersData = matchmaker2.Match2(
             seedData,
             candidatesData,
             (int)course.GroupSize
@@ -130,7 +122,7 @@ public class MatchmakingService(
             "New potential group in {course}: {leader}, Candidates: {candidates}",
             seedCandidate.Course.Name,
             seedCandidate.User.UserName,
-            string.Join(", ", matching_candidates.Select(t => t.User.UserName))
+            string.Join(", ", matchingCandidates.Select(t => t.User.UserName))
         );
 
         var group = new Group

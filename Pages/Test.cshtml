@@ -12,7 +12,7 @@
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var discordUserId = await userService.GetDiscordId(user.Id);
 
-    var matchmaker = new Matchmaker<TestCandidate>(new MatchmakerConfig());
+    var matchmaker = new Matchmaker2<UserMatchmakingData, GroupMatchmakingData>(new MatchmakerConfig2());
     var seed = new UserMatchmakingData
     {
         Languages = LanguageFlags.English | LanguageFlags.Norwegian,
@@ -155,77 +155,3 @@
 
 
 </section>
-
-
-@{
-    var p1 = new TestCandidate
-    {
-        Id = Guid.Parse("ef1775d5-c97a-48b7-a7b4-f649b603a4af"),
-        Preferences = new Preferences
-        {
-            Days
-    = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday | DaysOfTheWeek.Wednesday
-        }
-    };
-    var p2 = new TestCandidate
-    {
-        Id = Guid.Parse("ef2775d5-c97a-48b7-a7b4-f649b603a4af"),
-        Preferences = new Preferences
-        {
-            Days
-    = DaysOfTheWeek.Wednesday
-        }
-    };
-    var p3 = new TestCandidate
-    {
-        Id = Guid.Parse("ef3775d5-c97a-48b7-a7b4-f649b603a4af"),
-        Preferences = new Preferences
-        {
-            Days
-    = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday
-        }
-    };
-    var p4 = new TestCandidate
-    {
-        Id = Guid.Parse("ef4775d5-c97a-48b7-a7b4-f649b603a4af"),
-        Preferences = new Preferences
-        {
-            Days
-    = DaysOfTheWeek.Monday | DaysOfTheWeek.Tuesday | DaysOfTheWeek.Wednesday
-        }
-    };
-
-    TestCandidate[] pool = [p2, p3, p4];
-    var orderedCandidates = matchmaker.OrderCandidates(p1, pool);
-
-    var matches = matchmaker.Match(p1, pool, 2, scoreRequirement: 0.0m);
-}
-<p>@p1</p>
-<hr>
-<div style="display: flex;" class="gap-1">
-    <p>@p2</p>
-    <p>@matchmaker.GetScore(p1.Preferences, p2.Preferences)</p>
-    <p>s=@Preferences.GetDaysScore(p1.Preferences, p2.Preferences)</p>
-</div>
-<p>@p3</p>
-<p>@matchmaker.GetScore(p1.Preferences, p3.Preferences)</p>
-<p>@p4</p>
-<p>@matchmaker.GetScore(p1.Preferences, p4.Preferences)</p>
-
-<ol style="border: 1px solid yellow;">
-
-    @foreach (var pair in orderedCandidates)
-    {
-        <li>@pair.Key - @pair.Value</li>
-    }
-</ol>
-
-<p>Match</p>
-
-<ol style="border: 1px solid yellow;">
-
-    @foreach (var match in matches)
-    {
-        <li>@match</li>
-    }
-</ol>
