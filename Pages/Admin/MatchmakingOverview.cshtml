@@ -82,10 +82,14 @@
             {
                 <tr>
                     <td>@Course.Name</td>
-                    <td>
-                        <form asp-page-handler="ResetCourse" method="post">
+                    <td class="d-flex justify-content-center gap-2">
+                        <form asp-page-handler="DeleteGroups" method="post">
                             <input hidden name="CourseId" value="@Course.Id" />
-                            <button class="btn btn-primary">RESET</button>
+                            <button class="btn btn-primary">DELETE GROUPS</button>
+                        </form>
+                        <form asp-page-handler="FillQueue" method="post">
+                            <input hidden name="CourseId" value="@Course.Id" />
+                            <button class="btn btn-primary">FILL QUEUE</button>
                         </form>
                     </td>
                 </tr>

@@ -7,6 +7,7 @@ namespace QuickFinder.Pages.Admin;
 public class MatchmakingOverviewModel(
     ILogger<MatchmakingOverviewModel> logger,
     MatchmakingService matchmaking,
+    UserService userService,
     TicketRepository ticketRepository,
     GroupRepository groupRepository,
     CourseRepository courseRepository
@@ -36,16 +37,22 @@ public class MatchmakingOverviewModel(
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostResetCourseAsync(Guid courseId)
+    public async Task<IActionResult> OnPostDeleteGroupsAsync(Guid courseId)
     {
         var groups = await groupRepository.GetGroups(courseId);
         foreach (var group in groups)
         {
-            foreach (var member in group.Members)
-            {
-                await matchmaking.QueueForMatchmakingAsync(member.Id, courseId);
-            }
             await groupRepository.DeleteGroup(group.Id);
+        }
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostFillQueueAsync(Guid courseId)
+    {
+        var users = await userService.GetAllUsers();
+        foreach (var user in users)
+        {
+            await matchmaking.QueueForMatchmakingAsync(user.Id, courseId);
         }
         return RedirectToPage();
     }
