@@ -25,7 +25,10 @@ public class SplitGroupModel(
         return Page();
     }
 
-    public async Task<IActionResult> OnPostSplitAsync(Guid groupId)
+    public async Task<IActionResult> OnPostSplitAsync(
+        Guid groupId,
+        CancellationToken cancellationToken = default
+    )
     {
         await LoadAsync(groupId);
         foreach (var userId in SelectedMembers)
@@ -37,7 +40,16 @@ public class SplitGroupModel(
             NewGroupMembers.Add(user);
         }
         var course = await courseRepository.GetByIdAsync(Group.Course.Id);
-        await groupRepository.CreateGroup(NewGroupMembers, course);
+
+        var newGroup = new Group
+        {
+            Course = Group.Course,
+            Preferences = Group.Preferences,
+            GroupLimit = Group.GroupLimit,
+            IsComplete = true,
+        };
+        newGroup.Members.AddRange(NewGroupMembers);
+        await groupRepository.AddAsync(newGroup, cancellationToken);
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = course.Id });
     }
 
