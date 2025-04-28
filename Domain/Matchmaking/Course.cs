@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using QuickFinder.Data;
 
@@ -21,11 +22,13 @@ public class CourseRepository : Repository<Course, Guid>
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;
     private readonly GroupRepository groupRepository; // TODO: maybe we should merge course and group repository instead?
+    private readonly IMediator mediator;
 
     public CourseRepository(
         ApplicationDbContext applicationDbContext,
         ILogger<TicketRepository> ticketLogger,
-        GroupRepository ticketGroupRepository
+        GroupRepository ticketGroupRepository,
+        IMediator ticketMediator
     )
         : base(applicationDbContext)
     {
@@ -33,6 +36,7 @@ public class CourseRepository : Repository<Course, Guid>
         logger = ticketLogger ?? throw new ArgumentNullException(nameof(ticketLogger));
         groupRepository =
             ticketGroupRepository ?? throw new ArgumentNullException(nameof(ticketGroupRepository));
+        mediator = ticketMediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
     public async Task<Course> CreateCourse(string name, uint groupSize, bool allowCustomSize)
@@ -63,6 +67,7 @@ public class CourseRepository : Repository<Course, Guid>
     {
         course.Members.Add(user);
         await db.SaveChangesAsync();
+        await mediator.Publish(new CourseJoined() { User = user, Course = course });
     }
 
     public async Task LeaveCourse(User user, Course course)

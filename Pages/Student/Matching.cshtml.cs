@@ -1,9 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Options;
-using QuickFinder.Domain.DiscordDomain;
 using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Student;
@@ -11,8 +8,6 @@ namespace QuickFinder.Pages.Student;
 public class MatchingModel(
     ILogger<MatchingModel> logger,
     UserManager<User> userManager,
-    DiscordService discordService,
-    IOptions<DiscordServiceOptions> options,
     MatchmakingService matchmakingService,
     CourseRepository courseRepository,
     GroupRepository groupRepository,
@@ -103,33 +98,6 @@ public class MatchingModel(
         }
 
         await courseRepository.JoinCourse(user, course);
-
-        var claims = await userManager.GetClaimsAsync(user);
-        var c = new List<Claim>(claims);
-
-        var discordIdClaim =
-            c.Find(c => c.Type == "DiscordId") ?? throw new Exception("DiscordId claim not found");
-        var discordTokenClaim =
-            c.Find(c => c.Type == "DiscordToken")
-            ?? throw new Exception("DiscordId claim not found");
-
-        var server = await discordService.GetCourseServer(course.Id);
-        if (server.Length == 0)
-        {
-            await discordService.InviteToServer(
-                ulong.Parse(discordIdClaim.Value),
-                discordTokenClaim.Value,
-                ulong.Parse(options.Value.ServerId)
-            );
-        }
-        else
-        {
-            await discordService.InviteToServer(
-                ulong.Parse(discordIdClaim.Value),
-                discordTokenClaim.Value,
-                server[0].Id
-            );
-        }
 
         if (await preferencesRepository.GetCoursePreferences(course.Id, user.Id) is null)
         {

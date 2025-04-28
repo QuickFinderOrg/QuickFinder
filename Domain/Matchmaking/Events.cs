@@ -33,3 +33,9 @@ public record class GroupEmpty : BaseDomainEvent
 {
     public required Guid GroupId;
 }
+
+public record class CourseJoined : BaseDomainEvent
+{
+    public required User User;
+    public required Course Course;
+}
