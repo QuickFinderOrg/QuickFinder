@@ -113,7 +113,7 @@ public class Matchmaker<T>(MatchmakerConfig options)
         int noOfGroupMembers
     )
     {
-        var compatible_candidates = FilterMatchesByCriteria(seed, candidates);
+        var compatible_candidates = FilterMatchesByCriteria(seed, candidates.Where(c => c != seed));
         var valid_group_combinations = new List<(decimal score, IMatchmakingData[] members)>();
 
         foreach (
@@ -241,6 +241,7 @@ public interface IMatchmakingData
 
 public record class UserMatchmakingData : IMatchmakingData
 {
+    public Guid Id;
     public required string UserId { get; init; }
     public LanguageFlags Languages { get; init; }
     public Availability Availability { get; init; }
