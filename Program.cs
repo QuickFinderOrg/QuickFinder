@@ -46,6 +46,8 @@ builder.Services.AddScoped<GroupMatchmakingService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
 builder.Services.AddScheduler();
+builder.Services.AddQueue();
+builder.Services.AddEvents();
 
 if (builder.Environment.IsProduction())
 {
@@ -113,6 +115,7 @@ builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 builder.Services.AddTransient<RunMatchmakingInvocable>();
 builder.Services.AddTransient<RunGroupMatchmakingInvocable>();
 builder.Services.AddTransient<DeleteUnusedGroupsInvocable>();
+builder.Services.AddTransient<SendDMInvocable>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>

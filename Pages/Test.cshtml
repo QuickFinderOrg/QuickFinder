@@ -48,6 +48,11 @@
     }
 </div>
 
+<form method="post">
+    <input name="id" value="@discordUserId">
+    <button type="submit">send DM</button>
+</form>
+
 @foreach (var member in candidates)
 {
     <p>@member.ToString()</p>

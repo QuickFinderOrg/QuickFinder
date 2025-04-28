@@ -247,7 +247,7 @@ public class UserService(
         var sendToEmailClaim = c.Find(c => c.Type == ClaimTypes.Email);
         if (discordIdClaim != null)
         {
-            await discord.SendDM(ulong.Parse(discordIdClaim.Value), message);
+            discord.QueueSendDM(ulong.Parse(discordIdClaim.Value), message);
         }
         else if (sendToEmailClaim != null)
         {

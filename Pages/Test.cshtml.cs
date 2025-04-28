@@ -29,6 +29,13 @@ public class TestModel(
         return Page();
     }
 
+    public IActionResult OnPost(string id)
+    {
+        Console.WriteLine(id.ToString());
+        discordBotService.QueueSendDM(ulong.Parse(id), "TEST");
+        return RedirectToPage();
+    }
+
     public async Task<IActionResult> OnPostDeleteChannelAsync(string id)
     {
         if (environment.IsDevelopment() == false)

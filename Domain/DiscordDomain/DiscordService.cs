@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using Coravel.Invocable;
+using Coravel.Queuing.Interfaces;
 using Discord;
 using Discord.WebSocket;
 using MediatR;
@@ -19,18 +21,21 @@ public class DiscordService : IHostedService
     private readonly ILogger<DiscordService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordSocketClient _client;
+    private readonly IQueue _queue;
 
     public DiscordService(
         IOptions<DiscordServiceOptions> options,
         ILogger<DiscordService> logger,
         IServiceProvider serviceProvider,
-        DiscordSocketClient client
+        DiscordSocketClient client,
+        IQueue queue
     )
     {
         _options = options.Value;
         _logger = logger;
         _serviceProvider = serviceProvider;
         _client = client;
+        _queue = queue;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -92,6 +97,13 @@ public class DiscordService : IHostedService
         );
 
         return Task.CompletedTask;
+    }
+
+    public void QueueSendDM(ulong userId, string message)
+    {
+        _queue.QueueInvocableWithPayload<SendDMInvocable, SendDMPayload>(
+            new SendDMPayload { userId = userId, message = message }
+        );
     }
 
     public async Task<bool> SendDM(ulong userId, string message)
@@ -831,5 +843,24 @@ public class InviteToServerOnCourseJoined(
                 notification.Course.Id
             );
         }
+    }
+}
+
+public record class SendDMPayload
+{
+    public ulong userId;
+    public required string message;
+}
+
+public class SendDMInvocable(DiscordService discordService)
+    : IInvocable,
+        IInvocableWithPayload<SendDMPayload>
+{
+    public required SendDMPayload Payload { get; set; }
+
+    public async Task Invoke()
+    {
+        Console.WriteLine("INVOKED");
+        await discordService.SendDM(Payload.userId, Payload.message);
     }
 }
