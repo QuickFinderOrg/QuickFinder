@@ -860,7 +860,6 @@ public class SendDMInvocable(DiscordService discordService)
 
     public async Task Invoke()
     {
-        Console.WriteLine("INVOKED");
         await discordService.SendDM(Payload.userId, Payload.message);
     }
 }
