@@ -34,6 +34,14 @@ public class DiscordService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogTrace("Starting DiscordService.");
+        if (_options.IsEmpty)
+        {
+            _logger.LogWarning(
+                "One or more DiscordService options are emptry. App will still run without Discord connection."
+            );
+            return;
+        }
+
         await _client.LoginAsync(TokenType.Bot, _options.BotToken);
         _logger.LogTrace("Logged in to DiscordService.");
         await _client.StartAsync();
@@ -86,6 +94,7 @@ public class DiscordService : IHostedService
 
     public async Task<bool> SendDM(ulong userId, string message)
     {
+        ThrowIfNotConnected();
         var user = await _client.GetUserAsync(userId);
         if (user == null)
         {
@@ -123,6 +132,7 @@ public class DiscordService : IHostedService
         Guid? owningGroup
     )
     {
+        ThrowIfNotConnected();
         var server = _client.GetGuild(serverId);
         if (server == null)
         {
@@ -164,6 +174,7 @@ public class DiscordService : IHostedService
 
     public async Task<ulong?> SetUserPermissionsOnChannel(ulong channelId, ulong userId)
     {
+        ThrowIfNotConnected();
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
@@ -197,6 +208,7 @@ public class DiscordService : IHostedService
 
     public async Task<ulong?> DeleteUserPermissionsOnChannel(ulong channelId, ulong userId)
     {
+        ThrowIfNotConnected();
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
@@ -230,6 +242,7 @@ public class DiscordService : IHostedService
 
     public async Task<ulong?> DeleteChannel(ulong channelId)
     {
+        ThrowIfNotConnected();
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
@@ -257,6 +270,7 @@ public class DiscordService : IHostedService
 
     public DiscordChannel[] GetChannels()
     {
+        ThrowIfNotConnected();
         var server = _client.GetGuild(ulong.Parse(_options.ServerId));
         if (server == null)
         {
@@ -279,6 +293,7 @@ public class DiscordService : IHostedService
 
     public async Task<DiscordServerItem[]> GetServerList()
     {
+        ThrowIfNotConnected();
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
@@ -292,6 +307,7 @@ public class DiscordService : IHostedService
 
     public async Task<DiscordServerItem[]> GetCourseServer(Guid courseId)
     {
+        ThrowIfNotConnected();
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
@@ -315,6 +331,7 @@ public class DiscordService : IHostedService
 
     public async Task<bool> AddCourseServer(Guid courseId, ulong serverId)
     {
+        ThrowIfNotConnected();
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
@@ -350,6 +367,7 @@ public class DiscordService : IHostedService
 
     public DiscordServerItem[] GetBotServers()
     {
+        ThrowIfNotConnected();
         var servers = _client
             .Guilds.Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
             .ToArray();
@@ -358,6 +376,7 @@ public class DiscordService : IHostedService
 
     public DiscordServerItem[] GetServersOwnedByUser(ulong ownerDiscordId)
     {
+        ThrowIfNotConnected();
         var servers = _client
             .Guilds.Where(server => server.OwnerId == ownerDiscordId)
             .Select(server => new DiscordServerItem() { Id = server.Id, Name = server.Name })
@@ -372,6 +391,7 @@ public class DiscordService : IHostedService
     /// <returns></returns>
     public DiscordServerItem[] GetServersThatCanBeAdded(ulong ownerDiscordId)
     {
+        ThrowIfNotConnected();
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var existing_server_ids = db.DiscordServers.Select(server => server.Id).ToArray();
@@ -386,6 +406,7 @@ public class DiscordService : IHostedService
 
     public async Task AddServer(ulong serverId)
     {
+        ThrowIfNotConnected();
         // TODO: check ownership before adding it.
         using var scope = _serviceProvider.CreateScope();
 
@@ -420,6 +441,7 @@ public class DiscordService : IHostedService
 
     public async Task EnsureCourseServer(Guid courseId, ulong serverId)
     {
+        ThrowIfNotConnected();
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -455,6 +477,7 @@ public class DiscordService : IHostedService
 
     public async Task DeleteGroupChannels(Guid groupId)
     {
+        ThrowIfNotConnected();
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
@@ -482,6 +505,7 @@ public class DiscordService : IHostedService
 
     public async Task DeleteUnusedGroupChannels()
     {
+        ThrowIfNotConnected();
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
@@ -515,6 +539,7 @@ public class DiscordService : IHostedService
 
     public async Task InviteToServer(ulong userId, string accessToken, ulong serverId)
     {
+        ThrowIfNotConnected();
         var guild = _client.GetGuild(serverId);
 
         await AddGuildMember(_options.BotToken, guild.Id, userId, accessToken);
@@ -553,6 +578,12 @@ public class DiscordService : IHostedService
 
     public string InviteURL =>
         $"https://discord.com/oauth2/authorize?client_id={_options.ClientId}";
+
+    private void ThrowIfNotConnected()
+    {
+        if (_client.ConnectionState != ConnectionState.Connected)
+            throw new Exception("");
+    }
 }
 
 public record class DiscordChannel
@@ -583,6 +614,13 @@ public class DiscordServiceOptions
     public string AuthorizationEndpoint = String.Empty;
     public string TokenEndpoint = String.Empty;
     public string UserInformationEndpoint = String.Empty;
+
+    public bool IsEmpty =>
+        string.IsNullOrEmpty(BotToken)
+        | string.IsNullOrEmpty(ClientSecret)
+        | string.IsNullOrEmpty(ClientId)
+        | string.IsNullOrEmpty(ServerId)
+        | string.IsNullOrEmpty(GroupChannelCategoryId);
 }
 
 public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFilled>
@@ -607,13 +645,13 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
 
     public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Group filled {groupId}", notification.Group.Id);
-        var defaultServerId = ulong.Parse(_options.Value.ServerId);
-        var defaultCategoryId = ulong.Parse(_options.Value.GroupChannelCategoryId);
-        var channelName = notification.Group.Name;
-
         try
         {
+            _logger.LogInformation("Group filled {groupId}", notification.Group.Id);
+            var defaultServerId = ulong.Parse(_options.Value.ServerId);
+            var defaultCategoryId = ulong.Parse(_options.Value.GroupChannelCategoryId);
+            var channelName = notification.Group.Name;
+
             var new_channel_id = await _discord.CreateChannel(
                 defaultServerId,
                 channelName,
@@ -673,10 +711,10 @@ public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDi
 
     public async Task Handle(GroupDisbanded notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Group disbanded {groupId}", notification.GroupId.ToString());
-
         try
         {
+            _logger.LogInformation("Group disbanded {groupId}", notification.GroupId.ToString());
+
             await _discord.DeleteGroupChannels(notification.GroupId);
         }
         catch (Exception e)
@@ -709,13 +747,13 @@ public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<Group
 
     public async Task Handle(GroupMemberLeft notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            $"Group member {notification.User.Id} left",
-            notification.User.Id.ToString()
-        );
-
         try
         {
+            _logger.LogInformation(
+                $"Group member {notification.User.Id} left",
+                notification.User.Id.ToString()
+            );
+
             var channel =
                 _discord.GetChannels().SingleOrDefault(c => c.Name == notification.Group.Name)
                 ?? throw new Exception($"Channel {notification.Group.Id} not found.");
