@@ -9,6 +9,13 @@
 {
     <div class="text-center">
         <h1 class="display-4">Split Group @Model.Group.Id</h1>
+
+        @if (ViewData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @ViewData["ErrorMessage"]
+            </div>
+        }
         <form asp-page-handler="Split" method="post">
             <table class="table table-striped">
                 <thead>

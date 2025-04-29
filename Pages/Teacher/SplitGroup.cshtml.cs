@@ -40,6 +40,11 @@ public class SplitGroupModel(
             NewGroupMembers.Add(user);
         }
         var course = await courseRepository.GetByIdAsync(Group.Course.Id);
+        if (course == null)
+        {
+            PageContext.ViewData["ErrorMessage"] = "Unexpected error, please try again.";
+            return Page();
+        }
 
         var newGroup = new Group
         {
