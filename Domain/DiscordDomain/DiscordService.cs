@@ -597,6 +597,8 @@ public class DiscordService : IHostedService
         if (_client.ConnectionState != ConnectionState.Connected)
             throw new Exception("");
     }
+
+    public bool IsEnabled => _options.IsEmpty == false;
 }
 
 public record class DiscordChannel
@@ -660,6 +662,10 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
     {
         try
         {
+            if (_discord.IsEnabled == false)
+            {
+                return;
+            }
             _logger.LogInformation("Group filled {groupId}", notification.Group.Id);
             var defaultServerId = ulong.Parse(_options.Value.ServerId);
             var defaultCategoryId = ulong.Parse(_options.Value.GroupChannelCategoryId);
@@ -726,6 +732,10 @@ public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDi
     {
         try
         {
+            if (_discord.IsEnabled == false)
+            {
+                return;
+            }
             _logger.LogInformation("Group disbanded {groupId}", notification.GroupId.ToString());
 
             await _discord.DeleteGroupChannels(notification.GroupId);
@@ -762,6 +772,10 @@ public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<Group
     {
         try
         {
+            if (_discord.IsEnabled == false)
+            {
+                return;
+            }
             _logger.LogInformation(
                 $"Group member {notification.User.Id} left",
                 notification.User.Id.ToString()
@@ -800,11 +814,15 @@ public class InviteToServerOnCourseJoined(
 
     public async Task Handle(CourseJoined notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation(
-            $"User {notification.User.Id} joined course {notification.Course.Id}"
-        );
         try
         {
+            if (_discord.IsEnabled == false)
+            {
+                return;
+            }
+            _logger.LogInformation(
+                $"User {notification.User.Id} joined course {notification.Course.Id}"
+            );
             var claims = await _userManager.GetClaimsAsync(notification.User);
             var c = new List<Claim>(claims);
 
@@ -859,6 +877,11 @@ public class SendDMInvocable(DiscordService discordService)
 
     public async Task Invoke()
     {
+        if (discordService.IsEnabled == false)
+        {
+            return;
+        }
+
         await discordService.SendDM(Payload.userId, Payload.message);
     }
 }
