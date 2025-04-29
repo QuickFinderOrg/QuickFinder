@@ -9,7 +9,8 @@ namespace QuickFinder.Pages.Student;
 public class CreateGroupModel(
     UserManager<User> userManager,
     CourseRepository courseRepository,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    TicketRepository ticketRepository
 ) : PageModel
 {
     [TempData]
@@ -93,6 +94,14 @@ public class CreateGroupModel(
         {
             return NotFound();
         }
+
+        if (await ticketRepository.CheckIfInQueue(user, course))
+        {
+            PageContext.ViewData["ErrorMessage"] =
+                "Please leave the queue before creating a group.";
+            return Page();
+        }
+
         Course = course;
 
         if (!ModelState.IsValid)

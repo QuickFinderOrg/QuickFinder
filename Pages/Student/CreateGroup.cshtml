@@ -10,6 +10,13 @@
     <h5>Select preferences for your group</h5>
 </div>
 
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
 <partial name="_StatusMessage" for="StatusMessage" />
 
 <form method="post">
