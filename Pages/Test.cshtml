@@ -12,15 +12,15 @@
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var discordUserId = await userService.GetDiscordId(user.Id);
 
-    var matchmaker = new Matchmaker2<UserMatchmakingData, GroupMatchmakingData>(new MatchmakerConfig2());
-    var seed = new UserMatchmakingData
+    var matchmaker = new Matchmaker2<DefaultUserMatchmakingData, GroupMatchmakingData>(new MatchmakerConfig2());
+    var seed = new DefaultUserMatchmakingData
     {
         Languages = LanguageFlags.English | LanguageFlags.Norwegian,
         Availability = Availability.Daytime,
         UserId = "Joseph Seed",
         Days = DaysOfTheWeek.Monday
     };
-    var candidates = Enumerable.Range(1, 20).Select(i => new UserMatchmakingData
+    var candidates = Enumerable.Range(1, 20).Select(i => new DefaultUserMatchmakingData
     {
         Languages = i % 2 == 0 ? LanguageFlags.Norwegian : LanguageFlags.English,
         Availability = Availability.Daytime,
@@ -29,8 +29,8 @@
     }).ToArray();
 
     var time_pre = DateTime.Now;
-    var matched_members = matchmaker.Match2(seed, candidates, 4).Select(m => (UserMatchmakingData)m);
-    UserMatchmakingData[] matched_group = [seed, .. matched_members];
+    var matched_members = matchmaker.Match2(seed, candidates, 4).Select(m => (DefaultUserMatchmakingData)m);
+    DefaultUserMatchmakingData[] matched_group = [seed, .. matched_members];
     var timer = DateTime.Now - time_pre;
     var a = LanguageFlags.Norwegian | LanguageFlags.English;
     var b = LanguageFlags.English | LanguageFlags.Norwegian;

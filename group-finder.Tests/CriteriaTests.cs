@@ -27,12 +27,12 @@ public class LanguageTests
     public void SucceedsOnOneSharedLanguage()
     {
         var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
-        var a = new UserMatchmakingData
+        var a = new DefaultUserMatchmakingData
         {
             Languages = LanguageFlags.English | LanguageFlags.Spanish,
             UserId = "a",
         };
-        var b = new UserMatchmakingData
+        var b = new DefaultUserMatchmakingData
         {
             Languages = LanguageFlags.English | LanguageFlags.Norwegian,
             UserId = "b",
@@ -45,12 +45,12 @@ public class LanguageTests
     public void SucceedsOnMoreThanOneSharedLanguage()
     {
         var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
-        var a = new UserMatchmakingData
+        var a = new DefaultUserMatchmakingData
         {
             Languages = LanguageFlags.English | LanguageFlags.Norwegian | LanguageFlags.Spanish,
             UserId = "a",
         };
-        var b = new UserMatchmakingData
+        var b = new DefaultUserMatchmakingData
         {
             Languages = LanguageFlags.English | LanguageFlags.Norwegian,
             UserId = "b",
@@ -63,8 +63,12 @@ public class LanguageTests
     public void FailsOnZeroSharedLanguage()
     {
         var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
-        var a = new UserMatchmakingData { Languages = LanguageFlags.English, UserId = "a" };
-        var b = new UserMatchmakingData { Languages = LanguageFlags.Norwegian, UserId = "b" };
+        var a = new DefaultUserMatchmakingData { Languages = LanguageFlags.English, UserId = "a" };
+        var b = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.Norwegian,
+            UserId = "b",
+        };
 
         Assert.False(criteria.Check(a, b));
     }
