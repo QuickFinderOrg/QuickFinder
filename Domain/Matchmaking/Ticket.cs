@@ -98,6 +98,19 @@ public class TicketRepository : Repository<Ticket, Guid>
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
     }
 
+    public async Task<Ticket[]> GetAllInCourseAsync(
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+                .Tickets.Include(t => t.User)
+                .Include(t => t.Course)
+                .Include(t => t.Preferences)
+                .Where(t => t.Course.Id == courseId)
+                .ToArrayAsync(cancellationToken) ?? throw new Exception("WAITLIST");
+    }
+
     public new async Task<Ticket[]> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await db

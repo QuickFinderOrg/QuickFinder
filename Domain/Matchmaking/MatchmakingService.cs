@@ -15,61 +15,92 @@ public class MatchmakingService(
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
-        var all_candidates = await ticketRepository.GetAllAsync(cancellationToken);
-        // pick a random candidate.
-        var seedCandidate = all_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
+        var courses = await courseRepository.GetAllAsync(cancellationToken);
 
-        if (seedCandidate == null)
+        foreach (var course in courses)
         {
-            logger.LogInformation("No seed candidate to begin matchmaking.");
-            return;
+            await DoMatchmakingForCourse(course, cancellationToken);
+        }
+    }
+
+    public async Task DoMatchmakingForCourse(
+        Course course,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var ticketsInCourse = await ticketRepository.GetAllInCourseAsync(
+            course.Id,
+            cancellationToken
+        );
+
+        if (ticketsInCourse.Length < 2)
+        {
+            return; // need two students to match
         }
 
-        var course = seedCandidate.Course;
+        // pick a seed at random.
+        var randomizedTickets = ticketsInCourse.OrderBy(_ => Guid.NewGuid());
 
-        var candidates_in_course = all_candidates
-            .Where(t => t.Course == course)
-            .Where(t => t.Id != seedCandidate.Id);
+        var seedTicket = randomizedTickets.Take(1).Single();
+        var seedData = CreateUserMatchmakingData(seedTicket);
 
-        var seedData = CreateUserMatchmakingData(seedCandidate);
+        var candidates = randomizedTickets.Skip(1);
+        var candidatesData = candidates.Select(CreateUserMatchmakingData);
 
-        var candidatesData = candidates_in_course.Select(CreateUserMatchmakingData);
+        var t0 = DateTime.Now;
 
-        var matchingMembersData = matchmaker2.Match2(
+        var matchingCandidatesData = matchmaker2.Match2(
             seedData,
             candidatesData,
             (int)course.GroupSize
         );
 
-        if (matchingMembersData.Length == 0)
+        logger.LogWarning("{}", matchingCandidatesData);
+
+        var dt = DateTime.Now - t0;
+
+        IMatchmakingData[] potentialGroupData = [seedData, .. matchingCandidatesData];
+
+        logger.LogInformation("matchmaking with {candidates} took {t}", candidates.Count(), dt);
+
+        if (matchingCandidatesData.Length == 0)
         {
-            logger.LogInformation("No match found for {username}", seedCandidate.User.UserName);
+            logger.LogInformation("No match found for {username}", seedTicket.User.UserName);
             return;
         }
 
-        var desiredTicketIds = matchingMembersData
+        if (potentialGroupData.Length < course.GroupSize - 1)
+        {
+            logger.LogInformation(
+                "Not enough members to form a group for {course}. Had {x}, need {n}",
+                course.Name,
+                matchingCandidatesData,
+                course.GroupSize - 1
+            );
+            return;
+        }
+
+        var desiredTicketIds = matchingCandidatesData
             .Select(data => (UserMatchmakingData)data)
             .Select(data => data.Id);
 
-        var matchingCandidates = candidates_in_course.Where(ticket =>
-            desiredTicketIds.Contains(ticket.Id)
-        );
+        var matchingCandidates = candidates.Where(ticket => desiredTicketIds.Contains(ticket.Id));
 
-        var fullGroupTickets = new List<Ticket>([.. matchingCandidates, seedCandidate]);
+        var fullGroupTickets = new List<Ticket>([.. matchingCandidates, seedTicket]);
 
         var groupMembers = fullGroupTickets.Select(t => t.User);
 
         logger.LogInformation(
             "New potential group in {course}: {leader}, Candidates: {candidates}",
-            seedCandidate.Course.Name,
-            seedCandidate.User.UserName,
+            seedTicket.Course.Name,
+            seedTicket.User.UserName,
             string.Join(", ", matchingCandidates.Select(t => t.User.UserName))
         );
 
         var group = new Group
         {
-            Course = seedCandidate.Course,
-            Preferences = seedCandidate.Preferences,
+            Course = seedTicket.Course,
+            Preferences = seedTicket.Preferences,
             GroupLimit = course.GroupSize, //TODO: accept custom group size.
             IsComplete = true,
         };
@@ -90,7 +121,7 @@ public class MatchmakingService(
             Languages = ticket.Preferences.Language,
             Availability = ticket.Preferences.Availability,
             Days = ticket.Preferences.Days,
-            WaitTime = ticket.CreatedAt - DateTime.Now,
+            WaitTime = DateTime.Now - ticket.CreatedAt,
         };
         return data;
     }
