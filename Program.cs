@@ -9,11 +9,15 @@ using QuickFinder.Data;
 using QuickFinder.Domain.DiscordDomain;
 using QuickFinder.Domain.Matchmaking;
 using QuickFinder.Email;
+using QuickFinder.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<DiscordServiceOptions>(
     builder.Configuration.GetSection(DiscordServiceOptions.Discord)
+);
+builder.Services.Configure<DiscordAuthOptions>(
+    builder.Configuration.GetSection(DiscordAuthOptions.DiscordAuth)
 );
 builder.Services.Configure<MatchmakingOptions>(
     builder.Configuration.GetSection(MatchmakingOptions.Matchmaking)
@@ -45,6 +49,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GroupMatchmakingService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
+builder.Services.AddScoped<DiscordAuthHandler>();
 builder.Services.AddScheduler();
 builder.Services.AddQueue();
 builder.Services.AddEvents();

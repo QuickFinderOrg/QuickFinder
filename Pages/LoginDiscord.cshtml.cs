@@ -12,7 +12,8 @@ namespace QuickFinder.Pages;
 public class DiscordModel(
     UserService userService,
     SignInManager<User> signInManager,
-    IOptions<DiscordServiceOptions> options
+    IOptions<DiscordServiceOptions> options,
+    ILogger<DiscordModel> logger
 ) : PageModel
 {
     private const string API_ENDPOINT = "https://discord.com/api/v10";
@@ -21,7 +22,7 @@ public class DiscordModel(
 
     public async Task<IActionResult> OnGetAsync(string code)
     {
-        Console.WriteLine("Code: " + code);
+        logger.LogInformation("Discord auth redirect");
         {
             var responseJSON = await ExchangeCodeAsync(code);
             var tokenResponse =
@@ -107,7 +108,6 @@ public class DiscordModel(
         );
 
         HttpResponseMessage response = await client.PostAsync($"{API_ENDPOINT}/oauth2/token", data);
-        Console.WriteLine(await response.Content.ReadAsStringAsync());
 
         response.EnsureSuccessStatusCode();
 
