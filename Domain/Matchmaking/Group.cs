@@ -147,6 +147,17 @@ public class GroupRepository : Repository<Group, Guid>
             errors.Add("Members are over group member limit");
         }
 
+        var duplicateMembers = groupToValidate
+            .Members.GroupBy(member => member.Id)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        if (duplicateMembers.Count > 0)
+        {
+            errors.Add("Group contains duplicate members: " + string.Join(", ", duplicateMembers));
+        }
+
         foreach (var member in groupToValidate.Members)
         {
             var otherGroups = await db
