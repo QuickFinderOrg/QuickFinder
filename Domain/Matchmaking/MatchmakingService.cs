@@ -14,7 +14,7 @@ public class MatchmakingService(
         new MatchmakerConfig2()
     );
 
-    public async Task DoMatching(CancellationToken cancellationToken = default)
+    public async Task DoMatching2(CancellationToken cancellationToken = default)
     {
         var all_candidates = await ticketRepository.GetAllAsync(cancellationToken);
         // pick a random candidate.
@@ -72,7 +72,7 @@ public class MatchmakingService(
         await ticketRepository.RemoveRangeAsync(groupTickets, cancellationToken);
     }
 
-    public async Task DoMatching2(CancellationToken cancellationToken = default)
+    public async Task DoMatching(CancellationToken cancellationToken = default)
     {
         var all_candidates = await ticketRepository.GetAllAsync(cancellationToken);
         // pick a random candidate.
