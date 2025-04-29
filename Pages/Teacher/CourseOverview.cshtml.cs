@@ -24,9 +24,6 @@ public class CourseOverviewModel(
 
     public DiscordServerItem? CourseDiscordServer { get; set; }
 
-    [BindProperty]
-    public bool AllowCustomSize { get; set; }
-
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
         await LoadAsync(id);
@@ -56,12 +53,6 @@ public class CourseOverviewModel(
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
-    public async Task<IActionResult> OnPostChangeCustomGroupSizeAsync()
-    {
-        await groupRepository.ChangeCustomGroupSize(Course.Id, AllowCustomSize);
-        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
-    }
-
     public async Task LoadAsync(Guid courseId)
     {
         Courses = await courseRepository.GetAllAsync();
@@ -88,7 +79,6 @@ public class CourseOverviewModel(
         CourseDiscordServer = CourseDiscordServers.FirstOrDefault();
 
         Groups = grouplist.ToList();
-        AllowCustomSize = Course.AllowCustomSize;
         _logger.LogInformation("LoadGroups");
     }
 }

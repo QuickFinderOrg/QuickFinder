@@ -31,10 +31,6 @@ public class CoursePreferencesModel(
         [Display(Name = "Availability")]
         public Availability NewAvailability { get; set; }
 
-        [Required]
-        [Display(Name = "Group Size")]
-        public uint GroupSize { get; set; }
-
         public LanguageFlags SpokenLanguages { get; set; }
 
         [Required]
@@ -84,7 +80,6 @@ public class CoursePreferencesModel(
             Input = new InputModel
             {
                 NewAvailability = user.Preferences.GlobalAvailability,
-                GroupSize = 2,
                 Days = user.Preferences.GlobalDays,
             };
         }
@@ -93,7 +88,6 @@ public class CoursePreferencesModel(
             Input = new InputModel
             {
                 NewAvailability = coursePreferences.Availability,
-                GroupSize = coursePreferences.GroupSize,
                 Days = coursePreferences.Days,
             };
         }
@@ -126,7 +120,6 @@ public class CoursePreferencesModel(
 
         logger.LogInformation("Days of: {days}", Input.Days);
         coursePreferences.Availability = Input.NewAvailability;
-        coursePreferences.GroupSize = Input.GroupSize;
         coursePreferences.Days = Input.Days;
         user.Preferences.Language = Input.SelectedLanguages;
 

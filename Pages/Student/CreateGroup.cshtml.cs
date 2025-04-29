@@ -24,10 +24,6 @@ public class CreateGroupModel(
         [Display(Name = "Availability")]
         public Availability NewAvailability { get; set; }
 
-        [Required]
-        [Display(Name = "Group Size")]
-        public uint GroupSize { get; set; }
-
         [Display(Name = "Allow anyone to join?")]
         public bool AllowAnyone { get; set; }
         public LanguageFlags SpokenLanguages { get; set; }
@@ -73,7 +69,6 @@ public class CreateGroupModel(
         Input = new InputModel
         {
             NewAvailability = Availability.Afternoons,
-            GroupSize = 2,
             SpokenLanguages = user.Preferences.Language,
             AllowAnyone = false,
         };
@@ -111,7 +106,6 @@ public class CreateGroupModel(
             User = user,
             Course = Course,
             Availability = Input.NewAvailability,
-            GroupSize = Input.GroupSize,
         };
         var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
         var groupPreferences = Preferences.From(userPreferences, coursePreferences);
@@ -120,6 +114,7 @@ public class CreateGroupModel(
             Course = Course,
             Preferences = groupPreferences,
             AllowAnyone = Input.AllowAnyone,
+            GroupLimit = Course.GroupSize,
         };
         group.Members.Add(user);
 

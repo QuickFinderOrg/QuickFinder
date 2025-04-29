@@ -22,12 +22,6 @@
         <button class="btn btn-primary">Submit</button>
     </form>
 
-    <form asp-page-handler="ChangeCustomGroupSize" method="post">
-        <label asp-for="AllowCustomSize">Allow Custom Group Sizes?</label>
-        <input asp-for="Course.Id" hidden />
-        <input asp-for="AllowCustomSize" class="form-check-input" onchange="this.form.submit()" />
-    </form>
-
     @if (Model.CourseDiscordServer == null)
     {
         <form asp-page="@TeacherRoutes.AddServer()" asp-route-CourseId="@Model.Course.Id" method="get">

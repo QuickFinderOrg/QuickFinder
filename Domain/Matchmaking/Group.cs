@@ -139,11 +139,6 @@ public class GroupRepository : Repository<Group, Guid>
 
         var course = groupToValidate.Course ?? throw new NullReferenceException("Course is null");
 
-        if (course.AllowCustomSize == false && groupToValidate.GroupLimit != course.GroupSize)
-        {
-            errors.Add($"Custom sizes are not allowed for course {course.Name}");
-        }
-
         if (groupToValidate.Members.Count > groupToValidate.GroupLimit)
         {
             errors.Add("Members are over group member limit");
@@ -199,15 +194,6 @@ public class GroupRepository : Repository<Group, Guid>
             await db.Courses.FirstAsync(c => c.Id == courseId)
             ?? throw new Exception("Course not found");
         course.GroupSize = newSize;
-        await db.SaveChangesAsync();
-    }
-
-    public async Task ChangeCustomGroupSize(Guid courseId, bool allowCustomSize)
-    {
-        var course =
-            await db.Courses.FirstAsync(c => c.Id == courseId)
-            ?? throw new Exception("Course not found");
-        course.AllowCustomSize = allowCustomSize;
         await db.SaveChangesAsync();
     }
 
@@ -332,14 +318,7 @@ public class GroupRepository : Repository<Group, Guid>
         {
             group.Members.Add(user);
         }
-        if (course.AllowCustomSize)
-        {
-            group.GroupLimit = (uint)users.Count;
-        }
-        else
-        {
-            group.GroupLimit = course.GroupSize;
-        }
+        group.GroupLimit = course.GroupSize;
 
         db.Add(group);
         await db.SaveChangesAsync();

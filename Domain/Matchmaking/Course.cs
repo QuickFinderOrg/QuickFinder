@@ -11,7 +11,6 @@ public class Course() : BaseEntity
     public List<Group> Groups { get; set; } = [];
     public List<Ticket> Tickets { get; set; } = [];
     public uint GroupSize { get; set; } = 2;
-    public bool AllowCustomSize { get; set; } = false;
     public List<User> Members { get; set; } = [];
 
     public IEnumerable<CoursePreferences> CoursePreferences { get; set; } = null!;
@@ -39,14 +38,9 @@ public class CourseRepository : Repository<Course, Guid>
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
-    public async Task<Course> CreateCourse(string name, uint groupSize, bool allowCustomSize)
+    public async Task<Course> CreateCourse(string name, uint groupSize)
     {
-        var course = new Course()
-        {
-            Name = name,
-            GroupSize = groupSize,
-            AllowCustomSize = allowCustomSize,
-        };
+        var course = new Course() { Name = name, GroupSize = groupSize };
         db.Add(course);
         await db.SaveChangesAsync();
         return course;

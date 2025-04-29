@@ -19,9 +19,6 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, CourseReposito
     [Range(0, 20)]
     public uint GroupSize { get; set; } = 4;
 
-    [BindProperty, Display(Name = "Allow custom group size")]
-    public bool AllowCustomSize { get; set; } = false;
-
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
@@ -29,13 +26,8 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, CourseReposito
             return Page();
         }
 
-        _logger.LogDebug(
-            "Create new course {Name} with group size {GroupSize} and allow custom size {AllowCustomSize}",
-            Name,
-            GroupSize,
-            AllowCustomSize
-        );
-        await courseRepository.CreateCourse(Name, GroupSize, AllowCustomSize);
+        _logger.LogDebug("Create new course {Name} with group size {GroupSize}", Name, GroupSize);
+        await courseRepository.CreateCourse(Name, GroupSize);
         return RedirectToPage();
     }
 }

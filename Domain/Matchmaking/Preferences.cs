@@ -26,7 +26,6 @@ public record class CoursePreferences : ICoursePreferences
 
     public Availability Availability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
-    public uint GroupSize { get; set; } = 2;
 }
 
 public interface IUserPreferences
@@ -40,7 +39,6 @@ public interface ICoursePreferences
 {
     Availability Availability { get; set; }
     DaysOfTheWeek Days { get; set; }
-    uint GroupSize { get; set; }
 }
 
 public interface IPreferences : IUserPreferences, ICoursePreferences
@@ -56,11 +54,10 @@ public record class Preferences : IPreferences
     public Availability GlobalAvailability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
     public DaysOfTheWeek GlobalDays { get; set; } = DaysOfTheWeek.All;
-    public uint GroupSize { get; set; } = 2;
 
     public override string ToString()
     {
-        return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, GroupSize: {GroupSize}, Days: {Days}";
+        return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, Days: {Days}";
     }
 
     public static Preferences From(
@@ -72,7 +69,6 @@ public record class Preferences : IPreferences
         {
             Language = userPreferences.Language,
             Availability = coursePreferences.Availability,
-            GroupSize = coursePreferences.GroupSize,
             Days = coursePreferences.Days,
         };
     }
