@@ -321,7 +321,6 @@ public class DiscordService : IHostedService
 
     public async Task<DiscordServerItem[]> GetCourseServer(Guid courseId)
     {
-        ThrowIfNotConnected();
         // Create a new scope to resolve the DbContext
         using (var scope = _serviceProvider.CreateScope())
         {
