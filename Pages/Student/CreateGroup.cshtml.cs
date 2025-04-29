@@ -28,11 +28,11 @@ public class CreateGroupModel(
         [Display(Name = "Group Size")]
         public uint GroupSize { get; set; }
 
-        public Languages[] SpokenLanguages { get; set; } = [];
+        public LanguageFlags SpokenLanguages { get; set; }
 
         [Required]
         [Display(Name = "Languages")]
-        public Languages[] SelectedLanguages { get; set; } = [];
+        public LanguageFlags SelectedLanguages { get; set; }
     }
 
     public Course Course { get; set; } = default!;

@@ -7,7 +7,7 @@ namespace QuickFinder.Domain.Matchmaking;
 [Owned]
 public record class UserPreferences : IUserPreferences
 {
-    public Languages[] Language { get; set; } = new Languages[0];
+    public LanguageFlags Language { get; set; } = LanguageFlagsExtensions.None;
     public Availability GlobalAvailability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek GlobalDays { get; set; } = DaysOfTheWeek.All;
 }
@@ -31,7 +31,7 @@ public record class CoursePreferences : ICoursePreferences
 
 public interface IUserPreferences
 {
-    Languages[] Language { get; set; }
+    LanguageFlags Language { get; set; }
     Availability GlobalAvailability { get; set; }
     DaysOfTheWeek GlobalDays { get; set; }
 }
@@ -51,7 +51,7 @@ public interface IPreferences : IUserPreferences, ICoursePreferences
 public record class Preferences : IPreferences
 {
     public Guid Id { get; init; }
-    public Languages[] Language { get; set; } = [];
+    public LanguageFlags Language { get; set; } = LanguageFlags.English;
     public Availability Availability { get; set; } = Availability.Daytime;
     public Availability GlobalAvailability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
@@ -75,24 +75,6 @@ public record class Preferences : IPreferences
             GroupSize = coursePreferences.GroupSize,
             Days = coursePreferences.Days,
         };
-    }
-
-    public static uint GetNumberOfMatchingLanguages(Languages[] languages1, Languages[] languages2)
-    {
-        return (uint)languages1.Intersect(languages2).Count();
-    }
-
-    public static decimal GetLanguageScore(IPreferences from, IPreferences to)
-    {
-        var languages = GetNumberOfMatchingLanguages(from.Language, to.Language);
-        if (languages >= 1)
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
     }
 
     public static decimal GetAvailabilityScore(IPreferences from, IPreferences to)
@@ -120,17 +102,6 @@ public enum Availability
 {
     Daytime,
     Afternoons,
-}
-
-public enum Languages
-{
-    English,
-    Norwegian,
-    Spanish,
-    French,
-    German,
-    Chinese,
-    Arabic,
 }
 
 [Flags]

@@ -30,9 +30,9 @@ DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
 
     <details>
         <summary>Languages</summary>
-        @foreach (var language in Enum.GetValues<Languages>())
+        @foreach (var language in Enum.GetValues<LanguageFlags>())
         {
-            if (Model.Input.SpokenLanguages.Contains(language))
+            if (Model.Input.SpokenLanguages.HasFlag(language))
             {
                 <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
             }

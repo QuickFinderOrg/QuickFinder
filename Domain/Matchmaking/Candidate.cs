@@ -16,7 +16,6 @@ public interface ICandidate
 public record class TestCandidate : ICandidate
 {
     public Guid Id { get; init; } = Guid.NewGuid();
-    public required Preferences Preferences { get; init; } =
-        new Preferences { Language = [Languages.English] };
+    public required Preferences Preferences { get; init; } = new Preferences { };
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }

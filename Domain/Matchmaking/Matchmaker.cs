@@ -73,7 +73,7 @@ public class Matchmaker<T>(MatchmakerConfig options)
         var groupSizeWeight = options.groupSizeWeight;
         var weights = languageWeight + availabilityWeight + daysWeight + groupSizeWeight;
 
-        var languageScore = Preferences.GetLanguageScore(from, to) * languageWeight;
+        var languageScore = 1;
         var availabilityScore = Preferences.GetAvailabilityScore(from, to) * availabilityWeight;
         var daysScore = Preferences.GetDaysScore(from, to) * daysWeight;
         var groupSizeScore = Preferences.GetGroupSizeScore(from, to) * groupSizeWeight;

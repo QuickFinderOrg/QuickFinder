@@ -1,0 +1,50 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace QuickFinder.Migrations
+{
+    /// <inheritdoc />
+    public partial class UseLanguageFlags : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AlterColumn<int>(
+                name: "Language",
+                table: "Preferences",
+                type: "INTEGER",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "TEXT");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "Preferences_Language",
+                table: "AspNetUsers",
+                type: "INTEGER",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "TEXT");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AlterColumn<string>(
+                name: "Language",
+                table: "Preferences",
+                type: "TEXT",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "INTEGER");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Preferences_Language",
+                table: "AspNetUsers",
+                type: "TEXT",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "INTEGER");
+        }
+    }
+}

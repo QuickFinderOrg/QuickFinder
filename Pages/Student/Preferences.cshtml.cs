@@ -20,11 +20,11 @@ namespace QuickFinder.Pages.Student
             [Display(Name = "Available time:")]
             public Availability Availability { get; set; }
 
-            public Languages[] SpokenLanguages { get; set; } = [];
+            public LanguageFlags SpokenLanguages { get; set; }
 
             [Required]
             [Display(Name = "Languages")]
-            public Languages[] SelectedLanguages { get; set; } = [];
+            public LanguageFlags SelectedLanguages { get; set; }
 
             public DaysOfTheWeek Days { get; set; }
         }

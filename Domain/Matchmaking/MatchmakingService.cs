@@ -146,7 +146,7 @@ public class MatchmakingService(
         {
             Id = ticket.Id,
             UserId = ticket.User.Id,
-            Languages = LanguageFlags.English, // TODO: use user languages.
+            Languages = ticket.Preferences.Language,
             Availability = ticket.Preferences.Availability,
             Days = ticket.Preferences.Days,
             WaitTime = ticket.CreatedAt - DateTime.Now,
