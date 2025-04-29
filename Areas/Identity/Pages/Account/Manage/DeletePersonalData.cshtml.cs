@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Areas.Identity.Pages.Account.Manage
 {
@@ -14,16 +15,22 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly TicketRepository _ticketRepository;
+        private readonly GroupRepository _groupRepository;
 
         public DeletePersonalDataModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            ILogger<DeletePersonalDataModel> logger
+            ILogger<DeletePersonalDataModel> logger,
+            TicketRepository ticketRepository,
+            GroupRepository groupRepository
         )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _ticketRepository = ticketRepository;
+            _groupRepository = groupRepository;
         }
 
         /// <summary>
@@ -81,6 +88,22 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
                 {
                     ModelState.AddModelError(string.Empty, "Incorrect password.");
                     return Page();
+                }
+            }
+
+            var tickets = await _ticketRepository.GetAllAsync(user.Id);
+            if (tickets.Length > 0)
+            {
+                await _ticketRepository.RemoveRangeAsync(tickets);
+            }
+
+            var groups = await _groupRepository.GetGroups(user);
+            if (groups.Length > 0)
+            {
+                foreach (var group in groups)
+                {
+                    group.Members.Remove(user);
+                    await _groupRepository.UpdateAsync(group);
                 }
             }
 

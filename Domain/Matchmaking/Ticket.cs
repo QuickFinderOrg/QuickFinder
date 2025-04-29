@@ -120,6 +120,19 @@ public class TicketRepository : Repository<Ticket, Guid>
                 .ToArrayAsync(cancellationToken) ?? throw new Exception("WAITLIST");
     }
 
+    public async Task<Ticket[]> GetAllAsync(
+        string userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+                .Tickets.Where(t => t.User.Id == userId)
+                .Include(t => t.User)
+                .Include(t => t.Course)
+                .Include(t => t.Preferences)
+                .ToArrayAsync(cancellationToken) ?? throw new Exception("WAITLIST");
+    }
+
     public async Task RemoveRangeAsync(
         IEnumerable<Ticket> tickets,
         CancellationToken cancellationToken = default
