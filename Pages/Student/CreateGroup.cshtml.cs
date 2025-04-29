@@ -28,6 +28,8 @@ public class CreateGroupModel(
         [Display(Name = "Group Size")]
         public uint GroupSize { get; set; }
 
+        [Display(Name = "Allow anyone to join?")]
+        public bool AllowAnyone { get; set; }
         public LanguageFlags SpokenLanguages { get; set; }
 
         [Required]
@@ -59,7 +61,7 @@ public class CreateGroupModel(
 
         if (await groupRepository.IsUserInGroup(user, Course))
         {
-            return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
+            return RedirectToPage(StudentRoutes.CourseOverview(), new { courseId = Course.Id });
         }
 
         await LoadAsync(user);
@@ -73,6 +75,7 @@ public class CreateGroupModel(
             NewAvailability = Availability.Afternoons,
             GroupSize = 2,
             SpokenLanguages = user.Preferences.Language,
+            AllowAnyone = false,
         };
         await Task.CompletedTask;
     }
@@ -112,11 +115,16 @@ public class CreateGroupModel(
         };
         var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
         var groupPreferences = Preferences.From(userPreferences, coursePreferences);
-        var group = new Group() { Course = Course, Preferences = groupPreferences };
+        var group = new Group()
+        {
+            Course = Course,
+            Preferences = groupPreferences,
+            AllowAnyone = Input.AllowAnyone,
+        };
         group.Members.Add(user);
 
         await groupRepository.AddAsync(group);
 
-        return RedirectToPage(StudentRoutes.JoinGroup(), new { id = Course.Id });
+        return RedirectToPage(StudentRoutes.CourseOverview(), new { courseId = Course.Id });
     }
 }

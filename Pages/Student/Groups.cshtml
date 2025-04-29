@@ -34,15 +34,18 @@
                         <p>@group.Members.Count / @group.GroupLimit</p>
                     </td>
                     <td>
-                        <form asp-page-handler="Leave">
-                            <input name="groupId" hidden value="@group.Id">
+                        <form asp-page-handler="Leave" asp-route-groupId="@group.Id" method="post">
                             <button type="submit">Leave Group</button>
                         </form>
                         @if (!group.IsFull)
                         {
-                            <form asp-page-handler="Search">
-                                <input name="groupId" hidden value="@group.Id">
+                            <form asp-page-handler="Search" asp-route-groupId="@group.Id" method="post">
                                 <button type="submit">Find member</button>
+                            </form>
+                            <form asp-page-handler="ChangeAllowAnyone" asp-route-groupId="@group.Id" method="post">
+                                <label>Allow anyone to join?</label>
+                                <input type="checkbox" asp-for="@Model.AllowAnyone" checked="@group.AllowAnyone"
+                                    class="form-check-input" onchange="this.form.submit()" />
                             </form>
                         }
                     </td>

@@ -5,38 +5,104 @@
     ViewData["Title"] = "Course Overview";
 }
 <div class="text-center">
-    <h1>Course overview for @Model.Course.Name</h1>
+    @if (Model.Course is null)
+    {
+        <p>No course selected</p>
+        <a href="@StudentRoutes.Matching()">Go back</a>
+    }
+    else
+    {
 
-    <a asp-page="@StudentRoutes.CoursePreferences()" asp-route-courseId="@Model.Course.Id"
-        asp-route-returnUrl="@StudentRoutes.CourseOverview()">
-        <button>Change preferences</button></a>
+        <h1>Course overview for @Model.Course.Name</h1>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Course</th>
-                <th>Members</th>
-                <th>Complete</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var group in Model.Groups)
+        <div class="d-flex justify-content-center gap-1">
+            <a asp-page="@StudentRoutes.CoursePreferences()" asp-route-courseId="@Model.Course.Id"
+                asp-route-returnUrl="@StudentRoutes.CourseOverview()">
+                <button>Change preferences</button></a>
+            @if (Model.Group == null)
             {
-                <tr>
-                    <td>@group.Id</td>
-                    <td>@group.Course.Name</td>
-                    <td>
-                        @foreach (var member in group.Members)
-                        {
-                            <p>@await userService.GetName(member)</p>
-                        }
-                    </td>
-                    <td>
-                        <p>@group.Members.Count / @group.GroupLimit</p>
-                    </td>
-                </tr>
+                <a asp-page="@StudentRoutes.CreateGroup()" asp-route-courseId="@Model.Course.Id"><button type="submit">Create
+                        Group</button></a>
             }
-        </tbody>
-    </table>
+        </div>
+
+        @if (Model.Group != null)
+        {
+            <table class="table table-striped">
+                <h1>Your groups</h1>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Members</th>
+                        <th>Complete</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Model.Group.Name</td>
+                        <td>@Model.Group.Course.Name</td>
+                        <td>
+                            @foreach (var member in Model.Group.Members)
+                            {
+                                <p>@await userService.GetName(member)</p>
+                            }
+                        </td>
+                        <td>
+                            <p>@Model.Group.Members.Count / @Model.Group.GroupLimit</p>
+                        </td>
+                        <td>
+                            <form asp-page-handler="LeaveGroup" asp-route-groupId="@Model.Group.Id" method="post">
+                                <input hidden asp-for="Course.Id">
+                                <button type="submit">Leave Group</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+
+        <table class="table table-striped">
+            <h1>Other groups</h1>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Members</th>
+                    <th>Complete</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var group in Model.Groups)
+                {
+                    <tr>
+                        <td>@group.Name</td>
+                        <td>@group.Course.Name</td>
+                        <td>
+                            @foreach (var member in group.Members)
+                            {
+                                <p>@await userService.GetName(member)</p>
+                            }
+                        </td>
+                        <td>
+                            <p>@group.Members.Count / @group.GroupLimit</p>
+                        </td>
+                        <td>
+                            @if (group.AllowAnyone && group.Members.Count < group.GroupLimit && Model.Group == null)
+                            {
+                                <form asp-page-handler="JoinGroup" asp-route-groupId="@group.Id" method="post">
+                                    <input hidden asp-for="Course.Id">
+                                    <button type="submit">Join Group</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    }
 </div>

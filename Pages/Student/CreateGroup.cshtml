@@ -26,6 +26,9 @@
     <label asp-for="Input.GroupSize" class="form-label"></label>
     <input asp-for="Input.GroupSize" class="form-control" type="number" min="2" max="20" />
 
+    <label asp-for="Input.AllowAnyone" class="form-label"></label>
+    <input asp-for="Input.AllowAnyone" class="form-check-input" />
+
     <details>
         <summary>Languages</summary>
         @foreach (var language in Enum.GetValues<LanguageFlags>())

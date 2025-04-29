@@ -275,6 +275,9 @@ namespace QuickFinder.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("AllowAnyone")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("CourseId")
                         .HasColumnType("TEXT");
 

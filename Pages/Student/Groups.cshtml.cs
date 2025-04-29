@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -15,6 +16,9 @@ public class GroupsModel(
 {
     public List<GroupVM> Groups = [];
 
+    [BindProperty]
+    public bool AllowAnyone { get; set; } = false;
+
     public async Task<IActionResult> OnGetAsync()
     {
         var user =
@@ -30,6 +34,7 @@ public class GroupsModel(
                 Name = g.Name,
                 Course = g.Course.Name,
                 GroupLimit = g.GroupLimit,
+                AllowAnyone = g.AllowAnyone,
             };
             foreach (var member in g.Members)
             {
@@ -124,6 +129,18 @@ public class GroupsModel(
         }
     }
 
+    public async Task<IActionResult> OnPostChangeAllowAnyoneAsync(Guid groupId)
+    {
+        var group = await groupRepository.GetGroup(groupId);
+        if (group == null)
+        {
+            return Page();
+        }
+        group.AllowAnyone = AllowAnyone;
+        await groupRepository.UpdateAsync(group);
+        return Redirect(StudentRoutes.Groups());
+    }
+
     public class GroupVM
     {
         public required string Id;
@@ -131,6 +148,7 @@ public class GroupsModel(
         public List<GroupMemberVM> Members = [];
         public string Course = "";
         public uint GroupLimit = 2;
+        public bool AllowAnyone = false;
         public bool IsFull => Members.Count >= GroupLimit;
     }
 

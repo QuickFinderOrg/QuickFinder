@@ -57,10 +57,9 @@ public class CourseRepository : Repository<Course, Guid>
         return await db.Courses.Include(c => c.Members).ToArrayAsync(cancellationToken);
     }
 
-    public async Task<Course> GetByIdAsync(Guid id)
+    public async Task<Course?> GetByIdAsync(Guid id)
     {
-        return await db.Courses.Where(c => c.Id == id).FirstOrDefaultAsync()
-            ?? throw new Exception("Course not found");
+        return await db.Courses.Where(c => c.Id == id).FirstOrDefaultAsync();
     }
 
     public async Task JoinCourse(User user, Course course)
