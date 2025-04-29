@@ -107,19 +107,16 @@ public class Matchmaker<T>(MatchmakerConfig options)
 }
 
 public class Matchmaker2<U, G>(MatchmakerConfig2 options)
-    where U : UserMatchmakingData
+    where U : IUserMatchmakingData
     where G : GroupMatchmakingData
 {
-    public IEnumerable<IMatchmakingData> FilterMatchesByCriteria(
-        IMatchmakingData seed,
-        IEnumerable<IMatchmakingData> candidatePool
-    )
+    public IEnumerable<U> FilterMatchesByCriteria(U seed, IEnumerable<U> candidatePool)
     {
         return candidatePool.Where(candidate => CheckMatchCriteria(seed, candidate));
     }
 
     // O(N^2)
-    public bool CheckGroupCompatibility(IEnumerable<IMatchmakingData> candidates)
+    public bool CheckGroupCompatibility(IEnumerable<U> candidates)
     {
         foreach (var x in candidates)
         {
@@ -136,14 +133,13 @@ public class Matchmaker2<U, G>(MatchmakerConfig2 options)
         return true;
     }
 
-    public IMatchmakingData[] Match2(
-        IMatchmakingData seed,
-        IEnumerable<IMatchmakingData> candidates,
-        int noOfGroupMembers
-    )
+    public U[] Match2(U seed, IEnumerable<U> candidates, int noOfGroupMembers)
     {
-        var compatible_candidates = FilterMatchesByCriteria(seed, candidates.Where(c => c != seed));
-        var valid_group_combinations = new List<(decimal score, IMatchmakingData[] members)>();
+        var compatible_candidates = FilterMatchesByCriteria(
+            seed,
+            candidates.Where(c => c.UserId != seed.UserId)
+        );
+        var valid_group_combinations = new List<(decimal score, U[] members)>();
 
         foreach (
             var members in GenerateMemberCombinations(compatible_candidates, noOfGroupMembers - 1)
@@ -163,15 +159,15 @@ public class Matchmaker2<U, G>(MatchmakerConfig2 options)
         return valid_group_combinations.Select(g => g.members).FirstOrDefault() ?? [];
     }
 
-    private IEnumerable<IMatchmakingData[]> GenerateMemberCombinations(
-        IEnumerable<IMatchmakingData> potentials,
+    private IEnumerable<U[]> GenerateMemberCombinations(
+        IEnumerable<U> potentials,
         int noOfGroupMembers
     )
     {
         var potentialMembers = potentials.ToArray();
         if (noOfGroupMembers == 0)
         {
-            yield return Array.Empty<IMatchmakingData>();
+            yield return Array.Empty<U>();
             yield break;
         }
 
@@ -248,7 +244,16 @@ public interface IMatchmakingData
     public TimeSpan WaitTime { get; init; }
 }
 
-public record class UserMatchmakingData : IMatchmakingData
+public interface IUserMatchmakingData : IMatchmakingData
+{
+    public string UserId { get; init; }
+    public new LanguageFlags Languages { get; init; }
+    public new Availability Availability { get; init; }
+    public new DaysOfTheWeek Days { get; init; }
+    public new TimeSpan WaitTime { get; init; }
+}
+
+public record class DefaultUserMatchmakingData : IUserMatchmakingData
 {
     public Guid Id;
     public required string UserId { get; init; }

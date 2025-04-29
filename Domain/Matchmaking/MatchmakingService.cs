@@ -9,7 +9,7 @@ public class MatchmakingService(
     UserService userService
 )
 {
-    public readonly Matchmaker2<UserMatchmakingData, GroupMatchmakingData> matchmaker2 = new(
+    public readonly Matchmaker2<UserMatchmakingTicket, GroupMatchmakingData> matchmaker = new(
         new MatchmakerConfig2()
     );
 
@@ -49,7 +49,7 @@ public class MatchmakingService(
 
         var t0 = DateTime.Now;
 
-        var matchingCandidatesData = matchmaker2.Match2(
+        var matchingCandidatesData = matchmaker.Match2(
             seedData,
             candidatesData,
             (int)course.GroupSize
@@ -59,8 +59,6 @@ public class MatchmakingService(
 
         var dt = DateTime.Now - t0;
 
-        IMatchmakingData[] potentialGroupData = [seedData, .. matchingCandidatesData];
-
         logger.LogInformation("matchmaking with {candidates} took {t}", candidates.Count(), dt);
 
         if (matchingCandidatesData.Length == 0)
@@ -69,32 +67,24 @@ public class MatchmakingService(
             return;
         }
 
-        if (potentialGroupData.Length < course.GroupSize - 1)
+        Ticket[] matchingCandidatesTickets = matchingCandidatesData.Select(c => c.Ticket).ToArray();
+        Ticket[] fullGroupTickets = [seedTicket, .. matchingCandidatesTickets];
+
+        if (fullGroupTickets.Length < course.GroupSize)
         {
             logger.LogInformation(
                 "Not enough members to form a group for {course}. Had {x}, need {n}",
                 course.Name,
-                matchingCandidatesData,
-                course.GroupSize - 1
+                fullGroupTickets.Length,
+                course.GroupSize
             );
             return;
         }
 
-        var desiredTicketIds = matchingCandidatesData
-            .Select(data => (UserMatchmakingData)data)
-            .Select(data => data.Id);
-
-        var matchingCandidates = candidates.Where(ticket => desiredTicketIds.Contains(ticket.Id));
-
-        var fullGroupTickets = new List<Ticket>([.. matchingCandidates, seedTicket]);
-
-        var groupMembers = fullGroupTickets.Select(t => t.User);
-
         logger.LogInformation(
-            "New potential group in {course}: {leader}, Candidates: {candidates}",
-            seedTicket.Course.Name,
-            seedTicket.User.UserName,
-            string.Join(", ", matchingCandidates.Select(t => t.User.UserName))
+            "New potential group in {course}: {candidates}",
+            course,
+            string.Join(", ", fullGroupTickets.Select(t => t.User.UserName))
         );
 
         var group = new Group
@@ -106,18 +96,18 @@ public class MatchmakingService(
         };
 
         // assumes all created groups are filled
-        group.Members.AddRange(groupMembers);
+        group.Members.AddRange(fullGroupTickets.Select(t => t.User));
 
         await groupRepository.AddAsync(group, cancellationToken);
         await ticketRepository.RemoveRangeAsync(fullGroupTickets, cancellationToken);
     }
 
-    private static UserMatchmakingData CreateUserMatchmakingData(Ticket ticket)
+    private static UserMatchmakingTicket CreateUserMatchmakingData(Ticket ticket)
     {
-        var data = new UserMatchmakingData()
+        var data = new UserMatchmakingTicket()
         {
-            Id = ticket.Id,
             UserId = ticket.User.Id,
+            Ticket = ticket,
             Languages = ticket.Preferences.Language,
             Availability = ticket.Preferences.Availability,
             Days = ticket.Preferences.Days,
@@ -225,4 +215,14 @@ public enum RemoveFromQueueResult
 {
     Success,
     Failure,
+}
+
+public record class UserMatchmakingTicket : IUserMatchmakingData
+{
+    public required Ticket Ticket { get; init; }
+    public required string UserId { get; init; }
+    public LanguageFlags Languages { get; init; }
+    public Availability Availability { get; init; }
+    public DaysOfTheWeek Days { get; init; }
+    public TimeSpan WaitTime { get; init; }
 }
