@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using QuickFinder.Options;
@@ -11,7 +12,8 @@ public class DiscordAuthHandler(
     UserService userService,
     SignInManager<User> signInManager,
     IOptions<DiscordAuthOptions> options,
-    ILogger<DiscordAuthHandler> logger
+    ILogger<DiscordAuthHandler> logger,
+    IHttpClientFactory httpClientFactory
 )
 {
     private readonly DiscordAuthOptions options = options.Value;
@@ -39,51 +41,46 @@ public class DiscordAuthHandler(
 
     public async Task Authenticate(string code, string host)
     {
-        var responseJSON = await ExchangeCodeAsync(code, host);
-        var tokenResponse =
-            JsonSerializer.Deserialize<Dictionary<string, object>>(responseJSON)
-            ?? throw new Exception("responseJSON");
-        // within this token lies the power to surpass metal gear
-        var token = tokenResponse["access_token"].ToString();
+        using HttpClient client = httpClientFactory.CreateClient();
 
-        if (token is null)
+        var tokenResponse = await ExchangeCodeAsync(code, host);
+        var token = tokenResponse.AccessToken;
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var identity_response = await client.GetAsync($"{API_ENDPOINT}/users/@me");
+        identity_response.EnsureSuccessStatusCode();
+
+        var identityJSON = await identity_response.Content.ReadAsStringAsync();
+        var identity = JsonSerializer.Deserialize<DiscordUserIdentity>(identityJSON);
+
+        if (identity?.Id == null)
         {
-            throw new NullReferenceException(nameof(token));
+            logger.LogError("Discord identity response missing id.");
+            throw new Exception("Invalid Discord identity response.");
         }
 
-        using HttpClient client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var identity_response = await client.GetAsync("https://discord.com/api/v10/users/@me");
-        var identityJSON = await identity_response.Content.ReadAsStringAsync();
+        if (identity?.Email == null)
+        {
+            logger.LogError("Discord identity response missing email (is email scope missing?).");
+            throw new Exception("Invalid Discord identity response.");
+        }
 
-        var identityDict =
-            JsonSerializer.Deserialize<Dictionary<string, object>>(identityJSON)
-            ?? throw new Exception("responseJSON");
-
-        var user = await userService.GetUserByDiscordId(
-            identityDict["email"].ToString() ?? throw new Exception("email"),
-            identityDict["id"].ToString() ?? throw new Exception("id")
-        );
+        var user = await userService.GetUserByDiscordId(identity.Email, identity.Id);
 
         user ??= await userService.CreateDiscordUser(
-            identityDict["email"].ToString() ?? throw new Exception("email"),
-            identityDict["username"].ToString() ?? throw new Exception("username"),
-            identityDict["id"].ToString() ?? throw new Exception("id"),
-            identityDict["global_name"].ToString() ?? throw new Exception("display name")
+            identity.Email,
+            identity.Username,
+            identity.Id,
+            identity.GlobalName
         );
-
-        if (user == null)
-        {
-            throw new Exception("User is null");
-        }
 
         await signInManager.SignInAsync(user, true);
         await userService.SetDiscordToken(user, token);
     }
 
-    public async Task<string> ExchangeCodeAsync(string code, string host)
+    public async Task<DiscordTokenResponse> ExchangeCodeAsync(string code, string host)
     {
-        using HttpClient client = new HttpClient();
+        using HttpClient client = httpClientFactory.CreateClient();
         var data = new FormUrlEncodedContent(
             new[]
             {
@@ -104,10 +101,59 @@ public class DiscordAuthHandler(
             new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded")
         );
 
-        HttpResponseMessage response = await client.PostAsync($"{API_ENDPOINT}/oauth2/token", data);
+        var response = await client.PostAsync($"{API_ENDPOINT}/oauth2/token", data);
 
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadAsStringAsync();
+        var responseJSON = await response.Content.ReadAsStringAsync();
+
+        var tokenResponse = JsonSerializer.Deserialize<DiscordTokenResponse>(responseJSON);
+
+        if (tokenResponse == null)
+        {
+            throw new Exception("TokenResponse could not be deserialized");
+        }
+
+        return tokenResponse;
     }
+}
+
+// Models for Discord API responses
+public class DiscordTokenResponse
+{
+    [JsonPropertyName("access_token")]
+    public required string AccessToken { get; set; }
+
+    [JsonPropertyName("token_type")]
+    public required string TokenType { get; set; }
+
+    [JsonPropertyName("expires_in")]
+    public int ExpiresIn { get; set; }
+
+    [JsonPropertyName("refresh_token")]
+    public required string RefreshToken { get; set; }
+
+    [JsonPropertyName("scope")]
+    public required string Scope { get; set; }
+}
+
+public class DiscordUserIdentity
+{
+    [JsonPropertyName("id")]
+    public required string Id { get; set; }
+
+    [JsonPropertyName("username")]
+    public required string Username { get; set; }
+
+    [JsonPropertyName("global_name")]
+    public required string GlobalName { get; set; }
+
+    [JsonPropertyName("avatar")]
+    public required string Avatar { get; set; }
+
+    [JsonPropertyName("email")]
+    public required string Email { get; set; }
+
+    [JsonPropertyName("verified")]
+    public bool Verified { get; set; }
 }

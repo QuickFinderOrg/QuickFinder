@@ -38,6 +38,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
+builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<MatchmakingService>();
 builder.Services.AddScoped<TicketRepository>();
