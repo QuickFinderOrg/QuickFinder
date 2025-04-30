@@ -827,10 +827,10 @@ public class InviteToServerOnCourseJoined(
             var c = new List<Claim>(claims);
 
             var discordIdClaim =
-                c.Find(c => c.Type == ApplicationClaims.DiscordId)
+                c.Find(c => c.Type == ApplicationClaimTypes.DiscordId)
                 ?? throw new Exception("DiscordId claim not found");
             var discordTokenClaim =
-                c.Find(c => c.Type == ApplicationClaims.DiscordToken)
+                c.Find(c => c.Type == ApplicationClaimTypes.DiscordToken)
                 ?? throw new Exception("DiscordId claim not found");
 
             var server = await _discord.GetCourseServer(notification.Course.Id);

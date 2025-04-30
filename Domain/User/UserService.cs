@@ -63,20 +63,23 @@ public class UserService(
         }
 
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
-        await userManager.AddClaimAsync(user, new Claim(ApplicationClaims.DiscordId, discordId));
+        await userManager.AddClaimAsync(
+            user,
+            new Claim(ApplicationClaimTypes.DiscordId, discordId)
+        );
         user.Preferences.Language = LanguageFlags.English;
         return user;
     }
 
     public async Task SetDiscordToken(User user, string token)
     {
-        await userManager.AddClaimAsync(user, new Claim(ApplicationClaims.DiscordToken, token));
+        await userManager.AddClaimAsync(user, new Claim(ApplicationClaimTypes.DiscordToken, token));
     }
 
     public async Task<string> GetDiscordToken(User user)
     {
         var claims = await userManager.GetClaimsAsync(user);
-        return claims.First(c => c.Type == ApplicationClaims.DiscordToken).Value;
+        return claims.First(c => c.Type == ApplicationClaimTypes.DiscordToken).Value;
     }
 
     public async Task<List<DiscordServer>> GetUserDiscordServers(User user)
@@ -142,7 +145,7 @@ public class UserService(
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
         var discordIdClaim =
-            c.Find(c => c.Type == ApplicationClaims.DiscordId)
+            c.Find(c => c.Type == ApplicationClaimTypes.DiscordId)
             ?? throw new Exception("User already exists without Discord ID");
         if (discordIdClaim.Value != discordId)
         {
@@ -163,7 +166,7 @@ public class UserService(
         }
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
-        var discordIdClaim = c.Find(c => c.Type == ApplicationClaims.DiscordId);
+        var discordIdClaim = c.Find(c => c.Type == ApplicationClaimTypes.DiscordId);
         if (discordIdClaim == null)
         {
             return null;
@@ -238,7 +241,7 @@ public class UserService(
     {
         var logins = await userManager.GetLoginsAsync(user);
         var claims = await userManager.GetClaimsAsync(user);
-        var discordIdClaim = claims.FirstOrDefault(c => c.Type == ApplicationClaims.DiscordId);
+        var discordIdClaim = claims.FirstOrDefault(c => c.Type == ApplicationClaimTypes.DiscordId);
         var emailClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
 
         if (discordIdClaim != null)

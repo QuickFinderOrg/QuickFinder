@@ -9,7 +9,7 @@ public class AdminService(UserManager<User> userManager)
     {
         await userManager.AddClaimAsync(
             user,
-            new Claim(ApplicationClaims.IsTeacher, true.ToString())
+            new Claim(ApplicationClaimTypes.IsTeacher, true.ToString())
         );
     }
 
@@ -17,19 +17,19 @@ public class AdminService(UserManager<User> userManager)
     {
         await userManager.RemoveClaimAsync(
             user,
-            new Claim(ApplicationClaims.IsTeacher, true.ToString())
+            new Claim(ApplicationClaimTypes.IsTeacher, true.ToString())
         );
     }
 
     public async Task<bool> IsTeacher(User user)
     {
         var claims = await userManager.GetClaimsAsync(user);
-        return claims.Any(c => c.Type == ApplicationClaims.IsTeacher);
+        return claims.Any(c => c.Type == ApplicationClaimTypes.IsTeacher);
     }
 
     public async Task<bool> IsAdmin(User user)
     {
         var claims = await userManager.GetClaimsAsync(user);
-        return claims.Any(c => c.Type == ApplicationClaims.IsAdmin);
+        return claims.Any(c => c.Type == ApplicationClaimTypes.IsAdmin);
     }
 }

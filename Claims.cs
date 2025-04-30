@@ -1,7 +1,7 @@
 /// <summary>
-/// Constants for Claims used in the application.
+/// Represents the application-specific claim types.
 /// </summary>
-abstract class ApplicationClaims
+abstract class ApplicationClaimTypes
 {
     public const string DiscordId = "DiscordId";
     public const string DiscordToken = "DiscordToken";
