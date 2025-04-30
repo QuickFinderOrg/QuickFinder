@@ -70,6 +70,12 @@ public class MatchmakingOverviewModel(
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostDeleteCourseAsync(Guid courseId)
+    {
+        await courseRepository.DeleteAsync(courseId);
+        return RedirectToPage();
+    }
+
     public async Task LoadAsync()
     {
         var waitlist = await ticketRepository.GetAllAsync();

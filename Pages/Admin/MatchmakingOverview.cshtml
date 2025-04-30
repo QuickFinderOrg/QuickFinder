@@ -97,8 +97,11 @@
                         <form asp-page-handler="FillQueue" asp-route-courseId="@Course.Id" method="post">
                             <button class="btn btn-primary">FILL QUEUE</button>
                         </form>
-                        <form asp-page-handler="EmptyQueue" asp-route-ticketId="@Course.Id" method="post">
+                        <form asp-page-handler="EmptyQueue" asp-route-courseId="@Course.Id" method="post">
                             <button class="btn btn-primary">EMPTY QUEUE</button>
+                        </form>
+                        <form asp-page-handler="DeleteCourse" asp-route-courseId="@Course.Id" method="post">
+                            <button class="btn btn-danger">DELETE COURSE</button>
                         </form>
                     </td>
                 </tr>
