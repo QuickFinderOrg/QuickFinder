@@ -14,7 +14,10 @@ public class MatchingModel(
     PreferencesRepository preferencesRepository
 ) : PageModel
 {
-    public Course[] Courses = [];
+    public List<Course> Courses = [];
+
+    [BindProperty]
+    public string? SearchQuery { get; set; } = "";
 
     public async Task OnGetAsync()
     {
@@ -173,8 +176,27 @@ public class MatchingModel(
         return Page();
     }
 
+    public async Task OnPostSearchAsync()
+    {
+        await LoadAsync();
+    }
+
     public async Task LoadAsync()
     {
-        Courses = await courseRepository.GetAllAsync();
+        var courses = await courseRepository.GetAllAsync();
+
+        foreach (Course course in courses)
+        {
+            if (
+                !string.IsNullOrEmpty(SearchQuery)
+                && course.Name != null
+                && !course.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)
+            )
+            {
+                continue;
+            }
+
+            Courses.Add(course);
+        }
     }
 }

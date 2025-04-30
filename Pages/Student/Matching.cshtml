@@ -29,6 +29,13 @@
         </div>
     }
 
+    <form asp-page-handler="Search" method="post" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search course..." asp-for="SearchQuery">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
     <table class="table table-striped">
         <thead>
             <tr>

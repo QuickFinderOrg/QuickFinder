@@ -15,11 +15,11 @@ public class UserOverviewModel(
     public List<User> Teachers = [];
 
     [BindProperty]
-    public string SearchQuery { get; set; } = string.Empty;
+    public string? SearchQuery { get; set; } = "";
 
     public async Task<IActionResult> OnGetAsync()
     {
-        await LoadAsync(SearchQuery);
+        await LoadAsync();
         return Page();
     }
 
@@ -27,24 +27,23 @@ public class UserOverviewModel(
     {
         var user = await userService.GetUser(userId);
         await adminService.MakeTeacher(user);
-        await LoadAsync(SearchQuery);
+        await LoadAsync();
     }
 
     public async Task OnPostRemoveTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
         await adminService.RemoveTeacher(user);
-        await LoadAsync(SearchQuery);
+        await LoadAsync();
     }
 
     public async Task OnPostSearchAsync()
     {
-        await LoadAsync(SearchQuery);
+        await LoadAsync();
     }
 
-    public async Task LoadAsync(string searchQuery)
+    public async Task LoadAsync()
     {
-        SearchQuery = searchQuery;
         var users = await userService.GetAllUsers();
 
         foreach (User user in users)
