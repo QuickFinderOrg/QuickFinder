@@ -211,6 +211,17 @@ public class GroupTicketRepository : Repository<GroupTicket, Guid>
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken: cancellationToken);
     }
 
+    public async Task<GroupTicket?> GetByCourseAsync(
+        Guid groupId,
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+            .GroupTickets.Where(t => t.Group.Id == groupId && t.Course.Id == courseId)
+            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+    }
+
     public new async Task<GroupTicket[]> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await db
@@ -228,6 +239,18 @@ public class GroupTicketRepository : Repository<GroupTicket, Guid>
     {
         db.GroupTickets.RemoveRange(tickets);
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> CheckIfInQueue(Guid groupId, Guid courseId)
+    {
+        var ticket = await db
+            .GroupTickets.Where(g => g.Course.Id == courseId && g.Group.Id == groupId)
+            .FirstOrDefaultAsync();
+        if (ticket is null)
+        {
+            return false;
+        }
+        return true;
     }
 }
 

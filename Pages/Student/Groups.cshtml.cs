@@ -30,9 +30,10 @@ public class GroupsModel(
         {
             var group_vm = new GroupVM()
             {
-                Id = g.Id.ToString(),
+                Id = g.Id,
                 Name = g.Name,
-                Course = g.Course.Name,
+                CourseName = g.Course.Name,
+                CourseId = g.Course.Id,
                 GroupLimit = g.GroupLimit,
                 AllowAnyone = g.AllowAnyone,
             };
@@ -141,12 +142,45 @@ public class GroupsModel(
         return Redirect(StudentRoutes.Groups());
     }
 
+    public async Task<IActionResult> OnPostCancelSearchAsync(Guid groupId)
+    {
+        var group = await groupRepository.GetGroup(groupId);
+        if (group == null)
+        {
+            return Page();
+        }
+
+        var result = await groupMatchmakingService.RemoveFromQueueAsync(group.Id, group.Course.Id);
+        switch (result)
+        {
+            case RemoveFromQueueResult.Failure:
+                PageContext.ModelState.AddModelError(
+                    string.Empty,
+                    "Failed to remove your group from the matchmaking queue. Please try again later or check if you have a new member."
+                );
+                return Page();
+
+            case RemoveFromQueueResult.Success:
+                logger.LogInformation(
+                    "Group {GroupId} successfully removed from matchmaking queue for course {CourseId}",
+                    group.Id,
+                    group.Course.Id
+                );
+                return Redirect(StudentRoutes.Groups());
+
+            default:
+                PageContext.ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
+                return Page();
+        }
+    }
+
     public class GroupVM
     {
-        public required string Id;
+        public required Guid Id;
         public required string Name;
         public List<GroupMemberVM> Members = [];
-        public string Course = "";
+        public string CourseName = "";
+        public Guid CourseId = Guid.Empty;
         public uint GroupLimit = 2;
         public bool AllowAnyone = false;
         public bool IsFull => Members.Count >= GroupLimit;

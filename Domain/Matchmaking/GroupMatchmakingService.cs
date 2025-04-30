@@ -92,17 +92,12 @@ public class GroupMatchmakingService(
         CancellationToken cancellationToken = default
     )
     {
-        var group = await groupRepository.GetByIdAsync(groupId);
-        if (group == null)
-        {
-            throw new Exception($"Group with ID '{groupId}' does not exist.");
-        }
-        var course = await courseRepository.GetByIdAsync(courseId, cancellationToken);
-        if (course == null)
-        {
-            throw new Exception($"Course with ID '{courseId}' does not exist.");
-        }
-
+        var group =
+            await groupRepository.GetByIdAsync(groupId)
+            ?? throw new Exception($"Group with ID '{groupId}' does not exist.");
+        var course =
+            await courseRepository.GetByIdAsync(courseId, cancellationToken)
+            ?? throw new Exception($"Course with ID '{courseId}' does not exist.");
         var preferences = group.Preferences;
         var ticket = new GroupTicket()
         {
@@ -124,5 +119,37 @@ public class GroupMatchmakingService(
         }
 
         return AddToQueueResult.Success;
+    }
+
+    public async Task<RemoveFromQueueResult> RemoveFromQueueAsync(
+        Guid groupId,
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var group =
+            await groupRepository.GetGroup(groupId)
+            ?? throw new Exception($"Group with ID '{groupId}' does not exist.");
+        var course =
+            await courseRepository.GetByIdAsync(courseId, cancellationToken)
+            ?? throw new Exception($"Course with ID '{courseId}' does not exist.");
+        try
+        {
+            var groupTicket = await groupTicketRepository.GetByCourseAsync(
+                group.Id,
+                course.Id,
+                cancellationToken
+            );
+            if (groupTicket == null)
+            {
+                return RemoveFromQueueResult.Failure;
+            }
+            await groupTicketRepository.DeleteAsync(groupTicket.Id, cancellationToken);
+        }
+        catch (Exception)
+        {
+            return RemoveFromQueueResult.Failure;
+        }
+        return RemoveFromQueueResult.Success;
     }
 }
