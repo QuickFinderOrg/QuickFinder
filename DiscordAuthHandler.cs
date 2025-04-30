@@ -12,7 +12,8 @@ public class DiscordAuthHandler(
     UserService userService,
     SignInManager<User> signInManager,
     IOptions<DiscordAuthOptions> options,
-    ILogger<DiscordAuthHandler> logger
+    ILogger<DiscordAuthHandler> logger,
+    IHttpClientFactory httpClientFactory
 )
 {
     private readonly DiscordAuthOptions options = options.Value;
@@ -40,7 +41,7 @@ public class DiscordAuthHandler(
 
     public async Task Authenticate(string code, string host)
     {
-        using HttpClient client = new HttpClient();
+        using HttpClient client = httpClientFactory.CreateClient();
 
         var tokenResponse = await ExchangeCodeAsync(code, host);
         var token = tokenResponse.AccessToken;
@@ -79,7 +80,7 @@ public class DiscordAuthHandler(
 
     public async Task<DiscordTokenResponse> ExchangeCodeAsync(string code, string host)
     {
-        using HttpClient client = new HttpClient();
+        using HttpClient client = httpClientFactory.CreateClient();
         var data = new FormUrlEncodedContent(
             new[]
             {
