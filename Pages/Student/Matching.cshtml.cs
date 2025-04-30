@@ -31,7 +31,7 @@ public class MatchingModel(
     )
     {
         await LoadAsync();
-        var course = Courses.First(c => c.Id == courseId);
+        var course = JoinedCourses.First(c => c.Id == courseId);
         if (course == null)
         {
             PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
@@ -93,7 +93,7 @@ public class MatchingModel(
     )
     {
         await LoadAsync();
-        var course = Courses.First(c => c.Id == courseId);
+        var course = JoinedCourses.First(c => c.Id == courseId);
         var user =
             await userManager.GetUserAsync(HttpContext.User)
             ?? throw new Exception("User not found");
