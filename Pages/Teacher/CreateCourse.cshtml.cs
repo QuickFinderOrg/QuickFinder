@@ -27,7 +27,7 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, CourseReposito
         }
 
         _logger.LogDebug("Create new course {Name} with group size {GroupSize}", Name, GroupSize);
-        await courseRepository.CreateCourse(Name, GroupSize);
-        return RedirectToPage();
+        var course = await courseRepository.CreateCourse(Name, GroupSize);
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = course.Id });
     }
 }
