@@ -12,6 +12,7 @@
                 <th>Name</th>
                 <th>Course</th>
                 <th>Availability</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,13 @@
                     <td>@await userService.GetName(ticket.User)</td>
                     <td>@ticket.Course.Name</td>
                     <td>@ticket.Preferences.Availability</td>
+                    <td>
+                        <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
+                            <button class="btn btn-danger">
+                                <i class="bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -83,13 +91,14 @@
                 <tr>
                     <td>@Course.Name</td>
                     <td class="d-flex justify-content-center gap-2">
-                        <form asp-page-handler="DeleteGroups" method="post">
-                            <input hidden name="CourseId" value="@Course.Id" />
+                        <form asp-page-handler="DeleteGroups" asp-route-courseId="@Course.Id" method="post">
                             <button class="btn btn-primary">DELETE GROUPS</button>
                         </form>
-                        <form asp-page-handler="FillQueue" method="post">
-                            <input hidden name="CourseId" value="@Course.Id" />
+                        <form asp-page-handler="FillQueue" asp-route-courseId="@Course.Id" method="post">
                             <button class="btn btn-primary">FILL QUEUE</button>
+                        </form>
+                        <form asp-page-handler="EmptyQueue" asp-route-ticketId="@Course.Id" method="post">
+                            <button class="btn btn-primary">EMPTY QUEUE</button>
                         </form>
                     </td>
                 </tr>

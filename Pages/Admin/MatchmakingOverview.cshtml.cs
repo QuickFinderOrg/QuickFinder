@@ -57,6 +57,19 @@ public class MatchmakingOverviewModel(
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostRemoveTicketAsync(Guid ticketId)
+    {
+        await ticketRepository.DeleteAsync(ticketId);
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostEmptyQueueAsync(Guid courseId)
+    {
+        var tickets = await ticketRepository.GetAllInCourseAsync(courseId);
+        await ticketRepository.RemoveRangeAsync(tickets);
+        return RedirectToPage();
+    }
+
     public async Task LoadAsync()
     {
         var waitlist = await ticketRepository.GetAllAsync();
