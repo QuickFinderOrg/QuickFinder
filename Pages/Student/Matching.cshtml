@@ -33,6 +33,7 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Members</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -41,6 +42,7 @@
             {
                 <tr>
                     <td>@Course.Name</td>
+                    <td>@Course.Members.Count</td>
                     @if (user != null && !Course.Members.Contains(user))
                     {
                         <td class="d-flex justify-content-center gap-2">
