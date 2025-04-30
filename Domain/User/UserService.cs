@@ -63,23 +63,20 @@ public class UserService(
         }
 
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
-        await userManager.AddClaimAsync(user, new Claim("DiscordId", discordId));
+        await userManager.AddClaimAsync(user, new Claim(ApplicationClaims.DiscordId, discordId));
         user.Preferences.Language = LanguageFlags.English;
         return user;
     }
 
     public async Task SetDiscordToken(User user, string token)
     {
-        await userManager.AddClaimAsync(user, new Claim("DiscordToken", token));
+        await userManager.AddClaimAsync(user, new Claim(ApplicationClaims.DiscordToken, token));
     }
 
     public async Task<string> GetDiscordToken(User user)
     {
         var claims = await userManager.GetClaimsAsync(user);
-        var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
-        var discordTokenClaim =
-            c.Find(c => c.Type == "DiscordToken") ?? throw new Exception("Discord token not found");
-        return discordTokenClaim.Value;
+        return claims.First(c => c.Type == ApplicationClaims.DiscordToken).Value;
     }
 
     public async Task<List<DiscordServer>> GetUserDiscordServers(User user)
@@ -145,7 +142,7 @@ public class UserService(
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
         var discordIdClaim =
-            c.Find(c => c.Type == "DiscordId")
+            c.Find(c => c.Type == ApplicationClaims.DiscordId)
             ?? throw new Exception("User already exists without Discord ID");
         if (discordIdClaim.Value != discordId)
         {
@@ -166,7 +163,7 @@ public class UserService(
         }
         var claims = await userManager.GetClaimsAsync(user);
         var c = new List<Claim>(claims) ?? throw new Exception("User claims not found");
-        var discordIdClaim = c.Find(c => c.Type == "DiscordId");
+        var discordIdClaim = c.Find(c => c.Type == ApplicationClaims.DiscordId);
         if (discordIdClaim == null)
         {
             return null;
@@ -241,17 +238,16 @@ public class UserService(
     {
         var logins = await userManager.GetLoginsAsync(user);
         var claims = await userManager.GetClaimsAsync(user);
-        var c = new List<Claim>(claims);
+        var discordIdClaim = claims.FirstOrDefault(c => c.Type == ApplicationClaims.DiscordId);
+        var emailClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
 
-        var discordIdClaim = c.Find(c => c.Type == "DiscordId");
-        var sendToEmailClaim = c.Find(c => c.Type == ClaimTypes.Email);
         if (discordIdClaim != null)
         {
             discord.QueueSendDM(ulong.Parse(discordIdClaim.Value), message);
         }
-        else if (sendToEmailClaim != null)
+        else if (emailClaim != null)
         {
-            await emailSender.SendEmailAsync(sendToEmailClaim.Value, "Group Found", message);
+            await emailSender.SendEmailAsync(emailClaim.Value, "Group Found", message);
         }
         else
         {

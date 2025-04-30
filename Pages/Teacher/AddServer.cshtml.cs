@@ -18,7 +18,7 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
 
     public IActionResult OnGet()
     {
-        var discordIdClaim = User.FindFirst("discordId");
+        var discordIdClaim = User.FindFirst(ApplicationClaims.DiscordId);
         if (discordIdClaim == null)
         {
             return RedirectToPage("/Login");
@@ -36,7 +36,7 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
 
     public async Task<IActionResult> OnPostAsync(ulong serverId, Guid courseId)
     {
-        var discordIdClaim = User.FindFirst("discordId");
+        var discordIdClaim = User.FindFirst(ApplicationClaims.DiscordId);
         if (discordIdClaim == null)
         {
             return RedirectToPage("/Login");
