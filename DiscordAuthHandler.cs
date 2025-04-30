@@ -26,11 +26,15 @@ public class DiscordAuthHandler(
     {
         var clientId = options.ClientId;
         var scope = string.Join("+", ScopeList);
-        var redirect_uri_raw = $"https://{host}/LoginDiscord";
-        var redirect_uri = System.Net.WebUtility.UrlEncode(redirect_uri_raw);
+        var redirect_uri = System.Net.WebUtility.UrlEncode(CreateRedirectUri(host));
         var discord_url =
             $"https://discord.com/oauth2/authorize?client_id={clientId}&response_type=code&redirect_uri={redirect_uri}&scope={scope}";
         return discord_url;
+    }
+
+    private string CreateRedirectUri(string host)
+    {
+        return $"{options.RedirectScheme}://{host}/LoginDiscord";
     }
 
     public async Task Authenticate(string code, string host)
@@ -85,7 +89,7 @@ public class DiscordAuthHandler(
             {
                 new KeyValuePair<string, string>("grant_type", "authorization_code"),
                 new KeyValuePair<string, string>("code", code),
-                new KeyValuePair<string, string>("redirect_uri", $"https://{host}/LoginDiscord"),
+                new KeyValuePair<string, string>("redirect_uri", CreateRedirectUri(host)),
             }
         );
 
