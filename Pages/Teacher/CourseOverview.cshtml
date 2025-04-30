@@ -111,7 +111,11 @@
                         <td>@ticket.Course.Name</td>
                         <td>@ticket.Preferences.Availability</td>
                         <td>
-                            <a asp-page="/EditStudent" asp-route-id="@ticket.Id" class="btn btn-primary">💀</a>
+                            <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
+                                <button class="btn btn-danger">
+                                    <i class="bi-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }

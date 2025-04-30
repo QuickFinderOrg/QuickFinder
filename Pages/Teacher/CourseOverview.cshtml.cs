@@ -53,6 +53,12 @@ public class CourseOverviewModel(
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
     }
 
+    public async Task<IActionResult> OnPostRemoveTicketAsync(Guid ticketId)
+    {
+        await ticketRepository.DeleteAsync(ticketId);
+        return RedirectToPage();
+    }
+
     public async Task LoadAsync(Guid courseId)
     {
         Courses = await courseRepository.GetAllAsync();
