@@ -15,7 +15,7 @@ public class DiscordAuthHandler(
 )
 {
     private readonly DiscordAuthOptions options = options.Value;
-    private readonly string[] ScopeList = ["identify", "email", "guilds", "guilds.join"];
+    private readonly string[] ScopeList = ["identify", "email", "guilds.join"];
     private const string API_ENDPOINT = "https://discord.com/api/v10";
     private readonly string CLIENT_ID = options.Value.ClientId;
     private readonly string CLIENT_SECRET = options.Value.ClientSecret;
