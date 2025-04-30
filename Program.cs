@@ -59,9 +59,7 @@ if (builder.Environment.IsProduction())
 {
     builder
         .Services.AddDataProtection()
-        .PersistKeysToFileSystem(
-            new DirectoryInfo(builder.Configuration[Constants.DPKeysDirKey] ?? "./dpkeys")
-        );
+        .PersistKeysToFileSystem(new DirectoryInfo(builder.Configuration["dpkeys"] ?? "./dpkeys"));
 }
 
 builder
