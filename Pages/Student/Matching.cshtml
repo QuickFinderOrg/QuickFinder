@@ -13,7 +13,6 @@
 
 <div class="text-center">
     <h1 class="display-4">Matchmaking</h1>
-    <p>Courses</p>
 
     @if (ViewData["SuccessMessage"] != null)
     {
@@ -36,6 +35,53 @@
         </div>
     </form>
 
+    @if (Model.JoinedCourses.Count > 0)
+    {
+        <h2>Joined Courses</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Members</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Course in Model.JoinedCourses)
+                {
+                    <tr>
+                        <td>@Course.Name</td>
+                        <td>@Course.Members.Count</td>
+                        <td class="d-flex justify-content-center gap-2">
+                            @if (user != null && !await groupRepository.CheckIfInGroup(user, Course))
+                            {
+                                @if (await ticketRepository.CheckIfInQueue(user, Course))
+                                {
+                                    <form asp-page-handler="LeaveQueue" asp-route-courseId="@Course.Id" method="post">
+                                        <button type="submit">Leave queue</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-page-handler="FindGroup" asp-route-courseId="@Course.Id" method="post">
+                                        <button type="submit">Find Group</button>
+                                    </form>
+                                }
+                            }
+                            <a asp-page="@StudentRoutes.CourseOverview()"
+                                asp-route-courseId="@Course.Id"><button>Overview</button></a>
+
+                            <form asp-page-handler="LeaveCourse" asp-route-courseId="@Course.Id" method="post">
+                                <button type="submit">Leave Course</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h2>Available Courses</h2>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -50,44 +96,11 @@
                 <tr>
                     <td>@Course.Name</td>
                     <td>@Course.Members.Count</td>
-                    @if (user != null && !Course.Members.Contains(user))
-                    {
-                        <td class="d-flex justify-content-center gap-2">
-                            <form asp-page-handler="JoinCourse" method="post">
-                                <input name="CourseId" hidden value="@Course.Id">
-                                <button type="submit">Join Course</button>
-                            </form>
-                        </td>
-                    }
-                    else
-                    {
-                        <td class="d-flex justify-content-center gap-2">
-                            @if (user != null && !await groupRepository.CheckIfInGroup(user, Course))
-                            {
-                                @if (await ticketRepository.CheckIfInQueue(user, Course))
-                                {
-                                    <form asp-page-handler="LeaveQueue" method="post">
-                                        <input name="CourseId" hidden value="@Course.Id">
-                                        <button type="submit">Leave queue</button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form asp-page-handler="FindGroup" method="post">
-                                        <input name="CourseId" hidden value="@Course.Id">
-                                        <button type="submit">Find Group</button>
-                                    </form>
-                                }
-                            }
-                            <a asp-page="@StudentRoutes.CourseOverview()"
-                                asp-route-courseId="@Course.Id"><button>Overview</button></a>
-
-                            <form asp-page-handler="LeaveCourse" method="post">
-                                <input name="CourseId" hidden value="@Course.Id">
-                                <button type="submit">Leave Course</button>
-                            </form>
-                        </td>
-                    }
+                    <td class="d-flex justify-content-center gap-2">
+                        <form asp-page-handler="JoinCourse" asp-route-courseId="@Course.Id" method="post">
+                            <button type="submit">Join Course</button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>

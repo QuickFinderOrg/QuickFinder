@@ -15,6 +15,7 @@ public class MatchingModel(
 ) : PageModel
 {
     public List<Course> Courses = [];
+    public List<Course> JoinedCourses = [];
 
     [BindProperty]
     public string? SearchQuery { get; set; } = "";
@@ -153,7 +154,7 @@ public class MatchingModel(
             );
         }
 
-        return Page();
+        return RedirectToPage(StudentRoutes.Matching());
     }
 
     public async Task<IActionResult> OnPostLeaveCourseAsync(Guid courseId)
@@ -164,7 +165,7 @@ public class MatchingModel(
             await userManager.GetUserAsync(HttpContext.User)
             ?? throw new Exception("User not found");
 
-        var course = Courses.First(c => c.Id == courseId);
+        var course = JoinedCourses.First(c => c.Id == courseId);
         if (course == null)
         {
             PageContext.ModelState.AddModelError(string.Empty, "Course does not exist.");
@@ -173,7 +174,7 @@ public class MatchingModel(
 
         await courseRepository.LeaveCourse(user, course);
 
-        return Page();
+        return RedirectToPage(StudentRoutes.Matching());
     }
 
     public async Task OnPostSearchAsync()
@@ -184,6 +185,9 @@ public class MatchingModel(
     public async Task LoadAsync()
     {
         var courses = await courseRepository.GetAllAsync();
+        var user =
+            await userManager.GetUserAsync(HttpContext.User)
+            ?? throw new Exception("User not found");
 
         foreach (Course course in courses)
         {
@@ -195,8 +199,14 @@ public class MatchingModel(
             {
                 continue;
             }
-
-            Courses.Add(course);
+            if (course.Members.Contains(user))
+            {
+                JoinedCourses.Add(course);
+            }
+            else
+            {
+                Courses.Add(course);
+            }
         }
     }
 }
