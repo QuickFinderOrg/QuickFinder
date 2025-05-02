@@ -108,9 +108,12 @@ public class Matchmaker<T>(MatchmakerConfig options)
 
 public class Matchmaker2<U, G>(MatchmakerConfig2 options)
     where U : IUserMatchmakingData
-    where G : GroupMatchmakingData
+    where G : IGroupMatchmakingData
 {
-    public IEnumerable<U> FilterMatchesByCriteria(U seed, IEnumerable<U> candidatePool)
+    public IEnumerable<U> FilterMatchesByCriteria(
+        IMatchmakingData seed,
+        IEnumerable<U> candidatePool
+    )
     {
         return candidatePool.Where(candidate => CheckMatchCriteria(seed, candidate));
     }
@@ -133,18 +136,16 @@ public class Matchmaker2<U, G>(MatchmakerConfig2 options)
         return true;
     }
 
-    public U[] Match2(U seed, IEnumerable<U> candidates, int noOfGroupMembers)
+    public U[] Match2(IMatchmakingData seed, IEnumerable<U> candidates, int groupMembersToFind)
     {
-        var compatible_candidates = FilterMatchesByCriteria(
-            seed,
-            candidates.Where(c => c.UserId != seed.UserId)
-        );
+        var compatible_candidates = FilterMatchesByCriteria(seed, candidates);
         var valid_group_combinations = new List<(decimal score, U[] members)>();
 
         foreach (
-            var members in GenerateMemberCombinations(compatible_candidates, noOfGroupMembers - 1)
+            var members in GenerateMemberCombinations(compatible_candidates, groupMembersToFind)
         )
         {
+            // for existing groups, this checks the groups matchmaking data against possible candidates.
             if (CheckGroupCompatibility(members))
             {
                 var average_score = members
@@ -263,7 +264,12 @@ public record class DefaultUserMatchmakingData : IUserMatchmakingData
     public TimeSpan WaitTime { get; init; }
 }
 
-public record class GroupMatchmakingData : IMatchmakingData
+public interface IGroupMatchmakingData : IMatchmakingData
+{
+    public Guid GroupId { get; init; }
+}
+
+public record class DefaultGroupMatchmakingData : IGroupMatchmakingData
 {
     public required Guid GroupId { get; init; }
     public LanguageFlags Languages { get; init; }

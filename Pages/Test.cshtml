@@ -12,7 +12,7 @@
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var discordUserId = await userService.GetDiscordId(user.Id);
 
-    var matchmaker = new Matchmaker2<DefaultUserMatchmakingData, GroupMatchmakingData>(new MatchmakerConfig2());
+    var matchmaker = new Matchmaker2<DefaultUserMatchmakingData, DefaultGroupMatchmakingData>(new MatchmakerConfig2());
     var seed = new DefaultUserMatchmakingData
     {
         Languages = LanguageFlags.English | LanguageFlags.Norwegian,
@@ -29,7 +29,9 @@
     }).ToArray();
 
     var time_pre = DateTime.Now;
-    var matched_members = matchmaker.Match2(seed, candidates, 4).Select(m => (DefaultUserMatchmakingData)m);
+    var groupMembersToFind = 3;
+    var matched_members = matchmaker.Match2(seed, candidates, groupMembersToFind).Select(m =>
+    (DefaultUserMatchmakingData)m);
     DefaultUserMatchmakingData[] matched_group = [seed, .. matched_members];
     var timer = DateTime.Now - time_pre;
     var a = LanguageFlags.Norwegian | LanguageFlags.English;

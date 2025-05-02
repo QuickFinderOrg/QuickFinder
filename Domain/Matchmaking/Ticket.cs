@@ -232,6 +232,20 @@ public class GroupTicketRepository : Repository<GroupTicket, Guid>
                 .ToArrayAsync(cancellationToken) ?? throw new Exception("WAITLIST");
     }
 
+    public async Task<GroupTicket[]> GetAllInCourseAsync(
+        Guid courseId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return await db
+            .GroupTickets.Include(t => t.Group)
+            .Include(t => t.Group.Members)
+            .Include(t => t.Course)
+            .Include(t => t.Preferences)
+            .Where(t => t.Course.Id == courseId)
+            .ToArrayAsync(cancellationToken);
+    }
+
     public async Task RemoveRangeAsync(
         IEnumerable<GroupTicket> tickets,
         CancellationToken cancellationToken = default

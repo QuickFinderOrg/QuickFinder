@@ -8,76 +8,141 @@ public class GroupMatchmakingService(
     CourseRepository courseRepository
 )
 {
-    public readonly Matchmaker<ICandidate> matchmaker = new Matchmaker<ICandidate>(
-        new MatchmakerConfig()
-    );
+    public readonly Matchmaker2<UserMatchmakingTicket, GroupMatchmakingTicket> matchmaker =
+        new Matchmaker2<UserMatchmakingTicket, GroupMatchmakingTicket>(new MatchmakerConfig2());
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
-        var group_candidates = await groupTicketRepository.GetAllAsync(cancellationToken);
+        var courses = await courseRepository.GetAllAsync(cancellationToken);
 
-        // pick a random candidate.
-        var seedGroupCandidate = group_candidates.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
-
-        if (seedGroupCandidate == null)
+        foreach (var course in courses)
         {
-            logger.LogInformation("No seed group candidate to begin matchmaking.");
+            await DoMatchmakingForCourse(course, cancellationToken);
+        }
+    }
+
+    public async Task DoMatchmakingForCourse(
+        Course course,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var groupTicketsInCourse = await groupTicketRepository.GetAllInCourseAsync(
+            course.Id,
+            cancellationToken
+        );
+
+        if (groupTicketsInCourse.Length == 0)
+        {
+            logger.LogInformation("No groups in {course}.", course.Name);
             return;
         }
 
-        var group = seedGroupCandidate.Group;
-        var course = seedGroupCandidate.Course;
-
-        var user_candidates = await ticketRepository.GetAllAsync(cancellationToken);
-
-        var candidates_in_course = user_candidates
-            .Where(t => t.Course == course)
-            .Where(t => !group.Members.Contains(t.User));
-        var waitTime = DateTime.Now - seedGroupCandidate.CreatedAt;
-
-        var requiredScore = matchmaker.GetRequiredScore(waitTime);
-
-        var matching_candidates = matchmaker.Match(
-            seedGroupCandidate,
-            candidates_in_course,
-            groupSize: 2, // Only look for one member at a time.
-            requiredScore
+        var userTicketsInCourse = await ticketRepository.GetAllInCourseAsync(
+            course.Id,
+            cancellationToken
         );
 
-        var newMemberCandidate = matching_candidates.FirstOrDefault();
+        // need a course and a user before starting matching
+        var canMatch = groupTicketsInCourse.Length > 1 || userTicketsInCourse.Length > 1;
 
-        if (newMemberCandidate == null)
+        if (!canMatch)
+        {
+            return;
+        }
+
+        // pick a seed at random.
+        var randomizedTickets = groupTicketsInCourse.OrderBy(_ => Guid.NewGuid());
+
+        var seedTicket = randomizedTickets.Take(1).Single();
+        var seedData = CreateGroupMatchmakingData(seedTicket);
+        var groupMemberCount = seedTicket.Group.Members.Count;
+
+        var candidates = userTicketsInCourse;
+        var candidatesData = candidates.Select(CreateUserMatchmakingData);
+
+        var t0 = DateTime.Now;
+
+        var groupMembersToFind = (int)course.GroupSize - groupMemberCount;
+
+        var matchingCandidatesData = matchmaker.Match2(
+            seedData,
+            candidatesData,
+            groupMembersToFind
+        );
+
+        logger.LogWarning("{}", matchingCandidatesData);
+
+        var dt = DateTime.Now - t0;
+
+        logger.LogInformation(
+            "Group matchmaking with {candidates} took {t}",
+            candidates.Count(),
+            dt
+        );
+
+        if (matchingCandidatesData.Length == 0)
+        {
+            logger.LogInformation("No members found for {groupname}", seedTicket.Group.Name);
+            return;
+        }
+
+        Ticket[] matchingCandidatesTickets = matchingCandidatesData.Select(c => c.Ticket).ToArray();
+
+        if (matchingCandidatesTickets.Length < groupMembersToFind)
         {
             logger.LogInformation(
-                "No match found for group {username}",
-                seedGroupCandidate.Group.Name
+                "Not enough members to form a group for {course}. Had {x}, need {n}",
+                course.Name,
+                groupMemberCount,
+                groupMembersToFind
             );
             return;
         }
 
-        var newMemberTicket = (Ticket)newMemberCandidate;
-
         logger.LogInformation(
-            "New potential group in {course}: {candidate}",
-            seedGroupCandidate.Course.Name,
-            newMemberTicket.User.UserName
+            "New potential group in {course}: {candidates}",
+            course,
+            string.Join(", ", matchingCandidatesTickets.Select(t => t.User.UserName))
         );
 
-        group.Members.Add(newMemberTicket.User);
-        await groupRepository.UpdateAsync(group, cancellationToken);
+        var group = seedTicket.Group;
 
-        await ticketRepository.RemoveRangeAsync([newMemberTicket], cancellationToken);
-        logger.LogInformation(
-            "Group {group} found member {name}. Removed user ticket.",
-            group.Name,
-            newMemberTicket.User.UserName
-        );
+        // assumes all created groups are filled
+        group.Members.AddRange(matchingCandidatesTickets.Select(t => t.User));
 
-        if (group.Members.Count >= group.GroupLimit)
+        await groupRepository.UpdateAsync(group);
+        await ticketRepository.RemoveRangeAsync(matchingCandidatesTickets, cancellationToken);
+
+        await groupTicketRepository.RemoveRangeAsync([seedTicket], cancellationToken);
+        logger.LogInformation("Group {group} filled. Removed group ticket.", seedTicket.Group.Name);
+    }
+
+    private static UserMatchmakingTicket CreateUserMatchmakingData(Ticket ticket)
+    {
+        var data = new UserMatchmakingTicket()
         {
-            await groupTicketRepository.RemoveRangeAsync([seedGroupCandidate], cancellationToken);
-            logger.LogInformation("Group {group} filled. Removed group ticket.", group.Name);
-        }
+            UserId = ticket.User.Id,
+            Ticket = ticket,
+            Languages = ticket.Preferences.Language,
+            Availability = ticket.Preferences.Availability,
+            Days = ticket.Preferences.Days,
+            WaitTime = DateTime.Now - ticket.CreatedAt,
+        };
+        return data;
+    }
+
+    private static GroupMatchmakingTicket CreateGroupMatchmakingData(GroupTicket ticket)
+    {
+        var data = new GroupMatchmakingTicket()
+        {
+            GroupId = ticket.Group.Id,
+            Ticket = ticket,
+            Languages = ticket.Preferences.Language,
+            Availability = ticket.Preferences.Availability,
+            Days = ticket.Preferences.Days,
+            WaitTime = DateTime.Now - ticket.CreatedAt,
+        };
+        return data;
     }
 
     public async Task Reset()
@@ -152,4 +217,14 @@ public class GroupMatchmakingService(
         }
         return RemoveFromQueueResult.Success;
     }
+}
+
+public record class GroupMatchmakingTicket : IGroupMatchmakingData
+{
+    public required GroupTicket Ticket { get; init; }
+    public required Guid GroupId { get; init; }
+    public LanguageFlags Languages { get; init; }
+    public Availability Availability { get; init; }
+    public DaysOfTheWeek Days { get; init; }
+    public TimeSpan WaitTime { get; init; }
 }

@@ -7,6 +7,7 @@ namespace QuickFinder.Pages.Admin;
 public class MatchmakingOverviewModel(
     ILogger<MatchmakingOverviewModel> logger,
     MatchmakingService matchmaking,
+    GroupMatchmakingService groupMatchmakingService,
     UserService userService,
     TicketRepository ticketRepository,
     GroupRepository groupRepository,
@@ -28,6 +29,12 @@ public class MatchmakingOverviewModel(
     public async Task<IActionResult> OnPostMatchAsync()
     {
         await matchmaking.DoMatching();
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostMatchGroupAsync()
+    {
+        await groupMatchmakingService.DoMatching();
         return RedirectToPage();
     }
 

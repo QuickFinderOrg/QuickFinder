@@ -9,9 +9,8 @@ public class MatchmakingService(
     UserService userService
 )
 {
-    public readonly Matchmaker2<UserMatchmakingTicket, GroupMatchmakingData> matchmaker = new(
-        new MatchmakerConfig2()
-    );
+    public readonly Matchmaker2<UserMatchmakingTicket, DefaultGroupMatchmakingData> matchmaker =
+        new(new MatchmakerConfig2());
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
@@ -49,10 +48,12 @@ public class MatchmakingService(
 
         var t0 = DateTime.Now;
 
+        var groupMembersToFind = (int)course.GroupSize - 1;
+
         var matchingCandidatesData = matchmaker.Match2(
             seedData,
             candidatesData,
-            (int)course.GroupSize
+            groupMembersToFind
         );
 
         logger.LogWarning("{}", matchingCandidatesData);
