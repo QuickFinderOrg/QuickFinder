@@ -1,3 +1,5 @@
+using QuickFinder.Data;
+
 namespace QuickFinder.Domain.Matchmaking;
 
 public class MatchmakingService(
@@ -6,7 +8,8 @@ public class MatchmakingService(
     TicketRepository ticketRepository,
     CourseRepository courseRepository,
     PreferencesRepository preferencesRepository,
-    UserService userService
+    UserService userService,
+    ApplicationDbContext db
 )
 {
     public readonly Matchmaker2<UserMatchmakingTicket, DefaultGroupMatchmakingData> matchmaker =
@@ -16,9 +19,21 @@ public class MatchmakingService(
     {
         var courses = await courseRepository.GetAllAsync(cancellationToken);
 
-        foreach (var course in courses)
+        using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
+        try
         {
-            await DoMatchmakingForCourse(course, cancellationToken);
+            foreach (var course in courses)
+            {
+                await DoMatchmakingForCourse(course, cancellationToken);
+            }
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error in matchmaking. Doing rollback.");
+            await transaction.RollbackAsync(cancellationToken);
         }
     }
 
@@ -100,6 +115,7 @@ public class MatchmakingService(
         group.Members.AddRange(fullGroupTickets.Select(t => t.User));
 
         await groupRepository.AddAsync(group, cancellationToken);
+        throw new Exception("SWAG");
         await ticketRepository.RemoveRangeAsync(fullGroupTickets, cancellationToken);
     }
 
