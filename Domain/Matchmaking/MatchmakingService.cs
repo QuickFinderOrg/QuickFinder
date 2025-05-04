@@ -115,7 +115,6 @@ public class MatchmakingService(
         group.Members.AddRange(fullGroupTickets.Select(t => t.User));
 
         await groupRepository.AddAsync(group, cancellationToken);
-        throw new Exception("SWAG");
         await ticketRepository.RemoveRangeAsync(fullGroupTickets, cancellationToken);
     }
 
