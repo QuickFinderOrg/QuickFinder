@@ -128,18 +128,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 var app = builder.Build();
-
-app.Services.UseScheduler(scheduler =>
-    {
-        scheduler.Schedule<RunMatchmakingInvocable>().EveryThirtySeconds();
-        scheduler.Schedule<RunGroupMatchmakingInvocable>().EveryThirtySeconds();
-        scheduler.Schedule<DeleteUnusedGroupsInvocable>().EveryMinute();
-    })
-    .OnError(e =>
-    {
-        var logger = app.Services.GetRequiredService<ILogger<Startup>>();
-        logger.LogError(e, "Error in scheduled task: {Message}", e.Message);
-    });
+app.Services.ConfigureScheduler(app.Configuration);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
