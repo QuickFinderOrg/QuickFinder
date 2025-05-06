@@ -215,27 +215,6 @@ public class GroupRepository : Repository<Group, Guid>
             .ToArrayAsync();
     }
 
-    public async Task<List<Group>> GetAvailableGroups()
-    {
-        return await db
-            .Groups.Include(g => g.Members)
-            .Include(g => g.Preferences)
-            .Where(g => g.IsComplete == false)
-            .ToListAsync();
-    }
-
-    // TODO: move to course
-    public async Task<Group[]> GetAvailableGroups(Guid id)
-    {
-        return await db
-            .Groups.Include(g => g.Members)
-            .Include(g => g.Course)
-            .Include(g => g.Preferences)
-            .Where(g => g.Course.Id == id)
-            .Where(g => g.IsComplete == false)
-            .ToArrayAsync();
-    }
-
     public async Task<Group> GetGroup(Guid groupId)
     {
         var group =
@@ -245,17 +224,6 @@ public class GroupRepository : Repository<Group, Guid>
                 .Include(g => g.Preferences)
                 .FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
         return group;
-    }
-
-    public async Task<User[]> GetGroupMembers(Guid groupId)
-    {
-        var group =
-            await db
-                .Groups.Include(g => g.Members)
-                .Include(g => g.Course)
-                .FirstAsync(g => g.Id == groupId) ?? throw new Exception("Group not found");
-        var users = group.Members.ToArray();
-        return users;
     }
 
     /// <summary>
@@ -304,20 +272,6 @@ public class GroupRepository : Repository<Group, Guid>
     }
 
     // TODO: replace with updateasync
-
-    public async Task<Group> CreateGroup(List<User> users, Course course)
-    {
-        var group = new Group() { Course = course, Preferences = new Preferences() };
-        foreach (var user in users)
-        {
-            group.Members.Add(user);
-        }
-        group.GroupLimit = course.GroupSize;
-
-        db.Add(group);
-        await db.SaveChangesAsync();
-        return group;
-    }
 
     public async Task<Task> AddToGroup(User user, Group group)
     {

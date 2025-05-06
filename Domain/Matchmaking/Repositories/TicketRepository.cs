@@ -43,18 +43,6 @@ public class TicketRepository : Repository<Ticket, Guid>
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    public new async Task<Ticket?> GetByIdAsync(
-        Guid id,
-        CancellationToken cancellationToken = default
-    )
-    {
-        return await db
-            .Tickets.Include(t => t.User)
-            .Include(t => t.Course)
-            .Include(t => t.Preferences)
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken: cancellationToken);
-    }
-
     public async Task<Ticket?> GetByCourseAsync(
         string userId,
         Guid courseId,
