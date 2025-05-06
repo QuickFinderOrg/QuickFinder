@@ -101,9 +101,20 @@ public class GroupRepository : Repository<Group, Guid>
             logger.LogInformation("{user} was removed from group", member.UserName);
         }
 
-        // TODO: Handle group members added notifciations.
+        var addedMembers = existingGroupSnapshot
+            .Members.Where(originalMember =>
+                modifiedGroup.Members.Any(modifiedMember => modifiedMember.Id == originalMember.Id)
+            )
+            .ToList();
 
-        // TODO: handle other changes, if necessary.
+        foreach (var member in membersToRemove)
+        {
+            await mediator.Publish(
+                new GroupMemberAdded() { User = member, Group = modifiedGroup },
+                cancellationToken
+            );
+            logger.LogInformation("{user} was added to group", member.UserName);
+        }
 
         if (string.IsNullOrEmpty(modifiedGroup.Name))
         {
