@@ -79,11 +79,7 @@ public class GroupMatchmakingService(
 
         var groupMembersToFind = (int)course.GroupSize - groupMemberCount;
 
-        var matchingCandidatesData = matchmaker.Match2(
-            seedData,
-            candidatesData,
-            groupMembersToFind
-        );
+        var matchingCandidatesData = matchmaker.Match(seedData, candidatesData, groupMembersToFind);
 
         logger.LogWarning("{}", matchingCandidatesData);
 

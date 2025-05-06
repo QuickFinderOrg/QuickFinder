@@ -30,7 +30,7 @@ public class Matchmaker<U, G>(MatchmakerConfig options)
         return true;
     }
 
-    public U[] Match2(IMatchmakingData seed, IEnumerable<U> candidates, int groupMembersToFind)
+    public U[] Match(IMatchmakingData seed, IEnumerable<U> candidates, int groupMembersToFind)
     {
         var compatible_candidates = FilterMatchesByCriteria(seed, candidates);
         var valid_group_combinations = new List<(decimal score, U[] members)>();

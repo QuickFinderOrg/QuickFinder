@@ -30,7 +30,7 @@
 
     var time_pre = DateTime.Now;
     var groupMembersToFind = 3;
-    var matched_members = matchmaker.Match2(seed, candidates, groupMembersToFind).Select(m =>
+    var matched_members = matchmaker.Match(seed, candidates, groupMembersToFind).Select(m =>
     (DefaultUserMatchmakingData)m);
     DefaultUserMatchmakingData[] matched_group = [seed, .. matched_members];
     var timer = DateTime.Now - time_pre;
