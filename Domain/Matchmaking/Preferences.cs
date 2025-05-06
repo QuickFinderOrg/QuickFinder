@@ -31,8 +31,6 @@ public record class CoursePreferences : ICoursePreferences
 public interface IUserPreferences
 {
     LanguageFlags Language { get; set; }
-    Availability GlobalAvailability { get; set; }
-    DaysOfTheWeek GlobalDays { get; set; }
 }
 
 public interface ICoursePreferences
@@ -51,9 +49,7 @@ public record class Preferences : IPreferences
     public Guid Id { get; init; }
     public LanguageFlags Language { get; set; } = LanguageFlags.English;
     public Availability Availability { get; set; } = Availability.Daytime;
-    public Availability GlobalAvailability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
-    public DaysOfTheWeek GlobalDays { get; set; } = DaysOfTheWeek.All;
 
     public override string ToString()
     {
@@ -71,26 +67,6 @@ public record class Preferences : IPreferences
             Availability = coursePreferences.Availability,
             Days = coursePreferences.Days,
         };
-    }
-
-    public static decimal GetAvailabilityScore(IPreferences from, IPreferences to)
-    {
-        return from.Availability == to.Availability ? 1 : 0;
-    }
-
-    public static decimal GetDaysScore(IPreferences from, IPreferences to)
-    {
-        var availabile_days = from.Days.CountSelectedDays();
-        if (availabile_days == 0)
-        {
-            return 0;
-        }
-        return (decimal)from.Days.GetNumberOfMatchingDays(to.Days) / (decimal)availabile_days;
-    }
-
-    public static decimal GetGroupSizeScore(IPreferences from, IPreferences to)
-    {
-        return 1;
     }
 }
 
