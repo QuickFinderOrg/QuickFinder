@@ -16,8 +16,8 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, CourseReposito
 
     [BindProperty]
     [Required]
-    [Range(0, 20)]
-    public uint GroupSize { get; set; } = 4;
+    [Range(2, 20)]
+    public uint GroupSize { get; set; } = 2;
 
     public async Task<IActionResult> OnPostAsync()
     {
@@ -27,7 +27,18 @@ public class CreateCourseModel(ILogger<CreateCourseModel> logger, CourseReposito
         }
 
         _logger.LogDebug("Create new course {Name} with group size {GroupSize}", Name, GroupSize);
-        var course = await courseRepository.CreateCourse(Name, GroupSize);
+        var course = new Course() { Name = Name, GroupSize = GroupSize };
+        try
+        {
+            await courseRepository.AddAsync(course);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to create course {Name}", Name);
+            ViewData["ErrorMessage"] = e.Message;
+            return Page();
+        }
+
         return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = course.Id });
     }
 }

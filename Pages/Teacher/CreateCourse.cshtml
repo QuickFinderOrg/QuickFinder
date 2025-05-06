@@ -8,6 +8,13 @@
 <h1 class="display-4">Create Course</h1>
 <p class="lead">Create a new course that students can form groups in.</p>
 
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @ViewData["ErrorMessage"]
+    </div>
+}
+
 <form method="post" class="container">
     <div class="row mb-3">
 
