@@ -48,7 +48,6 @@ builder.Services.AddScoped<GroupRepository>();
 builder.Services.AddScoped<PreferencesRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GroupMatchmakingService>();
-builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<SeedDB>();
 builder.Services.AddScoped<DiscordAuthHandler>();
 builder.Services.AddScheduler();

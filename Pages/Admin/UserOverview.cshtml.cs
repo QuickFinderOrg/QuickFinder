@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -6,7 +9,8 @@ namespace QuickFinder.Pages.Admin;
 public class UserOverviewModel(
     ILogger<UserOverviewModel> logger,
     UserService userService,
-    AdminService adminService
+    UserManager<User> userManager,
+    IAuthorizationService authorizationService
 ) : PageModel
 {
     private readonly ILogger<UserOverviewModel> _logger = logger;
@@ -26,14 +30,20 @@ public class UserOverviewModel(
     public async Task OnPostMakeTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
-        await adminService.MakeTeacher(user);
+        await userManager.AddClaimAsync(
+            user,
+            new Claim(ApplicationClaimTypes.IsTeacher, true.ToString())
+        );
         await LoadAsync();
     }
 
     public async Task OnPostRemoveTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
-        await adminService.RemoveTeacher(user);
+        await userManager.RemoveClaimAsync(
+            user,
+            new Claim(ApplicationClaimTypes.IsTeacher, true.ToString())
+        );
         await LoadAsync();
     }
 
@@ -61,7 +71,7 @@ public class UserOverviewModel(
                 continue;
             }
 
-            var isTeacher = await adminService.IsTeacher(user);
+            var isTeacher = (await authorizationService.AuthorizeAsync(User, "Teacher")).Succeeded;
             if (isTeacher)
             {
                 Teachers.Add(user);
