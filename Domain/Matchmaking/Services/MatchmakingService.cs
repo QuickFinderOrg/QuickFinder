@@ -129,12 +129,6 @@ public class MatchmakingService(
         return data;
     }
 
-    public async Task Reset()
-    {
-        // TODO: remove all references
-        await Task.CompletedTask;
-    }
-
     public async Task<AddToQueueResult> QueueForMatchmakingAsync(
         string userId,
         Guid courseId,
