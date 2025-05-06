@@ -160,12 +160,6 @@ public class GroupMatchmakingService(
         return data;
     }
 
-    public async Task Reset()
-    {
-        // TODO: remove all references
-        await Task.CompletedTask;
-    }
-
     public async Task<AddToQueueResult> QueueForMatchmakingAsync(
         Guid groupId,
         Guid courseId,
