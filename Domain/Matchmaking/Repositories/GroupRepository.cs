@@ -92,6 +92,12 @@ public class GroupRepository : Repository<Group, Guid>
             logger.LogInformation("{user} was added to group", member.UserName);
         }
 
+        if (group.IsFull && group.IsComplete == false)
+        {
+            group.IsComplete = true;
+            group.Events.Add(new GroupFilled() { Group = group });
+        }
+
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -115,6 +121,13 @@ public class GroupRepository : Repository<Group, Guid>
             GroupMemberLeft publish = null;
         }
 
+        var memberCount = group.Members.Count;
+
+        if (memberCount == 0)
+        {
+            await DeleteAsync(groupId, cancellationToken);
+        }
+
         // TODO: queue for delete if last member leaves.
 
         await db.SaveChangesAsync(cancellationToken);
@@ -124,6 +137,8 @@ public class GroupRepository : Repository<Group, Guid>
             group.Name
         );
     }
+
+    //TODO: DeleteAsync, which calls GroupDisbanded.
 
     private async Task<string[]> ValidateAsync(
         Group groupToValidate,
@@ -284,26 +299,5 @@ public class GroupRepository : Repository<Group, Guid>
             return false;
         }
         return true;
-    }
-
-    // TODO: replace with AddGroupMembersAsync
-    public async Task<Task> AddToGroup(User user, Group group)
-    {
-        if (group.Members.Contains(user))
-        {
-            logger.LogError("User '{userId}' is already in group '{groupId}'", user.Id, group.Id);
-            return Task.CompletedTask;
-        }
-        group.Members.Add(user);
-        group.Events.Add(new GroupMemberAdded() { User = user, Group = group });
-
-        if (group.IsFull && group.IsComplete == false)
-        {
-            group.IsComplete = true;
-            group.Events.Add(new GroupFilled() { Group = group });
-        }
-
-        await db.SaveChangesAsync();
-        return Task.CompletedTask;
     }
 }

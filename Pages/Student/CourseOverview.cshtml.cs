@@ -51,11 +51,13 @@ public class CourseOverviewModel(
     public async Task<IActionResult> OnPostJoinGroupAsync(Guid groupId)
     {
         var user = await userManager.GetUserAsync(User);
-        var group = await groupRepository.GetGroup(groupId);
-        if (user is not null)
+
+        if (user is null)
         {
-            await groupRepository.AddToGroup(user, group);
+            return NotFound();
         }
+
+        await groupRepository.AddGroupMembersAsync(groupId, [user.Id]);
 
         return RedirectToPage(StudentRoutes.CourseOverview(), new { courseId = Course.Id });
     }
