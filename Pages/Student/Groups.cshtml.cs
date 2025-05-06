@@ -76,7 +76,7 @@ public class GroupsModel(
 
         group.Members.Remove(user);
 
-        await groupRepository.UpdateAsync(group);
+        await groupRepository.RemoveGroupMembersAsync(group.Id, [user.Id]);
         // TODO: add load functions and model errors
         // TODO: don't match again with a group you left
 
@@ -132,13 +132,9 @@ public class GroupsModel(
 
     public async Task<IActionResult> OnPostChangeAllowAnyoneAsync(Guid groupId)
     {
-        var group = await groupRepository.GetGroup(groupId);
-        if (group == null)
-        {
-            return Page();
-        }
-        group.AllowAnyone = AllowAnyone;
-        await groupRepository.UpdateAsync(group);
+        // TODO: check authorization first e.g. member fo said group.
+        await groupRepository.SetAllowAnyoneAsync(groupId, AllowAnyone);
+
         return Redirect(StudentRoutes.Groups());
     }
 

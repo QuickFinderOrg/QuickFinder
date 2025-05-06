@@ -27,8 +27,7 @@ public class EditGroupModel(GroupRepository groupRepository, UserService userSer
                 return NotFound();
             }
 
-            Group.Members.Remove(user);
-            await groupRepository.UpdateAsync(Group);
+            await groupRepository.RemoveGroupMembersAsync(Group.Id, [userId]);
             if (Members.Length == 1)
             {
                 return RedirectToPage(TeacherRoutes.CourseOverview());

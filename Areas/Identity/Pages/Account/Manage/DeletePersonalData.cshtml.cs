@@ -102,8 +102,7 @@ namespace QuickFinder.Areas.Identity.Pages.Account.Manage
             {
                 foreach (var group in groups)
                 {
-                    group.Members.Remove(user);
-                    await _groupRepository.UpdateAsync(group);
+                    await _groupRepository.RemoveGroupMembersAsync(group.Id, [user.Id]);
                 }
             }
 

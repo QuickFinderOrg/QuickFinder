@@ -58,13 +58,13 @@ public class CourseRepository : Repository<Course, Guid>
     {
         if (await groupRepository.CheckIfInGroup(user, course))
         {
+            // TODO: clean up
             var group =
                 await db
                     .Groups.Include(g => g.Members)
                     .Where(g => g.Course == course && g.Members.Contains(user))
                     .FirstOrDefaultAsync() ?? throw new Exception("Group not found");
-            group.Members.Remove(user);
-            await groupRepository.UpdateAsync(group);
+            await groupRepository.RemoveGroupMembersAsync(group.Id, [user.Id]);
         }
         course.Members.Remove(user);
         await db.SaveChangesAsync();

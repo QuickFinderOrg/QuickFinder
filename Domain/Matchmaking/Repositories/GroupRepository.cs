@@ -10,10 +10,12 @@ public class GroupRepository : Repository<Group, Guid>
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;
     private readonly IMediator mediator;
+    private readonly UserService userService;
 
     public GroupRepository(
         ApplicationDbContext applicationDbContext,
         ILogger<TicketRepository> ticketLogger,
+        UserService ticketUserService,
         IMediator ticketMediator
     )
         : base(applicationDbContext)
@@ -21,6 +23,8 @@ public class GroupRepository : Repository<Group, Guid>
         db = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
         logger = ticketLogger ?? throw new ArgumentNullException(nameof(ticketLogger));
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
+        userService =
+            ticketUserService ?? throw new ArgumentNullException(nameof(ticketUserService));
     }
 
     /// <summary>
@@ -58,70 +62,67 @@ public class GroupRepository : Repository<Group, Guid>
         await base.AddAsync(group, cancellationToken);
     }
 
-    public new async Task UpdateAsync(
-        Group modifiedGroup,
+    public async Task AddGroupMembersAsync(
+        Guid groupId,
+        IEnumerable<string> idsToAdd,
         CancellationToken cancellationToken = default
     )
     {
-        // Skip all update logic if we're going to delete the group anyway.
-        if (modifiedGroup.Members.Count == 0)
+        var group = await db
+            .Groups.Include(g => g.Members)
+            .SingleAsync(g => g.Id == groupId, cancellationToken: cancellationToken);
+
+        var existingMemberIds = group.Members.Select(member => member.Id);
+        var newMemberIds = idsToAdd.Except(existingMemberIds);
+
+        // TODO: get only the users you need.
+        var newMembersToAdd = (await userService.GetAllUsers()).Where(user =>
+            newMemberIds.Contains(user.Id)
+        );
+
+        group.Members.AddRange(newMembersToAdd);
+
+        foreach (var member in newMembersToAdd)
         {
-            await DeleteAsync(modifiedGroup.Id, cancellationToken);
-            return;
-        }
-
-        var errors = await ValidateAsync(modifiedGroup, cancellationToken);
-        if (errors.Length > 0)
-        {
-            throw new Exception("Cannot update group: " + string.Join(", ", errors));
-        }
-
-        // for comparing changes
-        var existingGroupSnapshot =
-            await db
-                .Groups.Include(g => g.Members)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    g => g.Id == modifiedGroup.Id,
-                    cancellationToken: cancellationToken
-                ) ?? throw new NullReferenceException("Group does not exist already");
-
-        var membersToRemove = existingGroupSnapshot
-            .Members.Where(originalMember =>
-                !modifiedGroup.Members.Any(modifiedMember => modifiedMember.Id == originalMember.Id)
-            )
-            .ToList();
-
-        foreach (var member in membersToRemove)
-        {
+            // TODO: publish better events
             await mediator.Publish(
-                new GroupMemberLeft() { User = member, Group = modifiedGroup },
-                cancellationToken
-            );
-            logger.LogInformation("{user} was removed from group", member.UserName);
-        }
-
-        var addedMembers = existingGroupSnapshot
-            .Members.Where(originalMember =>
-                modifiedGroup.Members.Any(modifiedMember => modifiedMember.Id == originalMember.Id)
-            )
-            .ToList();
-
-        foreach (var member in membersToRemove)
-        {
-            await mediator.Publish(
-                new GroupMemberAdded() { User = member, Group = modifiedGroup },
+                new GroupMemberAdded() { User = member, Group = group },
                 cancellationToken
             );
             logger.LogInformation("{user} was added to group", member.UserName);
         }
 
-        if (string.IsNullOrEmpty(modifiedGroup.Name))
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RemoveGroupMembersAsync(
+        Guid groupId,
+        IEnumerable<string> idsToRemove,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var group = await db
+            .Groups.Include(g => g.Members)
+            .SingleAsync(g => g.Id == groupId, cancellationToken: cancellationToken);
+
+        group.Members.RemoveAll(member => idsToRemove.Contains(member.Id));
+
+        var memberToRemove = group.Members.Where(member => idsToRemove.Contains(member.Id));
+
+        foreach (var member in memberToRemove)
         {
-            modifiedGroup.Name = NameGenerator.Identifiers.Get();
+            // TODO: fix events
+            GroupMemberLeft publish = null;
         }
 
-        await base.UpdateAsync(modifiedGroup, cancellationToken);
+        // TODO: queue for delete if last member leaves.
+
+        await db.SaveChangesAsync(cancellationToken);
+        logger.LogInformation(
+            "Removed members: {members} from group: {groupName}",
+            string.Join(", ", memberToRemove.Select(m => m.UserName)),
+            group.Name
+        );
     }
 
     private async Task<string[]> ValidateAsync(
@@ -167,6 +168,20 @@ public class GroupRepository : Repository<Group, Guid>
         }
 
         return errors.ToArray();
+    }
+
+    public async Task SetAllowAnyoneAsync(
+        Guid groupId,
+        bool newState,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var group = await db
+            .Groups.Include(g => g.Members)
+            .SingleAsync(g => g.Id == groupId, cancellationToken: cancellationToken);
+
+        group.AllowAnyone = newState;
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<bool> IsUserInGroup(User user, Course course)
@@ -271,8 +286,7 @@ public class GroupRepository : Repository<Group, Guid>
         return true;
     }
 
-    // TODO: replace with updateasync
-
+    // TODO: replace with AddGroupMembersAsync
     public async Task<Task> AddToGroup(User user, Group group)
     {
         if (group.Members.Contains(user))

@@ -31,12 +31,12 @@ public class SplitGroupModel(
     )
     {
         await LoadAsync(groupId);
+        // TODO: improve loop logic. maybe move into service
         foreach (var userId in SelectedMembers)
         {
             var user =
                 await userManager.FindByIdAsync(userId) ?? throw new Exception("User not found");
-            Group.Members.Remove(user);
-            await groupRepository.UpdateAsync(Group);
+            await groupRepository.RemoveGroupMembersAsync(Group.Id, [userId], cancellationToken);
             NewGroupMembers.Add(user);
         }
         var course = await courseRepository.GetByIdAsync(Group.Course.Id);

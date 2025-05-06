@@ -74,8 +74,7 @@ public class CourseOverviewModel(
             return NotFound();
         }
 
-        group.Members.Remove(user);
-        await groupRepository.UpdateAsync(group);
+        await groupRepository.RemoveGroupMembersAsync(groupId, [user.Id]);
 
         return RedirectToPage(StudentRoutes.CourseOverview(), new { courseId = Course.Id });
     }

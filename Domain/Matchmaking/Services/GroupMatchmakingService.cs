@@ -118,10 +118,10 @@ public class GroupMatchmakingService(
 
         var group = seedTicket.Group;
 
-        // assumes all created groups are filled
-        group.Members.AddRange(matchingCandidatesTickets.Select(t => t.User));
-
-        await groupRepository.UpdateAsync(group);
+        await groupRepository.AddGroupMembersAsync(
+            group.Id,
+            matchingCandidatesTickets.Select(t => t.User.Id)
+        );
         await ticketRepository.RemoveRangeAsync(matchingCandidatesTickets, cancellationToken);
 
         await groupTicketRepository.RemoveRangeAsync([seedTicket], cancellationToken);
