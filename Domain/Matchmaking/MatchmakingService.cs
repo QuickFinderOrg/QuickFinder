@@ -12,8 +12,9 @@ public class MatchmakingService(
     ApplicationDbContext db
 )
 {
-    public readonly Matchmaker2<UserMatchmakingTicket, DefaultGroupMatchmakingData> matchmaker =
-        new(new MatchmakerConfig2());
+    public readonly Matchmaker<UserMatchmakingTicket, DefaultGroupMatchmakingData> matchmaker = new(
+        new MatchmakerConfig()
+    );
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {

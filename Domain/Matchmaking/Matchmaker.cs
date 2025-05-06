@@ -1,6 +1,6 @@
 namespace QuickFinder.Domain.Matchmaking;
 
-public class Matchmaker2<U, G>(MatchmakerConfig2 options)
+public class Matchmaker<U, G>(MatchmakerConfig options)
     where U : IUserMatchmakingData
     where G : IGroupMatchmakingData
 {
@@ -111,14 +111,6 @@ public class Matchmaker2<U, G>(MatchmakerConfig2 options)
 }
 
 public record class MatchmakerConfig
-{
-    public readonly decimal languageWeight = 1;
-    public readonly decimal availabilityWeight = 1;
-    public readonly decimal daysWeight = 1;
-    public readonly decimal groupSizeWeight = 1;
-}
-
-public record class MatchmakerConfig2
 {
     public ICriteriaFunc[] CriteriaList =
     [

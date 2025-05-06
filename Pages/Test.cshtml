@@ -12,7 +12,7 @@
     var user = await userManager.GetUserAsync(User) ?? throw new Exception("User not found");
     var discordUserId = await userService.GetDiscordId(user.Id);
 
-    var matchmaker = new Matchmaker2<DefaultUserMatchmakingData, DefaultGroupMatchmakingData>(new MatchmakerConfig2());
+    var matchmaker = new Matchmaker<DefaultUserMatchmakingData, DefaultGroupMatchmakingData>(new MatchmakerConfig());
     var seed = new DefaultUserMatchmakingData
     {
         Languages = LanguageFlags.English | LanguageFlags.Norwegian,

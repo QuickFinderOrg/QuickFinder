@@ -11,8 +11,8 @@ public class GroupMatchmakingService(
     ApplicationDbContext db
 )
 {
-    public readonly Matchmaker2<UserMatchmakingTicket, GroupMatchmakingTicket> matchmaker =
-        new Matchmaker2<UserMatchmakingTicket, GroupMatchmakingTicket>(new MatchmakerConfig2());
+    public readonly Matchmaker<UserMatchmakingTicket, GroupMatchmakingTicket> matchmaker =
+        new Matchmaker<UserMatchmakingTicket, GroupMatchmakingTicket>(new MatchmakerConfig());
 
     public async Task DoMatching(CancellationToken cancellationToken = default)
     {
