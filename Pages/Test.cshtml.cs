@@ -18,10 +18,6 @@ public class TestModel(
 {
     private readonly ILogger<TestModel> _logger = logger;
 
-    public readonly Matchmaker<TestCandidate> Matchmaker = new Matchmaker<TestCandidate>(
-        new MatchmakerConfig()
-    );
-
     public string TestResult = "";
 
     public IActionResult OnGet()

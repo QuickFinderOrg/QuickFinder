@@ -1,6 +1,6 @@
 namespace QuickFinder.Domain.Matchmaking;
 
-public class GroupTicket() : BaseEntity, ICandidate
+public class GroupTicket() : BaseEntity
 {
     public Guid Id { get; init; }
     public required Group Group { get; init; }
