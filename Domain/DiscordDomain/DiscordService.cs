@@ -44,7 +44,7 @@ public class DiscordService : IHostedService
         if (_options.IsEmpty)
         {
             _logger.LogWarning(
-                "One or more DiscordService options are emptry. App will still run without Discord connection."
+                "One or more DiscordService options are empty. App will still run without Discord connection."
             );
             return;
         }
@@ -53,7 +53,7 @@ public class DiscordService : IHostedService
         _logger.LogTrace("Logged in to DiscordService.");
         await _client.StartAsync();
         _logger.LogInformation("DiscordService started.");
-        _client.MessageReceived += OnMessageRecieved;
+        _client.MessageReceived += OnMessageReceived;
         _client.JoinedGuild += OnJoinedServer;
     }
 
@@ -64,11 +64,11 @@ public class DiscordService : IHostedService
         _logger.LogTrace("Logged out of DiscordService.");
         await _client.StopAsync();
         _logger.LogInformation("DiscordService stopped.");
-        _client.MessageReceived -= OnMessageRecieved;
+        _client.MessageReceived -= OnMessageReceived;
         _client.JoinedGuild -= OnJoinedServer;
     }
 
-    private Task OnMessageRecieved(SocketMessage message)
+    private Task OnMessageReceived(SocketMessage message)
     {
         if (message.Author.IsBot || message.Author.IsWebhook)
         {
@@ -76,7 +76,7 @@ public class DiscordService : IHostedService
         }
 
         _logger.LogInformation(
-            "Discord bot recieved message from {name} ({id}) in {channel}\n {msg}",
+            "Discord bot received message from {name} ({id}) in {channel}\n {msg}",
             message.Author.GlobalName,
             message.Author.Id,
             message.Channel.Name,
@@ -585,7 +585,7 @@ public class DiscordService : IHostedService
         else
         {
             //Log to know it was a success.
-            Console.WriteLine("Sucess! user id was sent over");
+            Console.WriteLine("Success! user id was sent over");
         }
     }
 
