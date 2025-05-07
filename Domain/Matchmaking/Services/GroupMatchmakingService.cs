@@ -120,7 +120,8 @@ public class GroupMatchmakingService(
 
         await groupRepository.AddGroupMembersAsync(
             group.Id,
-            matchingCandidatesTickets.Select(t => t.User.Id)
+            matchingCandidatesTickets.Select(t => t.User.Id),
+            cancellationToken
         );
         await ticketRepository.RemoveRangeAsync(matchingCandidatesTickets, cancellationToken);
 
