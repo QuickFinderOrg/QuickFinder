@@ -38,6 +38,8 @@ public class CoursePreferencesModel(
         public LanguageFlags SelectedLanguages { get; set; }
 
         public DaysOfTheWeek Days { get; set; }
+
+        public StudyLocation StudyLocation { get; set; }
     }
 
     public async Task<IActionResult> OnGetAsync(Guid courseId, string returnUrl)
@@ -89,6 +91,7 @@ public class CoursePreferencesModel(
             {
                 NewAvailability = coursePreferences.Availability,
                 Days = coursePreferences.Days,
+                StudyLocation = coursePreferences.StudyLocation,
             };
         }
         await Task.CompletedTask;
@@ -121,6 +124,7 @@ public class CoursePreferencesModel(
         logger.LogInformation("Days of: {days}", Input.Days);
         coursePreferences.Availability = Input.NewAvailability;
         coursePreferences.Days = Input.Days;
+        coursePreferences.StudyLocation = Input.StudyLocation;
         user.Preferences.Language = Input.SelectedLanguages;
 
         await preferencesRepository.UpdateCoursePreferencesAsync(

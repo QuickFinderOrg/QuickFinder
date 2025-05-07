@@ -6,6 +6,8 @@
     ViewData["Title"] = "Course Preferences";
     DaysOfTheWeek[] days = [DaysOfTheWeek.Monday, DaysOfTheWeek.Tuesday, DaysOfTheWeek.Wednesday, DaysOfTheWeek.Thursday,
 DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
+
+    StudyLocation[] studyLocations = [StudyLocation.Online, StudyLocation.InPerson];
 }
 <div class="text-center">
     <h1>Course preferences </h1>
@@ -57,6 +59,24 @@ DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
             <input type="checkbox" value="@day" name="Input.Days" />
         }
         <label>@day</label>
+    }
+    <br></br>
+
+    </details>
+    <br></br>
+    <label>Preferred study location:</label>
+    <br></br>
+    @foreach (var location in studyLocations)
+    {
+        if (Model.Input.StudyLocation.HasFlag(location))
+        {
+            <input type="checkbox" value="@location" name="Input.StudyLocation" checked />
+        }
+        else
+        {
+            <input type="checkbox" value="@location" name="Input.StudyLocation" />
+        }
+        <label>@location</label>
     }
     <br></br>
 

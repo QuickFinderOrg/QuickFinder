@@ -26,7 +26,7 @@ public class LanguageTests
     [Fact]
     public void SucceedsOnOneSharedLanguage()
     {
-        var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
+        var criteria = new MustHaveAtLeastOneLanguageInCommonCriteria();
         var a = new DefaultUserMatchmakingData
         {
             Languages = LanguageFlags.English | LanguageFlags.Spanish,
@@ -44,7 +44,7 @@ public class LanguageTests
     [Fact]
     public void SucceedsOnMoreThanOneSharedLanguage()
     {
-        var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
+        var criteria = new MustHaveAtLeastOneLanguageInCommonCriteria();
         var a = new DefaultUserMatchmakingData
         {
             Languages = LanguageFlags.English | LanguageFlags.Norwegian | LanguageFlags.Spanish,
@@ -62,7 +62,7 @@ public class LanguageTests
     [Fact]
     public void FailsOnZeroSharedLanguage()
     {
-        var criteria = new MustHaveAtLeastOneLanguageInCommonCritera();
+        var criteria = new MustHaveAtLeastOneLanguageInCommonCriteria();
         var a = new DefaultUserMatchmakingData { Languages = LanguageFlags.English, UserId = "a" };
         var b = new DefaultUserMatchmakingData
         {

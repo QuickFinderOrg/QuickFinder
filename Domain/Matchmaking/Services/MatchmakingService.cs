@@ -126,6 +126,7 @@ public class MatchmakingService(
             Languages = ticket.Preferences.Language,
             Availability = ticket.Preferences.Availability,
             Days = ticket.Preferences.Days,
+            StudyLocation = ticket.Preferences.StudyLocation,
             WaitTime = DateTime.Now - ticket.CreatedAt,
         };
         return data;
@@ -233,5 +234,6 @@ public record class UserMatchmakingTicket : IUserMatchmakingData
     public LanguageFlags Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
+    public StudyLocation StudyLocation { get; init; }
     public TimeSpan WaitTime { get; init; }
 }

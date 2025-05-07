@@ -26,6 +26,9 @@ public record class CoursePreferences : ICoursePreferences
 
     public Availability Availability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
+
+    public StudyLocation StudyLocation { get; set; } =
+        StudyLocation.InPerson | StudyLocation.Online;
 }
 
 public interface IUserPreferences
@@ -50,10 +53,12 @@ public record class Preferences : IPreferences
     public LanguageFlags Language { get; set; } = LanguageFlags.English;
     public Availability Availability { get; set; } = Availability.Daytime;
     public DaysOfTheWeek Days { get; set; } = DaysOfTheWeek.All;
+    public StudyLocation StudyLocation { get; set; } =
+        StudyLocation.InPerson | StudyLocation.Online;
 
     public override string ToString()
     {
-        return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, Days: {Days}";
+        return $"Language: {string.Join(", ", Language)}, Availability: {Availability}, Days: {Days}, StudyLocation: {StudyLocation}";
     }
 
     public static Preferences From(
@@ -66,6 +71,7 @@ public record class Preferences : IPreferences
             Language = userPreferences.Language,
             Availability = coursePreferences.Availability,
             Days = coursePreferences.Days,
+            StudyLocation = coursePreferences.StudyLocation,
         };
     }
 }
@@ -74,6 +80,13 @@ public enum Availability
 {
     Daytime,
     Afternoons,
+}
+
+[Flags]
+public enum StudyLocation
+{
+    InPerson = 1 << 0,
+    Online = 1 << 1,
 }
 
 [Flags]
@@ -187,5 +200,13 @@ public static class LanguageFlagsExtensions
 
         //Return the count
         return iCount;
+    }
+}
+
+public static class StudyLocationExtensions
+{
+    public static StudyLocation IntersectWith(this StudyLocation location, StudyLocation value)
+    {
+        return location & value;
     }
 }

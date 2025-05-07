@@ -232,5 +232,6 @@ public record class GroupMatchmakingTicket : IGroupMatchmakingData
     public LanguageFlags Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
+    public StudyLocation StudyLocation { get; init; }
     public TimeSpan WaitTime { get; init; }
 }

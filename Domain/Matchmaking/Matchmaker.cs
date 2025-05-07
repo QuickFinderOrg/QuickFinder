@@ -83,12 +83,12 @@ public class Matchmaker<U, G>(MatchmakerConfig options)
     {
         var errors = new List<string>();
 
-        foreach (var critaria in options.CriteriaList)
+        foreach (var criteria in options.CriteriaList)
         {
-            var isCompatible = critaria.Check(from, to);
+            var isCompatible = criteria.Check(from, to);
             if (isCompatible == false)
             {
-                errors.Add(nameof(critaria));
+                errors.Add(nameof(criteria));
             }
         }
 
@@ -114,8 +114,9 @@ public record class MatchmakerConfig
 {
     public ICriteriaFunc[] CriteriaList =
     [
-        new MustHaveAtLeastOneDayInCommonCritera(),
-        new MustHaveAtLeastOneLanguageInCommonCritera(),
+        new MustHaveAtLeastOneDayInCommonCriteria(),
+        new MustHaveAtLeastOneLanguageInCommonCriteria(),
+        new MustHaveAtLeastOneCommonStudyLocationCriteria(),
     ];
     public (decimal weight, IPreference preference)[] WeightedPreferenceList =
     [
@@ -128,6 +129,7 @@ public interface IMatchmakingData
     public LanguageFlags Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
+    public StudyLocation StudyLocation { get; init; }
     public TimeSpan WaitTime { get; init; }
 }
 
@@ -137,6 +139,7 @@ public interface IUserMatchmakingData : IMatchmakingData
     public new LanguageFlags Languages { get; init; }
     public new Availability Availability { get; init; }
     public new DaysOfTheWeek Days { get; init; }
+    public new StudyLocation StudyLocation { get; init; }
     public new TimeSpan WaitTime { get; init; }
 }
 
@@ -147,6 +150,7 @@ public record class DefaultUserMatchmakingData : IUserMatchmakingData
     public LanguageFlags Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
+    public StudyLocation StudyLocation { get; init; }
     public TimeSpan WaitTime { get; init; }
 }
 
@@ -161,6 +165,7 @@ public record class DefaultGroupMatchmakingData : IGroupMatchmakingData
     public LanguageFlags Languages { get; init; }
     public Availability Availability { get; init; }
     public DaysOfTheWeek Days { get; init; }
+    public StudyLocation StudyLocation { get; init; }
     public TimeSpan WaitTime { get; init; }
 }
 
@@ -177,13 +182,13 @@ class DaysInCommonPreference : IPreference
     }
 }
 
-// must be symmertric, e.g. can switch from and to to and get the same result.
+// must be symmetric, e.g. can switch from and to to and get the same result.
 public interface ICriteriaFunc
 {
     public bool Check(IMatchmakingData from, IMatchmakingData to);
 }
 
-public class MustHaveAtLeastOneDayInCommonCritera : ICriteriaFunc
+public class MustHaveAtLeastOneDayInCommonCriteria : ICriteriaFunc
 {
     public bool Check(IMatchmakingData from, IMatchmakingData to)
     {
@@ -191,10 +196,18 @@ public class MustHaveAtLeastOneDayInCommonCritera : ICriteriaFunc
     }
 }
 
-public class MustHaveAtLeastOneLanguageInCommonCritera : ICriteriaFunc
+public class MustHaveAtLeastOneLanguageInCommonCriteria : ICriteriaFunc
 {
     public bool Check(IMatchmakingData from, IMatchmakingData to)
     {
         return from.Languages.IntersectWith(to.Languages) > 0;
+    }
+}
+
+public class MustHaveAtLeastOneCommonStudyLocationCriteria : ICriteriaFunc
+{
+    public bool Check(IMatchmakingData from, IMatchmakingData to)
+    {
+        return from.StudyLocation.IntersectWith(to.StudyLocation) > 0;
     }
 }
