@@ -54,12 +54,14 @@ public class MatchmakingService(
         }
 
         // pick a seed at random.
-        var randomizedTickets = ticketsInCourse.OrderBy(_ => Guid.NewGuid());
+        var randomizedTickets = ticketsInCourse.OrderBy(_ => Guid.NewGuid()).ToList();
 
-        var seedTicket = randomizedTickets.Take(1).Single();
+        var seedTicket = randomizedTickets[0]; // pop the first element
+        randomizedTickets.RemoveAt(0);
+
         var seedData = CreateUserMatchmakingData(seedTicket);
 
-        var candidates = randomizedTickets.Skip(1);
+        var candidates = randomizedTickets;
         var candidatesData = candidates.Select(CreateUserMatchmakingData);
 
         var t0 = DateTime.Now;
