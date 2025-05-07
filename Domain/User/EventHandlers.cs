@@ -1,3 +1,4 @@
+using Coravel.Events.Interfaces;
 using MediatR;
 using QuickFinder.Domain.Matchmaking;
 
@@ -27,5 +28,17 @@ public class NotifyUsersOnGroupFilled(UserService userService, GroupRepository g
                 $"Group found for {courseName}.\n Your members: \n{name_list}"
             );
         }
+    }
+}
+
+// TODO: remove demo event handler
+public class OnUserDeleted : IListener<UserDeleted>
+{
+    public async Task HandleAsync(UserDeleted notification)
+    {
+        var id = notification.Id;
+        Console.WriteLine("USER DELETED");
+
+        await Task.CompletedTask;
     }
 }
