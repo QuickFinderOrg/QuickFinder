@@ -1,3 +1,4 @@
+using Coravel.Queuing.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using QuickFinder.Data;
@@ -11,12 +12,15 @@ public class GroupRepository : Repository<Group, Guid>
     private readonly ILogger<TicketRepository> logger;
     private readonly IMediator mediator;
     private readonly UserService userService;
+    private readonly IQueue queue;
 
+    // TODO: make primary constructor
     public GroupRepository(
         ApplicationDbContext applicationDbContext,
         ILogger<TicketRepository> ticketLogger,
         UserService ticketUserService,
-        IMediator ticketMediator
+        IMediator ticketMediator,
+        IQueue ticketQueue
     )
         : base(applicationDbContext)
     {
@@ -25,6 +29,7 @@ public class GroupRepository : Repository<Group, Guid>
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
         userService =
             ticketUserService ?? throw new ArgumentNullException(nameof(ticketUserService));
+        queue = ticketQueue;
     }
 
     /// <summary>
@@ -92,7 +97,7 @@ public class GroupRepository : Repository<Group, Guid>
         if (group.IsFull && group.IsComplete == false)
         {
             group.IsComplete = true;
-            group.Events.Add(new GroupFilled(group));
+            queue.QueueBroadcast(new GroupFilled(group));
         }
 
         await db.SaveChangesAsync(cancellationToken);

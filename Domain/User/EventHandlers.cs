@@ -5,14 +5,14 @@ using QuickFinder.Domain.Matchmaking;
 namespace QuickFinder;
 
 public class NotifyUsersOnGroupFilled(UserService userService, GroupRepository groupRepository)
-    : INotificationHandler<GroupFilled>
+    : IListener<GroupFilled>
 {
-    public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
+    public async Task HandleAsync(GroupFilled notification)
     {
         var groupId = notification.Group.Id;
         var groupName = notification.Group.Name;
         var group =
-            await groupRepository.GetByIdAsync(groupId, cancellationToken)
+            await groupRepository.GetByIdAsync(groupId)
             ?? throw new Exception($"Group '{groupName}'({groupId}) not found");
         var groupMembers = group.Members;
         var courseName = group.Course.Name;

@@ -1,3 +1,4 @@
+using Coravel.Events.Interfaces;
 using MediatR;
 
 namespace QuickFinder.Domain.Matchmaking;
@@ -61,7 +62,7 @@ public record class GroupDisbanded : BaseDomainEvent
 /// <summary>
 /// Fired only the first time a group is filled
 /// </summary>
-public record class GroupFilled : BaseDomainEvent
+public record class GroupFilled : IEvent
 {
     public GroupFilled(Group group)
     {

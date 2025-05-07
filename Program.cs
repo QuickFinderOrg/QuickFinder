@@ -120,6 +120,7 @@ builder.Services.AddTransient<RunGroupMatchmakingInvocable>();
 builder.Services.AddTransient<DeleteUnusedGroupsInvocable>();
 builder.Services.AddTransient<SendDMInvocable>();
 builder.Services.AddTransient<OnUserDeleted>();
+builder.Services.AddTransient<NotifyUsersOnGroupFilled>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -133,6 +134,7 @@ app.Services.ConfigureScheduler(app.Configuration);
 var registration = app.Services.ConfigureEvents();
 
 registration.Register<UserDeleted>().Subscribe<OnUserDeleted>();
+registration.Register<GroupFilled>().Subscribe<NotifyUsersOnGroupFilled>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
