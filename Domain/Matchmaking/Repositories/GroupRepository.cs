@@ -58,7 +58,7 @@ public class GroupRepository : Repository<Group, Guid>
 
         if (group.Members.Count >= group.GroupLimit)
         {
-            await mediator.Publish(new GroupFilled(group));
+            await mediator.Publish(new GroupFilled(group), cancellationToken);
         }
     }
 
@@ -112,27 +112,25 @@ public class GroupRepository : Repository<Group, Guid>
 
         var memberToRemove = group.Members.Where(member => idsToRemove.Contains(member.Id));
 
-        foreach (var member in memberToRemove)
-        {
-            // TODO: fix events
-            GroupMemberLeft publish = null;
-        }
-
         var memberCount = group.Members.Count;
 
-        if (memberCount == 0)
-        {
-            await DeleteAsync(groupId, cancellationToken);
-        }
-
-        // TODO: queue for delete if last member leaves.
-
         await db.SaveChangesAsync(cancellationToken);
+
         logger.LogInformation(
             "Removed members: {members} from group: {groupName}",
             string.Join(", ", memberToRemove.Select(m => m.UserName)),
             group.Name
         );
+        foreach (var member in memberToRemove)
+        {
+            group.Events.Add(new GroupMemberLeft(member, group));
+        }
+
+        if (memberCount == 0)
+        {
+            // TODO: queue for delete if last member leaves.
+            await DeleteAsync(groupId, cancellationToken);
+        }
     }
 
     //TODO: DeleteAsync, which calls GroupDisbanded.
