@@ -2,23 +2,60 @@ using MediatR;
 
 namespace QuickFinder.Domain.Matchmaking;
 
+public record class UserEventVM
+{
+    public required string Id;
+    public required string Name;
+}
+
+public record class GroupEventVM
+{
+    public required Guid Id;
+    public required string Name;
+}
+
+public record class CourseEventVM
+{
+    public required Guid Id;
+    public required string Name;
+}
+
 public record class GroupMemberAdded : BaseDomainEvent
 {
-    public required User User;
-    public required Group Group;
+    public GroupMemberAdded(User user, Group group)
+    {
+        User = new UserEventVM { Id = user.Id, Name = user.UserName ?? "" };
+        Group = new GroupEventVM { Id = group.Id, Name = group.Name };
+    }
+
+    public UserEventVM User;
+    public GroupEventVM Group;
 }
 
 public record class GroupMemberLeft : BaseDomainEvent
 {
-    public required User User;
-    public required Group Group;
+    public GroupMemberLeft(User user, Group group)
+    {
+        User = new UserEventVM { Id = user.Id, Name = user.UserName ?? "" };
+        Group = new GroupEventVM { Id = group.Id, Name = group.Name };
+    }
+
+    public UserEventVM User;
+    public GroupEventVM Group;
 }
 
 public record class GroupDisbanded : BaseDomainEvent
 {
-    public required Guid GroupId;
-    public required Course Course;
-    public required User[] Members;
+    public GroupDisbanded(Group group, IEnumerable<User> members)
+    {
+        Group = new GroupEventVM { Id = group.Id, Name = group.Name };
+        FormerGroupMembers = members
+            .Select(m => new UserEventVM { Id = m.Id, Name = m.UserName ?? "" })
+            .ToArray();
+    }
+
+    public GroupEventVM Group;
+    public UserEventVM[] FormerGroupMembers;
 }
 
 /// <summary>
@@ -26,16 +63,32 @@ public record class GroupDisbanded : BaseDomainEvent
 /// </summary>
 public record class GroupFilled : BaseDomainEvent
 {
-    public required Group Group;
+    public GroupFilled(Group group)
+    {
+        Group = new GroupEventVM { Id = group.Id, Name = group.Name };
+    }
+
+    public GroupEventVM Group;
 }
 
 public record class GroupEmpty : BaseDomainEvent
 {
-    public required Guid GroupId;
+    public GroupEmpty(Group group)
+    {
+        Group = new GroupEventVM { Id = group.Id, Name = group.Name };
+    }
+
+    public GroupEventVM Group;
 }
 
 public record class CourseJoined : BaseDomainEvent
 {
-    public required User User;
-    public required Course Course;
+    public CourseJoined(User user, Course course)
+    {
+        User = new UserEventVM { Id = user.Id, Name = user.UserName ?? "" };
+        Course = new CourseEventVM { Id = course.Id, Name = course.Name };
+    }
+
+    public UserEventVM User;
+    public CourseEventVM Course;
 }

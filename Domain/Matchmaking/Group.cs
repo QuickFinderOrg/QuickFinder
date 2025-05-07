@@ -17,22 +17,6 @@ public class Group() : BaseEntity
     public bool IsFull => Members.Count >= GroupLimit;
 }
 
-public record class GroupVM
-{
-    public required GroupMemberVM[] Members;
-}
-
-public record class GroupMemberVM
-{
-    public required string Name;
-}
-
-public record class PotentialGroupVM
-{
-    public required Group Group;
-    public double Score = 0;
-}
-
 public enum GroupMemberRemovedReason
 {
     None,

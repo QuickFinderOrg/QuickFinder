@@ -49,17 +49,17 @@ public class GroupRepository : Repository<Group, Guid>
             throw new Exception("Cannot create group: " + string.Join(", ", errors));
         }
 
-        if (group.Members.Count >= group.GroupLimit)
-        {
-            group.Events.Add(new GroupFilled { Group = group });
-        }
-
         if (string.IsNullOrEmpty(group.Name))
         {
             group.Name = NameGenerator.Identifiers.Get();
         }
 
         await base.AddAsync(group, cancellationToken);
+
+        if (group.Members.Count >= group.GroupLimit)
+        {
+            await mediator.Publish(new GroupFilled(group));
+        }
     }
 
     public async Task AddGroupMembersAsync(
@@ -85,17 +85,14 @@ public class GroupRepository : Repository<Group, Guid>
         foreach (var member in newMembersToAdd)
         {
             // TODO: publish better events
-            await mediator.Publish(
-                new GroupMemberAdded() { User = member, Group = group },
-                cancellationToken
-            );
+            await mediator.Publish(new GroupMemberAdded(member, group), cancellationToken);
             logger.LogInformation("{user} was added to group", member.UserName);
         }
 
         if (group.IsFull && group.IsComplete == false)
         {
             group.IsComplete = true;
-            group.Events.Add(new GroupFilled() { Group = group });
+            group.Events.Add(new GroupFilled(group));
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -279,13 +276,8 @@ public class GroupRepository : Repository<Group, Guid>
                 .Groups.Include(g => g.Members)
                 .FirstAsync(g => g.Id == id, cancellationToken: cancellationToken)
             ?? throw new Exception("Group not found");
-        var disband_event = new GroupDisbanded()
-        {
-            GroupId = group.Id,
-            Course = group.Course,
-            Members = [.. group.Members],
-        };
-        await mediator.Publish(disband_event, cancellationToken);
+        var disband_event = new GroupDisbanded(group, [.. group.Members]);
+        await mediator.Publish(disband_event, cancellationToken); // TODO: send after deletion complete
         await base.DeleteAsync(id, cancellationToken);
     }
 
