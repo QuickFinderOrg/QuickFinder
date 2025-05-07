@@ -16,7 +16,11 @@ public class NotifyUsersOnGroupFilled(UserService userService, GroupRepository g
         var groupMembers = group.Members;
         var courseName = group.Course.Name;
 
-        var names = groupMembers.Select(m => m.UserName);
+        var names = new List<string>();
+        foreach (var member in groupMembers)
+        {
+            names.Add(await userService.GetName(member));
+        }
 
         var name_list = string.Join("", names.Select(name => $"- {name}(ID)\n"));
 
