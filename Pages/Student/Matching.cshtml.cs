@@ -72,6 +72,8 @@ public class MatchingModel(
                 return Page();
 
             case AddToQueueResult.Success:
+                PageContext.ViewData["SuccessMessage"] =
+                    "You have successfully been added to the matchmaking queue. You will be notified in Discord when a match is found.";
                 logger.LogInformation(
                     "User {UserId} successfully added to matchmaking queue for course {CourseId}",
                     user.Id,
