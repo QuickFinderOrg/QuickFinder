@@ -1,11 +1,11 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using Coravel.Events.Interfaces;
 using Coravel.Invocable;
 using Coravel.Queuing.Interfaces;
 using Discord;
 using Discord.WebSocket;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -638,34 +638,19 @@ public class DiscordServiceOptions
         | string.IsNullOrEmpty(GroupChannelCategoryId);
 }
 
-public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFilled>
+public class CreateDiscordChannelOnGroupFilled(
+    IOptions<DiscordServiceOptions> options,
+    DiscordService discord,
+    UserService userService,
+    ILogger<NotifyUsersOnGroupFilled> logger,
+    GroupRepository groupRepository
+) : IListener<GroupFilled>
 {
-    private readonly IOptions<DiscordServiceOptions> _options;
-    private readonly DiscordService _discord;
-    private readonly UserService _userService;
-    private readonly ILogger<NotifyUsersOnGroupFilled> _logger;
-    private readonly GroupRepository _groupRepository;
-
-    public CreateDiscordChannelOnGroupFilled(
-        IOptions<DiscordServiceOptions> options,
-        DiscordService discord,
-        UserService userService,
-        ILogger<NotifyUsersOnGroupFilled> logger,
-        GroupRepository groupRepository
-    )
-    {
-        _options = options;
-        _discord = discord;
-        _userService = userService;
-        _logger = logger;
-        _groupRepository = groupRepository;
-    }
-
-    public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
+    public async Task HandleAsync(GroupFilled notification)
     {
         try
         {
-            if (_discord.IsEnabled == false)
+            if (discord.IsEnabled == false)
             {
                 return;
             }
@@ -673,17 +658,17 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
             var groupName = notification.Group.Name;
 
             var group =
-                await _groupRepository.GetByIdAsync(groupId, cancellationToken)
+                await groupRepository.GetByIdAsync(groupId)
                 ?? throw new Exception($"Group '{groupName}' not found");
 
             var groupMembers = group.Members;
 
-            _logger.LogInformation("Group filled {name}", groupName);
-            var defaultServerId = ulong.Parse(_options.Value.ServerId);
-            var defaultCategoryId = ulong.Parse(_options.Value.GroupChannelCategoryId);
+            logger.LogInformation("Group filled {name}", groupName);
+            var defaultServerId = ulong.Parse(options.Value.ServerId);
+            var defaultCategoryId = ulong.Parse(options.Value.GroupChannelCategoryId);
             var channelName = notification.Group.Name;
 
-            var new_channel_id = await _discord.CreateChannel(
+            var new_channel_id = await discord.CreateChannel(
                 defaultServerId,
                 channelName,
                 defaultCategoryId,
@@ -691,24 +676,21 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
             );
             if (new_channel_id == null)
             {
-                _logger.LogError("Could not create channel on {ServerId}.", defaultServerId);
+                logger.LogError("Could not create channel on {ServerId}.", defaultServerId);
                 return;
             }
 
             foreach (var user in groupMembers)
             {
-                var discord_id = await _userService.GetDiscordId(user.Id);
+                var discord_id = await userService.GetDiscordId(user.Id);
                 if (discord_id == null)
                 {
                     continue;
                 }
-                await _discord.SetUserPermissionsOnChannel(
-                    (ulong)new_channel_id,
-                    (ulong)discord_id
-                );
+                await discord.SetUserPermissionsOnChannel((ulong)new_channel_id, (ulong)discord_id);
             }
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Created new Discord channel {channelId} for group {groupId} in server {ServerId}",
                 new_channel_id,
                 notification.Group.Id,
@@ -717,7 +699,7 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
         }
         catch (Exception e)
         {
-            _logger.LogError(
+            logger.LogError(
                 e,
                 "Error creating Discord channel for group {GroupId}",
                 notification.Group.Id
@@ -729,31 +711,27 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
 public class DeleteDiscordChannelOnGroupDisbanded(
     DiscordService discord,
     ILogger<DeleteDiscordChannelOnGroupDisbanded> logger
-) : INotificationHandler<GroupDisbanded>
+) : IListener<GroupDisbanded>
 {
-    private readonly DiscordService _discord = discord; // TODO: cleanup
-
-    private readonly ILogger<DeleteDiscordChannelOnGroupDisbanded> _logger = logger;
-
-    public async Task Handle(GroupDisbanded notification, CancellationToken cancellationToken)
+    public async Task HandleAsync(GroupDisbanded notification)
     {
         var groupId = notification.Group.Id;
         var groupName = notification.Group.Name;
 
         try
         {
-            if (_discord.IsEnabled == false)
+            if (discord.IsEnabled == false)
             {
                 return;
             }
 
-            _logger.LogInformation("Group disbanded {name}({id})", groupName, groupId);
+            logger.LogInformation("Group disbanded {name}({id})", groupName, groupId);
 
-            await _discord.DeleteGroupChannels(groupId);
+            await discord.DeleteGroupChannels(groupId);
         }
         catch (Exception e)
         {
-            _logger.LogError(
+            logger.LogError(
                 e,
                 "Error deleting Discord channels for group {name}({id})",
                 groupName,
@@ -763,47 +741,36 @@ public class DeleteDiscordChannelOnGroupDisbanded(
     }
 }
 
-public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<GroupMemberLeft>
+public class DeleteUserPermissionsOnGroupMemberLeft(
+    DiscordService discord,
+    ILogger<DeleteUserPermissionsOnGroupMemberLeft> logger,
+    UserService userService
+) : IListener<GroupMemberLeft>
 {
-    private readonly DiscordService _discord;
-    private readonly ILogger<DeleteUserPermissionsOnGroupMemberLeft> _logger;
-    private readonly UserService _userService;
-
-    public DeleteUserPermissionsOnGroupMemberLeft(
-        DiscordService discord,
-        ILogger<DeleteUserPermissionsOnGroupMemberLeft> logger,
-        UserService userService
-    )
-    {
-        _discord = discord;
-        _logger = logger;
-        _userService = userService;
-    }
-
-    public async Task Handle(GroupMemberLeft notification, CancellationToken cancellationToken)
+    public async Task HandleAsync(GroupMemberLeft notification)
     {
         try
         {
-            if (_discord.IsEnabled == false)
+            if (discord.IsEnabled == false)
             {
                 return;
             }
-            _logger.LogInformation(
+            logger.LogInformation(
                 $"Group member {notification.User.Id} left",
                 notification.User.Id.ToString()
             );
 
             var channel =
-                _discord.GetChannels().SingleOrDefault(c => c.Name == notification.Group.Name)
+                discord.GetChannels().SingleOrDefault(c => c.Name == notification.Group.Name)
                 ?? throw new Exception($"Channel {notification.Group.Id} not found.");
 
-            var discord_id = await _userService.GetDiscordId(notification.User.Id);
+            var discord_id = await userService.GetDiscordId(notification.User.Id);
 
-            await _discord.DeleteUserPermissionsOnChannel(channel.Id, (ulong)discord_id);
+            await discord.DeleteUserPermissionsOnChannel(channel.Id, (ulong)discord_id);
         }
         catch (Exception e)
         {
-            _logger.LogError(
+            logger.LogError(
                 e,
                 "Error deleting Discord channels for user {userId}",
                 notification.User
@@ -815,27 +782,21 @@ public class DeleteUserPermissionsOnGroupMemberLeft : INotificationHandler<Group
 public class InviteToServerOnCourseJoined(
     DiscordService discord,
     ILogger<InviteToServerOnCourseJoined> logger,
-    UserManager<User> userManager,
     UserService userService,
     IOptions<DiscordServiceOptions> options
-) : INotificationHandler<CourseJoined>
+) : IListener<CourseJoined>
 {
-    private readonly DiscordService _discord = discord;
-    private readonly ILogger<InviteToServerOnCourseJoined> _logger = logger;
-    private readonly UserManager<User> _userManager = userManager;
-    private readonly IOptions<DiscordServiceOptions> _options = options;
-
-    public async Task Handle(CourseJoined notification, CancellationToken cancellationToken)
+    public async Task HandleAsync(CourseJoined notification)
     {
         var userId = notification.User.Id;
         var userName = notification.User.Name;
         try
         {
-            if (_discord.IsEnabled == false)
+            if (discord.IsEnabled == false)
             {
                 return;
             }
-            _logger.LogInformation(
+            logger.LogInformation(
                 $"User {notification.User.Id} joined course {notification.Course.Id}"
             );
             var user =
@@ -846,7 +807,7 @@ public class InviteToServerOnCourseJoined(
 
             if (discordId is null || string.IsNullOrWhiteSpace(discordToken))
             {
-                _logger.LogTrace(
+                logger.LogTrace(
                     "User '{name}'({id}) does not have Discord connected",
                     userName,
                     userId
@@ -854,16 +815,16 @@ public class InviteToServerOnCourseJoined(
                 return;
             }
 
-            var server = await _discord.GetCourseServer(notification.Course.Id);
-            await _discord.InviteToServer(
+            var server = await discord.GetCourseServer(notification.Course.Id);
+            await discord.InviteToServer(
                 (ulong)discordId,
                 discordToken,
-                server.First()?.Id ?? ulong.Parse(_options.Value.ServerId)
+                server.First()?.Id ?? ulong.Parse(options.Value.ServerId)
             );
         }
         catch (Exception e)
         {
-            _logger.LogError(
+            logger.LogError(
                 e,
                 "Error inviting user {userId} to server for course {courseId}",
                 notification.User.Id,

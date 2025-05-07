@@ -1,8 +1,8 @@
-﻿using MediatR;
+﻿using Coravel.Events.Interfaces;
 
 namespace QuickFinder;
 
-public abstract record BaseDomainEvent : INotification
+public abstract class BaseDomainEvent : IEvent
 {
     public DateTimeOffset DateOccurred { get; protected set; } = DateTimeOffset.UtcNow;
 }

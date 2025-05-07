@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

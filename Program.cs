@@ -36,8 +36,6 @@ var connectionString =
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Startup>());
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<MatchmakingService>();
@@ -134,7 +132,19 @@ app.Services.ConfigureScheduler(app.Configuration);
 var registration = app.Services.ConfigureEvents();
 
 registration.Register<UserDeleted>().Subscribe<OnUserDeleted>();
-registration.Register<GroupFilled>().Subscribe<NotifyUsersOnGroupFilled>();
+
+registration
+    .Register<GroupFilled>()
+    .Subscribe<NotifyUsersOnGroupFilled>()
+    .Subscribe<CreateDiscordChannelOnGroupFilled>();
+
+registration.Register<GroupDisbanded>().Subscribe<DeleteDiscordChannelOnGroupDisbanded>();
+
+registration.Register<GroupMemberLeft>().Subscribe<DeleteUserPermissionsOnGroupMemberLeft>();
+
+registration.Register<GroupMemberAdded>();
+
+registration.Register<CourseJoined>().Subscribe<InviteToServerOnCourseJoined>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,5 +1,4 @@
 using Coravel.Events.Interfaces;
-using MediatR;
 using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder;

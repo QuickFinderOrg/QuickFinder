@@ -1,6 +1,3 @@
-using Coravel.Events.Interfaces;
-using MediatR;
-
 namespace QuickFinder.Domain.Matchmaking;
 
 public record class UserEventVM
@@ -21,7 +18,7 @@ public record class CourseEventVM
     public required string Name;
 }
 
-public record class GroupMemberAdded : BaseDomainEvent
+public class GroupMemberAdded : BaseDomainEvent
 {
     public GroupMemberAdded(User user, Group group)
     {
@@ -33,7 +30,7 @@ public record class GroupMemberAdded : BaseDomainEvent
     public GroupEventVM Group;
 }
 
-public record class GroupMemberLeft : BaseDomainEvent
+public class GroupMemberLeft : BaseDomainEvent
 {
     public GroupMemberLeft(User user, Group group)
     {
@@ -45,7 +42,7 @@ public record class GroupMemberLeft : BaseDomainEvent
     public GroupEventVM Group;
 }
 
-public record class GroupDisbanded : BaseDomainEvent
+public class GroupDisbanded : BaseDomainEvent
 {
     public GroupDisbanded(Group group, IEnumerable<User> members)
     {
@@ -62,7 +59,7 @@ public record class GroupDisbanded : BaseDomainEvent
 /// <summary>
 /// Fired only the first time a group is filled
 /// </summary>
-public record class GroupFilled : IEvent
+public class GroupFilled : BaseDomainEvent
 {
     public GroupFilled(Group group)
     {
@@ -72,7 +69,7 @@ public record class GroupFilled : IEvent
     public GroupEventVM Group;
 }
 
-public record class GroupEmpty : BaseDomainEvent
+public class GroupEmpty : BaseDomainEvent
 {
     public GroupEmpty(Group group)
     {
@@ -82,7 +79,7 @@ public record class GroupEmpty : BaseDomainEvent
     public GroupEventVM Group;
 }
 
-public record class CourseJoined : BaseDomainEvent
+public class CourseJoined : BaseDomainEvent
 {
     public CourseJoined(User user, Course course)
     {

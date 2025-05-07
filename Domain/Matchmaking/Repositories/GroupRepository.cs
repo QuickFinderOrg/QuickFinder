@@ -1,5 +1,3 @@
-using Coravel.Queuing.Interfaces;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using QuickFinder.Data;
 using RandomFriendlyNameGenerator;
@@ -10,26 +8,20 @@ public class GroupRepository : Repository<Group, Guid>
 {
     private readonly ApplicationDbContext db;
     private readonly ILogger<TicketRepository> logger;
-    private readonly IMediator mediator;
     private readonly UserService userService;
-    private readonly IQueue queue;
 
     // TODO: make primary constructor
     public GroupRepository(
         ApplicationDbContext applicationDbContext,
         ILogger<TicketRepository> ticketLogger,
-        UserService ticketUserService,
-        IMediator ticketMediator,
-        IQueue ticketQueue
+        UserService ticketUserService
     )
         : base(applicationDbContext)
     {
         db = applicationDbContext ?? throw new ArgumentNullException(nameof(applicationDbContext));
         logger = ticketLogger ?? throw new ArgumentNullException(nameof(ticketLogger));
-        mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
         userService =
             ticketUserService ?? throw new ArgumentNullException(nameof(ticketUserService));
-        queue = ticketQueue;
     }
 
     /// <summary>
@@ -63,7 +55,7 @@ public class GroupRepository : Repository<Group, Guid>
 
         if (group.Members.Count >= group.GroupLimit)
         {
-            await mediator.Publish(new GroupFilled(group), cancellationToken);
+            group.Events.Add(new GroupFilled(group));
         }
     }
 
@@ -89,15 +81,14 @@ public class GroupRepository : Repository<Group, Guid>
 
         foreach (var member in newMembersToAdd)
         {
-            // TODO: publish better events
-            await mediator.Publish(new GroupMemberAdded(member, group), cancellationToken);
+            group.Events.Add(new GroupMemberAdded(member, group));
             logger.LogInformation("{user} was added to group", member.UserName);
         }
 
         if (group.IsFull && group.IsComplete == false)
         {
             group.IsComplete = true;
-            queue.QueueBroadcast(new GroupFilled(group));
+            group.Events.Add(new GroupFilled(group));
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -280,7 +271,7 @@ public class GroupRepository : Repository<Group, Guid>
                 .FirstAsync(g => g.Id == id, cancellationToken: cancellationToken)
             ?? throw new Exception("Group not found");
         var disband_event = new GroupDisbanded(group, [.. group.Members]);
-        await mediator.Publish(disband_event, cancellationToken); // TODO: send after deletion complete
+        group.Events.Add(disband_event);
         await base.DeleteAsync(id, cancellationToken);
     }
 

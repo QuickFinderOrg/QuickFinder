@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using Coravel.Queuing.Interfaces;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using QuickFinder.Domain.DiscordDomain;
@@ -6,10 +6,8 @@ using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Data;
 
-public class ApplicationDbContext(
-    DbContextOptions<ApplicationDbContext> options,
-    IMediator mediator
-) : IdentityDbContext<User>(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IQueue queue)
+    : IdentityDbContext<User>(options)
 {
     public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<GroupTicket> GroupTickets { get; set; } = null!;
@@ -43,7 +41,7 @@ public class ApplicationDbContext(
         int result = await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         // ignore events if no dispatcher provided
-        if (mediator == null)
+        if (queue == null)
             return result;
 
         // dispatch events only if save was successful
@@ -59,7 +57,7 @@ public class ApplicationDbContext(
             entity.Events.Clear();
             foreach (var domainEvent in events)
             {
-                await mediator.Publish(domainEvent, cancellationToken);
+                queue.QueueBroadcast(domainEvent);
             }
         }
         return result;

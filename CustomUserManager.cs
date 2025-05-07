@@ -1,5 +1,4 @@
 using Coravel.Queuing.Interfaces;
-using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
