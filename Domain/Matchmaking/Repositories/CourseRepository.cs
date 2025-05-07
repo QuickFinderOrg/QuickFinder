@@ -51,7 +51,7 @@ public class CourseRepository : Repository<Course, Guid>
     {
         course.Members.Add(user);
         await db.SaveChangesAsync();
-        await mediator.Publish(new CourseJoined() { User = user, Course = course });
+        await mediator.Publish(new CourseJoined(user, course));
     }
 
     public async Task LeaveCourse(User user, Course course)

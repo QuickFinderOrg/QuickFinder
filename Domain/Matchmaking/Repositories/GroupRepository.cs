@@ -1,3 +1,4 @@
+using Coravel.Queuing.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using QuickFinder.Data;
@@ -11,12 +12,15 @@ public class GroupRepository : Repository<Group, Guid>
     private readonly ILogger<TicketRepository> logger;
     private readonly IMediator mediator;
     private readonly UserService userService;
+    private readonly IQueue queue;
 
+    // TODO: make primary constructor
     public GroupRepository(
         ApplicationDbContext applicationDbContext,
         ILogger<TicketRepository> ticketLogger,
         UserService ticketUserService,
-        IMediator ticketMediator
+        IMediator ticketMediator,
+        IQueue ticketQueue
     )
         : base(applicationDbContext)
     {
@@ -25,6 +29,7 @@ public class GroupRepository : Repository<Group, Guid>
         mediator = ticketMediator ?? throw new ArgumentNullException(nameof(ticketMediator));
         userService =
             ticketUserService ?? throw new ArgumentNullException(nameof(ticketUserService));
+        queue = ticketQueue;
     }
 
     /// <summary>
@@ -49,17 +54,17 @@ public class GroupRepository : Repository<Group, Guid>
             throw new Exception("Cannot create group: " + string.Join(", ", errors));
         }
 
-        if (group.Members.Count >= group.GroupLimit)
-        {
-            group.Events.Add(new GroupFilled { Group = group });
-        }
-
         if (string.IsNullOrEmpty(group.Name))
         {
             group.Name = NameGenerator.Identifiers.Get();
         }
 
         await base.AddAsync(group, cancellationToken);
+
+        if (group.Members.Count >= group.GroupLimit)
+        {
+            await mediator.Publish(new GroupFilled(group), cancellationToken);
+        }
     }
 
     public async Task AddGroupMembersAsync(
@@ -85,17 +90,14 @@ public class GroupRepository : Repository<Group, Guid>
         foreach (var member in newMembersToAdd)
         {
             // TODO: publish better events
-            await mediator.Publish(
-                new GroupMemberAdded() { User = member, Group = group },
-                cancellationToken
-            );
+            await mediator.Publish(new GroupMemberAdded(member, group), cancellationToken);
             logger.LogInformation("{user} was added to group", member.UserName);
         }
 
         if (group.IsFull && group.IsComplete == false)
         {
             group.IsComplete = true;
-            group.Events.Add(new GroupFilled() { Group = group });
+            queue.QueueBroadcast(new GroupFilled(group));
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -115,27 +117,25 @@ public class GroupRepository : Repository<Group, Guid>
 
         var memberToRemove = group.Members.Where(member => idsToRemove.Contains(member.Id));
 
-        foreach (var member in memberToRemove)
-        {
-            // TODO: fix events
-            GroupMemberLeft publish = null;
-        }
-
         var memberCount = group.Members.Count;
 
-        if (memberCount == 0)
-        {
-            await DeleteAsync(groupId, cancellationToken);
-        }
-
-        // TODO: queue for delete if last member leaves.
-
         await db.SaveChangesAsync(cancellationToken);
+
         logger.LogInformation(
             "Removed members: {members} from group: {groupName}",
             string.Join(", ", memberToRemove.Select(m => m.UserName)),
             group.Name
         );
+        foreach (var member in memberToRemove)
+        {
+            group.Events.Add(new GroupMemberLeft(member, group));
+        }
+
+        if (memberCount == 0)
+        {
+            // TODO: queue for delete if last member leaves.
+            await DeleteAsync(groupId, cancellationToken);
+        }
     }
 
     //TODO: DeleteAsync, which calls GroupDisbanded.
@@ -279,13 +279,8 @@ public class GroupRepository : Repository<Group, Guid>
                 .Groups.Include(g => g.Members)
                 .FirstAsync(g => g.Id == id, cancellationToken: cancellationToken)
             ?? throw new Exception("Group not found");
-        var disband_event = new GroupDisbanded()
-        {
-            GroupId = group.Id,
-            Course = group.Course,
-            Members = [.. group.Members],
-        };
-        await mediator.Publish(disband_event, cancellationToken);
+        var disband_event = new GroupDisbanded(group, [.. group.Members]);
+        await mediator.Publish(disband_event, cancellationToken); // TODO: send after deletion complete
         await base.DeleteAsync(id, cancellationToken);
     }
 

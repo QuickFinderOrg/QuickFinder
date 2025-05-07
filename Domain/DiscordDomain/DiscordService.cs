@@ -644,18 +644,21 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
     private readonly DiscordService _discord;
     private readonly UserService _userService;
     private readonly ILogger<NotifyUsersOnGroupFilled> _logger;
+    private readonly GroupRepository _groupRepository;
 
     public CreateDiscordChannelOnGroupFilled(
         IOptions<DiscordServiceOptions> options,
         DiscordService discord,
         UserService userService,
-        ILogger<NotifyUsersOnGroupFilled> logger
+        ILogger<NotifyUsersOnGroupFilled> logger,
+        GroupRepository groupRepository
     )
     {
         _options = options;
         _discord = discord;
         _userService = userService;
         _logger = logger;
+        _groupRepository = groupRepository;
     }
 
     public async Task Handle(GroupFilled notification, CancellationToken cancellationToken)
@@ -666,7 +669,16 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
             {
                 return;
             }
-            _logger.LogInformation("Group filled {groupId}", notification.Group.Id);
+            var groupId = notification.Group.Id;
+            var groupName = notification.Group.Name;
+
+            var group =
+                await _groupRepository.GetByIdAsync(groupId, cancellationToken)
+                ?? throw new Exception($"Group '{groupName}' not found");
+
+            var groupMembers = group.Members;
+
+            _logger.LogInformation("Group filled {name}", groupName);
             var defaultServerId = ulong.Parse(_options.Value.ServerId);
             var defaultCategoryId = ulong.Parse(_options.Value.GroupChannelCategoryId);
             var channelName = notification.Group.Name;
@@ -683,7 +695,7 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
                 return;
             }
 
-            foreach (var user in notification.Group.Members)
+            foreach (var user in groupMembers)
             {
                 var discord_id = await _userService.GetDiscordId(user.Id);
                 if (discord_id == null)
@@ -714,38 +726,38 @@ public class CreateDiscordChannelOnGroupFilled : INotificationHandler<GroupFille
     }
 }
 
-public class DeleteDiscordChannelOnGroupDisbanded : INotificationHandler<GroupDisbanded>
+public class DeleteDiscordChannelOnGroupDisbanded(
+    DiscordService discord,
+    ILogger<DeleteDiscordChannelOnGroupDisbanded> logger
+) : INotificationHandler<GroupDisbanded>
 {
-    private readonly DiscordService _discord;
-    private readonly ILogger<DeleteDiscordChannelOnGroupDisbanded> _logger;
+    private readonly DiscordService _discord = discord; // TODO: cleanup
 
-    public DeleteDiscordChannelOnGroupDisbanded(
-        DiscordService discord,
-        ILogger<DeleteDiscordChannelOnGroupDisbanded> logger
-    )
-    {
-        _discord = discord;
-        _logger = logger;
-    }
+    private readonly ILogger<DeleteDiscordChannelOnGroupDisbanded> _logger = logger;
 
     public async Task Handle(GroupDisbanded notification, CancellationToken cancellationToken)
     {
+        var groupId = notification.Group.Id;
+        var groupName = notification.Group.Name;
+
         try
         {
             if (_discord.IsEnabled == false)
             {
                 return;
             }
-            _logger.LogInformation("Group disbanded {groupId}", notification.GroupId.ToString());
 
-            await _discord.DeleteGroupChannels(notification.GroupId);
+            _logger.LogInformation("Group disbanded {name}({id})", groupName, groupId);
+
+            await _discord.DeleteGroupChannels(groupId);
         }
         catch (Exception e)
         {
             _logger.LogError(
                 e,
-                "Error deleting Discord channels for group {GroupId}",
-                notification.GroupId
+                "Error deleting Discord channels for group {name}({id})",
+                groupName,
+                groupId
             );
         }
     }
@@ -804,6 +816,7 @@ public class InviteToServerOnCourseJoined(
     DiscordService discord,
     ILogger<InviteToServerOnCourseJoined> logger,
     UserManager<User> userManager,
+    UserService userService,
     IOptions<DiscordServiceOptions> options
 ) : INotificationHandler<CourseJoined>
 {
@@ -814,6 +827,8 @@ public class InviteToServerOnCourseJoined(
 
     public async Task Handle(CourseJoined notification, CancellationToken cancellationToken)
     {
+        var userId = notification.User.Id;
+        var userName = notification.User.Name;
         try
         {
             if (_discord.IsEnabled == false)
@@ -823,33 +838,28 @@ public class InviteToServerOnCourseJoined(
             _logger.LogInformation(
                 $"User {notification.User.Id} joined course {notification.Course.Id}"
             );
-            var claims = await _userManager.GetClaimsAsync(notification.User);
-            var c = new List<Claim>(claims);
+            var user =
+                await userService.GetUser(userId)
+                ?? throw new Exception($"User '{userName}'({userId}) not found");
+            var discordId = await userService.GetDiscordId(userId);
+            var discordToken = await userService.GetDiscordToken(user);
 
-            var discordIdClaim =
-                c.Find(c => c.Type == ApplicationClaimTypes.DiscordId)
-                ?? throw new Exception("DiscordId claim not found");
-            var discordTokenClaim =
-                c.Find(c => c.Type == ApplicationClaimTypes.DiscordToken)
-                ?? throw new Exception("DiscordId claim not found");
+            if (discordId is null || string.IsNullOrWhiteSpace(discordToken))
+            {
+                _logger.LogTrace(
+                    "User '{name}'({id}) does not have Discord connected",
+                    userName,
+                    userId
+                );
+                return;
+            }
 
             var server = await _discord.GetCourseServer(notification.Course.Id);
-            if (server.Length == 0)
-            {
-                await _discord.InviteToServer(
-                    ulong.Parse(discordIdClaim.Value),
-                    discordTokenClaim.Value,
-                    ulong.Parse(_options.Value.ServerId)
-                );
-            }
-            else
-            {
-                await _discord.InviteToServer(
-                    ulong.Parse(discordIdClaim.Value),
-                    discordTokenClaim.Value,
-                    server[0].Id
-                );
-            }
+            await _discord.InviteToServer(
+                (ulong)discordId,
+                discordToken,
+                server.First()?.Id ?? ulong.Parse(_options.Value.ServerId)
+            );
         }
         catch (Exception e)
         {

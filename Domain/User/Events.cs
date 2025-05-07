@@ -1,6 +1,9 @@
+using Coravel.Events.Interfaces;
+
 namespace QuickFinder;
 
-public record class UserToBeDeleted : BaseDomainEvent
+public class UserDeleted(string id, string name) : IEvent
 {
-    public required User User;
+    public string Id { get; set; } = id;
+    public string Name { get; set; } = name;
 }
