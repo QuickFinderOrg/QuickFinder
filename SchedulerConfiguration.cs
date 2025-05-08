@@ -33,7 +33,6 @@ public static class SchedulerConfigurationProvider
             .UseScheduler(scheduler =>
             {
                 scheduler.Schedule<RunMatchmakingInvocable>().EveryThirtySeconds();
-                scheduler.Schedule<RunGroupMatchmakingInvocable>().EveryThirtySeconds();
                 scheduler.Schedule<DeleteUnusedGroupsInvocable>().EveryMinute();
             })
             .OnError(e =>
