@@ -9,14 +9,14 @@ namespace QuickFinder.Pages.Admin;
 public class UserOverviewModel(
     ILogger<UserOverviewModel> logger,
     UserService userService,
-    UserManager<User> userManager,
-    IAuthorizationService authorizationService
+    UserManager<User> userManager
 ) : PageModel
 {
     private readonly ILogger<UserOverviewModel> _logger = logger;
 
     public List<User> Users = [];
     public List<User> Teachers = [];
+    public List<User> Admins = [];
 
     [BindProperty]
     public string? SearchQuery { get; set; } = "";
@@ -75,11 +75,18 @@ public class UserOverviewModel(
             var isTeacher = claims.Any(c =>
                 c.Type == ApplicationClaimTypes.IsTeacher && c.Value == true.ToString()
             );
+            var isAdmin = claims.Any(c =>
+                c.Type == ApplicationClaimTypes.IsAdmin && c.Value == true.ToString()
+            );
             if (isTeacher)
             {
                 Teachers.Add(user);
             }
-            else
+            if (isAdmin)
+            {
+                Admins.Add(user);
+            }
+            if (!isTeacher && !isAdmin)
             {
                 Users.Add(user);
             }
