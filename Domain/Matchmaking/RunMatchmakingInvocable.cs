@@ -14,7 +14,11 @@ public class RunMatchmakingInvocable(
         logger.LogInformation("Starting matchmaking job");
 
         var scope = serviceProvider.CreateScope();
+        var groupMatchmakingService =
+            scope.ServiceProvider.GetRequiredService<GroupMatchmakingService>();
         var matchmakingService = scope.ServiceProvider.GetRequiredService<MatchmakingService>();
+
+        await groupMatchmakingService.DoMatching(CancellationToken);
         await matchmakingService.DoMatching(CancellationToken);
     }
 }

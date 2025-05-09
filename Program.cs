@@ -114,7 +114,6 @@ builder.Services.AddScoped<DiscordService>();
 builder.Services.AddHostedService<DiscordService>();
 builder.Services.AddSingleton<IEmailSender, StubEmailSender>();
 builder.Services.AddTransient<RunMatchmakingInvocable>();
-builder.Services.AddTransient<RunGroupMatchmakingInvocable>();
 builder.Services.AddTransient<DeleteUnusedGroupsInvocable>();
 builder.Services.AddTransient<SendDMInvocable>();
 builder.Services.AddTransient<OnUserDeleted>();
