@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using QuickFinder.Domain.Matchmaking;
@@ -10,8 +9,15 @@ public class EditGroupModel(GroupRepository groupRepository, UserService userSer
     public Group? Group;
     public User[] Members = [];
 
-    public async Task<IActionResult> OnGetAsync(Guid groupId)
+    public Guid CourseId;
+
+    public async Task<IActionResult> OnGetAsync(Guid groupId, Guid courseId)
     {
+        if (groupId == Guid.Empty || courseId == Guid.Empty)
+        {
+            return RedirectToPage(TeacherRoutes.CourseOverview());
+        }
+        CourseId = courseId;
         await LoadAsync(groupId);
         return Page();
     }

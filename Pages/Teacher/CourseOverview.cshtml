@@ -71,10 +71,10 @@
                                 <input asp-for="Course.Id" hidden />
 
                                 <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
-                                    class="btn btn-primary"><i class="bi-pencil"></i></a>
+                                    asp-route-courseId="@Model.Course.Id" class="btn btn-primary"><i class="bi-pencil"></i></a>
 
                                 <a asp-page="@TeacherRoutes.SplitGroup()" asp-route-groupId="@group.Id"
-                                    class="btn btn-warning"><i class="bi-slash"></i></a>
+                                    asp-route-courseId="@Model.Course.Id" class="btn btn-warning"><i class="bi-slash"></i></a>
 
                                 <button class="btn btn-danger">
                                     <i class="bi-trash"></i>

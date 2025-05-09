@@ -13,14 +13,21 @@ public class SplitGroupModel(
 {
     public Group Group { get; set; } = default!;
 
+    public Guid CourseId { get; set; }
+
     public User[] Members { get; set; } = [];
 
     [BindProperty]
     public string[] SelectedMembers { get; set; } = [];
     public List<User> NewGroupMembers { get; set; } = [];
 
-    public async Task<IActionResult> OnGetAsync(Guid groupId)
+    public async Task<IActionResult> OnGetAsync(Guid groupId, Guid courseId)
     {
+        if (groupId == Guid.Empty || courseId == Guid.Empty)
+        {
+            return RedirectToPage(TeacherRoutes.CourseOverview());
+        }
+        CourseId = courseId;
         await LoadAsync(groupId);
         return Page();
     }

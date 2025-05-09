@@ -24,9 +24,9 @@ public class CourseOverviewModel(
 
     public DiscordServerItem? CourseDiscordServer { get; set; }
 
-    public async Task<IActionResult> OnGetAsync(Guid id)
+    public async Task<IActionResult> OnGetAsync(Guid courseId)
     {
-        await LoadAsync(id);
+        await LoadAsync(courseId);
         return Page();
     }
 
