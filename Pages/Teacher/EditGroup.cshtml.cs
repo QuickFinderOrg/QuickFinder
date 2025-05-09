@@ -9,15 +9,8 @@ public class EditGroupModel(GroupRepository groupRepository, UserService userSer
     public Group? Group;
     public User[] Members = [];
 
-    public Guid CourseId;
-
-    public async Task<IActionResult> OnGetAsync(Guid groupId, Guid courseId)
+    public async Task<IActionResult> OnGetAsync(Guid groupId)
     {
-        if (groupId == Guid.Empty || courseId == Guid.Empty)
-        {
-            return RedirectToPage(TeacherRoutes.CourseOverview());
-        }
-        CourseId = courseId;
         await LoadAsync(groupId);
         return Page();
     }

@@ -35,7 +35,7 @@ public class CourseOverviewModel(
         Course =
             await courseRepository.GetByIdAsync(Course.Id)
             ?? throw new Exception("Course not found");
-        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { courseId = Course.Id });
     }
 
     public async Task<IActionResult> OnPostDeleteGroupAsync(Guid groupId)
@@ -44,13 +44,13 @@ public class CourseOverviewModel(
         Course =
             await courseRepository.GetByIdAsync(Course.Id)
             ?? throw new Exception("Course not found");
-        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { courseId = Course.Id });
     }
 
     public async Task<IActionResult> OnPostChangeGroupSizeAsync()
     {
         await groupRepository.ChangeGroupSize(Course.Id, Course.GroupSize);
-        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = Course.Id });
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { courseId = Course.Id });
     }
 
     public async Task<IActionResult> OnPostRemoveTicketAsync(Guid ticketId)

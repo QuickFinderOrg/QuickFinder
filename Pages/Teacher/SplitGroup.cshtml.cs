@@ -21,13 +21,8 @@ public class SplitGroupModel(
     public string[] SelectedMembers { get; set; } = [];
     public List<User> NewGroupMembers { get; set; } = [];
 
-    public async Task<IActionResult> OnGetAsync(Guid groupId, Guid courseId)
+    public async Task<IActionResult> OnGetAsync(Guid groupId)
     {
-        if (groupId == Guid.Empty || courseId == Guid.Empty)
-        {
-            return RedirectToPage(TeacherRoutes.CourseOverview());
-        }
-        CourseId = courseId;
         await LoadAsync(groupId);
         return Page();
     }

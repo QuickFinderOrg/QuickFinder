@@ -5,7 +5,7 @@
     ViewData["Title"] = "Edit Page";
 }
 
-<a asp-page="@TeacherRoutes.CourseOverview()" asp-route-courseId="@Model.CourseId">go back</a>
+<a href='javascript:history.go(-1)'>Go Back</a>
 
 @if (Model.Group is not null && Model.Members is not null)
 {
