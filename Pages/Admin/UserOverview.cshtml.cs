@@ -71,7 +71,10 @@ public class UserOverviewModel(
                 continue;
             }
 
-            var isTeacher = (await authorizationService.AuthorizeAsync(User, "Teacher")).Succeeded;
+            var claims = await userManager.GetClaimsAsync(user);
+            var isTeacher = claims.Any(c =>
+                c.Type == ApplicationClaimTypes.IsTeacher && c.Value == true.ToString()
+            );
             if (isTeacher)
             {
                 Teachers.Add(user);
