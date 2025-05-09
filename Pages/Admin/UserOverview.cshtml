@@ -15,6 +15,41 @@
         </div>
     </form>
 
+    <h2>Admins</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Admins)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@await userService.GetName(user)</td>
+                    <td>
+                        <form asp-page-handler="RemoveAdmin" method="post" onsubmit="return confirmRemoveAdmin()">
+                            <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
+                            <input hidden value="@user.Id" name="userId">
+                            <button class="btn btn-danger">
+                                Remove Admin
+                            </button>
+                        </form>
+
+                        <script>
+                            function confirmRemoveAdmin() {
+                                return confirm("Are you sure you want to remove this admin?");
+                            }
+                        </script>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
     <div class="row">
         <div class="col-md-6">
             <h2>Teachers</h2>
@@ -37,7 +72,7 @@
                                     <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                                     <input hidden value="@user.Id" name="userId">
                                     <button class="btn btn-danger">
-                                        <i class="bi-x"></i>
+                                        Remove Teacher
                                     </button>
                                 </form>
                             </td>
@@ -48,7 +83,7 @@
         </div>
 
         <div class="col-md-6">
-            <h2>Admins</h2>
+            <h2>Users</h2>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -58,53 +93,46 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in Model.Admins)
+                    @foreach (var user in Model.Users)
                     {
                         <tr>
                             <td>@user.UserName</td>
                             <td>@await userService.GetName(user)</td>
-                            <td>
-                                <form asp-page-handler="RemoveAdmin" method="post">
-                                    <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
-                                    <input hidden value="@user.Id" name="userId">
-                                    <button class="btn btn-danger">
-                                        <i class="bi-x"></i>
-                                    </button>
-                                </form>
+                            <td class="d-flex justify-content-center gap-2">
+                                @if (!Model.Teachers.Contains(user))
+                                {
+                                    <form asp-page-handler="MakeTeacher" method="post">
+                                        <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
+                                        <input hidden value="@user.Id" name="userId">
+                                        <button class="btn btn-primary">
+                                            Make Teacher
+                                        </button>
+                                    </form>
+                                }
+                                @if (!Model.Admins.Contains(user))
+                                {
+                                    <form asp-page-handler="MakeAdmin" method="post" onsubmit="return confirmMakeAdmin()">
+                                        <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
+                                        <input hidden value="@user.Id" name="userId">
+                                        <button class="btn btn-warning">
+                                            Make Admin
+                                        </button>
+                                    </form>
+                                }
+
+                                <script>
+                                    function confirmMakeAdmin() {
+                                        return confirm("Are you sure you want to make this user an admin?");
+                                    }
+                                </script>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+
         </div>
     </div>
 
-    <h2>Users</h2>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in Model.Users)
-            {
-                <tr>
-                    <td>@user.UserName</td>
-                    <td>@await userService.GetName(user)</td>
-                    <td>
-                        <form asp-page-handler="MakeTeacher" method="post">
-                            <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
-                            <input hidden value="@user.Id" name="userId">
-                            <button class="btn btn-primary">
-                                <i class="bi-check"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+
 </div>

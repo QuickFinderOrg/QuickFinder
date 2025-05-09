@@ -61,7 +61,7 @@
                                 </form>
                             }
                             <form asp-page-handler="ChangeAllowAnyone" asp-route-groupId="@group.Id" method="post">
-                                <label>Allow anyone to join?</label>
+                                <label>Allow anyone to manually join?</label>
                                 <input type="checkbox" asp-for="@Model.AllowAnyone" checked="@group.AllowAnyone"
                                     class="form-check-input" onchange="this.form.submit()" />
                             </form>

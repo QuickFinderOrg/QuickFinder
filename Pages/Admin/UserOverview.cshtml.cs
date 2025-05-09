@@ -37,12 +37,32 @@ public class UserOverviewModel(
         await LoadAsync();
     }
 
+    public async Task OnPostMakeAdminAsync(string userId)
+    {
+        var user = await userService.GetUser(userId);
+        await userManager.AddClaimAsync(
+            user,
+            new Claim(ApplicationClaimTypes.IsAdmin, true.ToString())
+        );
+        await LoadAsync();
+    }
+
     public async Task OnPostRemoveTeacherAsync(string userId)
     {
         var user = await userService.GetUser(userId);
         await userManager.RemoveClaimAsync(
             user,
             new Claim(ApplicationClaimTypes.IsTeacher, true.ToString())
+        );
+        await LoadAsync();
+    }
+
+    public async Task OnPostRemoveAdminAsync(string userId)
+    {
+        var user = await userService.GetUser(userId);
+        await userManager.RemoveClaimAsync(
+            user,
+            new Claim(ApplicationClaimTypes.IsAdmin, true.ToString())
         );
         await LoadAsync();
     }
@@ -86,7 +106,7 @@ public class UserOverviewModel(
             {
                 Admins.Add(user);
             }
-            if (!isTeacher && !isAdmin)
+            if (!isTeacher || !isAdmin)
             {
                 Users.Add(user);
             }
