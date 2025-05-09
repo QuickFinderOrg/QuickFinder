@@ -56,6 +56,6 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
             CourseId
         );
 
-        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = CourseId });
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { courseId = CourseId });
     }
 }

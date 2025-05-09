@@ -57,7 +57,7 @@ public class SplitGroupModel(
         };
         newGroup.Members.AddRange(NewGroupMembers);
         await groupRepository.AddAsync(newGroup, cancellationToken);
-        return RedirectToPage(TeacherRoutes.CourseOverview(), new { id = course.Id });
+        return RedirectToPage(TeacherRoutes.CourseOverview(), new { courseId = course.Id });
     }
 
     public async Task LoadAsync(Guid id)
