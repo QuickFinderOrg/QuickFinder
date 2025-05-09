@@ -9,6 +9,11 @@ DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
 
     StudyLocation[] studyLocations = [StudyLocation.Online, StudyLocation.InPerson];
 }
+@if (Model.ReturnUrl == null)
+{
+    <a asp-page="@StudentRoutes.CourseOverview()" asp-route-courseId="@Model.CourseId">Go Back</a>
+}
+
 <div class="text-center">
     <h1>Course preferences </h1>
     <h5>Select which criteria to match you by</h5>

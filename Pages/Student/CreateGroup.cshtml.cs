@@ -17,6 +17,9 @@ public class CreateGroupModel(
     public string StatusMessage { get; set; } = null!;
 
     [BindProperty]
+    public string? ReturnUrl { get; set; }
+
+    [BindProperty]
     public InputModel Input { get; set; } = null!;
 
     public class InputModel
@@ -36,8 +39,9 @@ public class CreateGroupModel(
 
     public Course Course { get; set; } = default!;
 
-    public async Task<IActionResult> OnGetAsync(Guid courseId)
+    public async Task<IActionResult> OnGetAsync(Guid courseId, string returnUrl)
     {
+        ReturnUrl = returnUrl;
         var user = await userManager.GetUserAsync(User);
         if (user == null)
         {

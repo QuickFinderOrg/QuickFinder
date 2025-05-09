@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Course Overview";
 }
+
 <h4 class="text-center">Courses</h4>
 <form asp-page-handler="ChangeCourse" method="post">
     <select asp-for="Course.Id" class="form-control" onchange="this.form.submit()">

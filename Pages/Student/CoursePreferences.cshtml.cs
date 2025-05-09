@@ -23,7 +23,7 @@ public class CoursePreferencesModel(
     public Guid CourseId { get; set; }
 
     [BindProperty]
-    public string ReturnUrl { get; set; } = null!;
+    public string? ReturnUrl { get; set; }
 
     public class InputModel
     {

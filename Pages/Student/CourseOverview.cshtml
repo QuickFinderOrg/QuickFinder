@@ -3,7 +3,11 @@
 @inject UserService userService;
 @{
     ViewData["Title"] = "Course Overview";
+    var returnUrl = Request.Path + Request.QueryString;
 }
+
+<a asp-page="@StudentRoutes.Matching()">Go Back</a>
+
 <div class="text-center">
     @if (Model.Course is null)
     {
@@ -16,13 +20,14 @@
         <h1>Course overview for @Model.Course.Name</h1>
 
         <div class="d-flex justify-content-center gap-1">
-            <a asp-page="@StudentRoutes.CoursePreferences()" asp-route-courseId="@Model.Course.Id"
-                asp-route-returnUrl="@StudentRoutes.CourseOverview()">
+            <a asp-page="@StudentRoutes.CoursePreferences()" asp-route-courseId="@Model.Course.Id">
                 <button>Change preferences</button></a>
             @if (Model.Group == null)
             {
-                <a asp-page="@StudentRoutes.CreateGroup()" asp-route-courseId="@Model.Course.Id"><button type="submit">Create
-                        Group</button></a>
+                <a asp-page="@StudentRoutes.CreateGroup()" asp-route-courseId="@Model.Course.Id"
+                    asp-route-returnUrl="@returnUrl">
+                    <button type="submit">Create Group</button>
+                </a>
             }
         </div>
 
