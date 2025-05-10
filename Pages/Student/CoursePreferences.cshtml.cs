@@ -42,7 +42,7 @@ public class CoursePreferencesModel(
         public StudyLocation StudyLocation { get; set; }
     }
 
-    public async Task<IActionResult> OnGetAsync(Guid courseId, string returnUrl)
+    public async Task<IActionResult> OnGetAsync(Guid courseId, string? returnUrl = null)
     {
         ReturnUrl = returnUrl;
         Console.WriteLine($"CourseId {courseId}");
