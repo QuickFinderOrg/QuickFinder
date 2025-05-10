@@ -6,8 +6,8 @@
 }
 <div class="text-center">
     <h1 class="display-4">Matchmaking queue</h1>
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-striped border align-middle shadow-sm rounded">
+        <thead class="table-light">
             <tr>
                 <th>Name</th>
                 <th>Course</th>
@@ -24,7 +24,7 @@
                     <td>@ticket.Preferences.Availability</td>
                     <td>
                         <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
-                            <button class="btn btn-danger">
+                            <button class="btn btn-danger btn-sm" title="Delete">
                                 <i class="bi-trash"></i>
                             </button>
                         </form>
@@ -33,7 +33,7 @@
             }
         </tbody>
     </table>
-    <div>
+    <div class="d-flex justify-content-center gap-2">
         <form asp-page-handler="Match" method="post">
             <button class="btn btn-primary">FORCE STUDENT MATCHMAKING</button>
         </form>
@@ -41,9 +41,12 @@
             <button class="btn btn-primary">FORCE GROUPS BACKFILL</button>
         </form>
     </div>
-    <h1 class="display-4">Groups</h1>
-    <table class="table table-striped">
-        <thead>
+
+    <br></br>
+
+    <h1>Groups</h1>
+    <table class="table table-striped border align-middle shadow-sm rounded">
+        <thead class="table-light">
             <tr>
                 <th>Name</th>
                 <th>Course</th>
@@ -61,28 +64,35 @@
                     <td>
                         @foreach (var member in group.Members)
                         {
-                            <p>@await userService.GetName(member)</p>
+                            <span class="badge bg-secondary">@await userService.GetName(member)</span>
                         }
                     </td>
                     <td>
-                        <p>@group.Members.Count / @group.GroupLimit</p>
+                        <span
+                            class="badge @(group.Members.Count == group.GroupLimit ? "bg-success" : "bg-warning text-dark")">
+                            @group.Members.Count / @group.GroupLimit
+                        </span>
                     </td>
                     <td>
-                        <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">
-                            <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
-                                class="btn btn-primary"><i class="bi-pencil"></i></a>
-                            <button class="btn btn-danger">
-                                <i class="bi-trash"></i>
-                            </button>
-                        </form>
+                        <div>
+                            <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">
+                                <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
+                                    class="btn btn-primary btn-sm" title="Edit"><i class="bi-pencil"></i></a>
+                                <button class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 
-    <table class="table table-striped">
-        <thead>
+    <br></br>
+
+    <table class="table table-striped border align-middle shadow-sm rounded">
+        <thead class="table-light">
             <tr>
                 <th>Name</th>
                 <th>Actions</th>
@@ -95,16 +105,16 @@
                     <td>@Course.Name</td>
                     <td class="d-flex justify-content-center gap-2">
                         <form asp-page-handler="DeleteGroups" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-primary">DELETE GROUPS</button>
+                            <button class="btn btn-primary btn-sm">DELETE GROUPS</button>
                         </form>
                         <form asp-page-handler="FillQueue" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-primary">FILL QUEUE</button>
+                            <button class="btn btn-primary btn-sm">FILL QUEUE</button>
                         </form>
                         <form asp-page-handler="EmptyQueue" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-primary">EMPTY QUEUE</button>
+                            <button class="btn btn-primary btn-sm">EMPTY QUEUE</button>
                         </form>
                         <form asp-page-handler="DeleteCourse" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-danger">DELETE COURSE</button>
+                            <button class="btn btn-danger btn-sm">DELETE COURSE</button>
                         </form>
                     </td>
                 </tr>
