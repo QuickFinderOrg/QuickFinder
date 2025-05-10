@@ -19,7 +19,11 @@
                 @foreach (var ticket in Model.Students)
                 {
                     <tr>
-                        <td>@await userService.GetName(ticket.User)</td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                @await userService.GetName(ticket.User)
+                            </span>
+                        </td>
                         <td>@ticket.Course.Name</td>
                         <td>
                             <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
