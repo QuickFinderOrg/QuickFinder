@@ -28,14 +28,14 @@
         </div>
     }
 
+    <br></br>
+
     <form asp-page-handler="Search" method="post" class="mb-4 w-25 mx-auto">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="Search course..." asp-for="SearchQuery">
             <button class="btn btn-primary" type="submit">Search</button>
         </div>
     </form>
-
-    <br></br>
 
     @if (Model.JoinedCourses.Count > 0)
     {
@@ -109,6 +109,4 @@
             }
         </tbody>
     </table>
-
-    <a href="@StudentRoutes.Groups()">Go To groups</a>
 </div>
