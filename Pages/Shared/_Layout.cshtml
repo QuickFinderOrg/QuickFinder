@@ -121,9 +121,17 @@
     </div>
 
     <footer class="border-top footer text-muted py-3 mt-auto">
-        <div class="container">
-            &copy; 2025 - QuickFinder - <a asp-page="/Privacy">Privacy</a>
-            - <a asp-area="Identity" asp-page="/Account/Login">Admin</a>
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>
+                &copy; 2025 - QuickFinder - <a class="text-decoration-none" asp-page="/Privacy">Privacy</a>
+                - <a class="text-decoration-none" asp-area="Identity" asp-page="/Account/Login">Admin</a>
+            </span>
+
+            @if ((await authorizationService.AuthorizeAsync(User, "Student")).Succeeded)
+            {
+                <a href="https://discord.gg/W8twZqauKf" class="btn btn-primary">Join the QuickFinder
+                    Discord Server</a>
+            }
         </div>
     </footer>
 
