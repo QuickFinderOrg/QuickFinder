@@ -13,27 +13,23 @@ DaysOfTheWeek.Thursday, DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheW
         <h1>Your Preferences</h1>
         <h5>These will be used when matching with other users.</h5>
         <partial name="_StatusMessage" for="StatusMessage" />
+
         <form method="post">
             <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
             <label>Available days:</label>
-            <br></br>
             @foreach (var day in days)
             {
-                if (Model.Input.Days.HasDay(day))
-                {
-                    <input type="checkbox" value="@day" name="Input.Days" checked />
-                }
-                else
-                {
-                    <input type="checkbox" value="@day" name="Input.Days" />
-                }
-                <label>@day</label>
+                <div class="form-check mx-4">
+                    <input class="form-check-input" type="checkbox" value="@day" name="Input.Days"
+                        @(Model.Input.Days.HasDay(day) ? "checked" : "") />
+                    <label class="form-check-label">@day</label>
+                </div>
             }
             <br></br>
 
             <label asp-for="Input.Availability" class="form-label"></label>
-            <select asp-for="Input.Availability" class="form-control">
+            <select asp-for="Input.Availability" class="form-control w-25">
                 <option value="@Availability.Daytime">Day</option>
                 <option value="@Availability.Afternoons">Afternoon</option>
             </select>
@@ -44,19 +40,15 @@ DaysOfTheWeek.Thursday, DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheW
             <br></br>
             @foreach (var language in Enum.GetValues<LanguageFlags>())
             {
-                if (Model.Input.SpokenLanguages.HasFlag(language))
-                {
-                    <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
-                }
-                else
-                {
-                    <input type="checkbox" value="@language" name="Input.SelectedLanguages" />
-                }
-                <label>@language</label>
+                <div class="form-check mx-4">
+                    <input class="form-check-input" type="checkbox" value="@language" name="Input.SelectedLanguages"
+                        @(Model.Input.SpokenLanguages.HasFlag(language) ? "checked" : "") />
+                    <label class="form-check-label">@language</label>
+                </div>
             }
             <br></br>
 
-            <button type="submit">Submit</button>
+            <button class="btn btn-primary" type="submit">Submit</button>
         </form>
     </div>
 }
