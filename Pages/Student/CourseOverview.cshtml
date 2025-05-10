@@ -6,7 +6,7 @@
     var returnUrl = Request.Path + Request.QueryString;
 }
 
-<a asp-page="@StudentRoutes.Matching()">Go Back</a>
+<a class="nav-link" asp-page="@StudentRoutes.Matching()">Go Back</a>
 
 <div class="text-center">
     @if (Model.Course is null)

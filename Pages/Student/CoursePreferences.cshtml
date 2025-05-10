@@ -11,7 +11,7 @@ DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
 }
 @if (Model.ReturnUrl == null)
 {
-    <a asp-page="@StudentRoutes.CourseOverview()" asp-route-courseId="@Model.CourseId">Go Back</a>
+    <a class="nav-link" asp-page="@StudentRoutes.CourseOverview()" asp-route-courseId="@Model.CourseId">Go Back</a>
 }
 
 <div class="text-center">
