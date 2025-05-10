@@ -35,11 +35,13 @@
         </div>
     </form>
 
+    <br></br>
+
     @if (Model.JoinedCourses.Count > 0)
     {
         <h2>Joined Courses</h2>
-        <table class="table table-striped">
-            <thead>
+        <table class="table table-striped border align-middle shadow-sm rounded">
+            <thead class="table-light">
                 <tr>
                     <th>Name</th>
                     <th>Members</th>
@@ -58,21 +60,21 @@
                                 @if (await ticketRepository.CheckIfInQueue(user, Course))
                                 {
                                     <form asp-page-handler="LeaveQueue" asp-route-courseId="@Course.Id" method="post">
-                                        <button type="submit">Leave queue</button>
+                                        <button class="btn btn-primary btn-sm" type="submit">Leave queue</button>
                                     </form>
                                 }
                                 else
                                 {
                                     <form asp-page-handler="FindGroup" asp-route-courseId="@Course.Id" method="post">
-                                        <button type="submit">Find Group</button>
+                                        <button class="btn btn-primary btn-sm" type="submit">Find Group</button>
                                     </form>
                                 }
                             }
-                            <a asp-page="@StudentRoutes.CourseOverview()"
-                                asp-route-courseId="@Course.Id"><button>Overview</button></a>
+                            <a asp-page="@StudentRoutes.CourseOverview()" asp-route-courseId="@Course.Id"><button
+                                    class="btn btn-primary btn-sm">Overview</button></a>
 
                             <form asp-page-handler="LeaveCourse" asp-route-courseId="@Course.Id" method="post">
-                                <button type="submit">Leave Course</button>
+                                <button class="btn btn-danger btn-sm" type="submit">Leave Course</button>
                             </form>
                         </td>
                     </tr>
@@ -81,9 +83,11 @@
         </table>
     }
 
+    <br></br>
+
     <h2>Available Courses</h2>
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-striped border align-middle shadow-sm rounded">
+        <thead class="table-light">
             <tr>
                 <th>Name</th>
                 <th>Members</th>
@@ -98,7 +102,7 @@
                     <td>@Course.Members.Count</td>
                     <td class="d-flex justify-content-center gap-2">
                         <form asp-page-handler="JoinCourse" asp-route-courseId="@Course.Id" method="post">
-                            <button type="submit">Join Course</button>
+                            <button class="btn btn-primary btn-sm" type="submit">Join Course</button>
                         </form>
                     </td>
                 </tr>

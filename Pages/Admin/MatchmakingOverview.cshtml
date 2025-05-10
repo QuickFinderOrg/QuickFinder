@@ -4,121 +4,124 @@
 @{
     ViewData["Title"] = "Students";
 }
-<div class="text-center">
-    <h1 class="display-4">Matchmaking queue</h1>
-    <table class="table table-striped border align-middle shadow-sm rounded">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Course</th>
-                <th>Availability</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ticket in Model.Students)
-            {
+<div class="text-center d-flex justify-content-between gap-2">
+    <div class="w-50">
+        <h1>Matchmaking queue</h1>
+        <table class="table table-striped border align-middle shadow-sm rounded">
+            <thead class="table-light">
                 <tr>
-                    <td>@await userService.GetName(ticket.User)</td>
-                    <td>@ticket.Course.Name</td>
-                    <td>@ticket.Preferences.Availability</td>
-                    <td>
-                        <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
-                            <button class="btn btn-danger btn-sm" title="Delete">
-                                <i class="bi-trash"></i>
-                            </button>
-                        </form>
-                    </td>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-    <div class="d-flex justify-content-center gap-2">
-        <form asp-page-handler="Match" method="post">
-            <button class="btn btn-primary">FORCE STUDENT MATCHMAKING</button>
-        </form>
-        <form asp-page-handler="MatchGroup" method="post">
-            <button class="btn btn-primary">FORCE GROUPS BACKFILL</button>
-        </form>
-    </div>
-
-    <br></br>
-
-    <h1>Groups</h1>
-    <table class="table table-striped border align-middle shadow-sm rounded">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Course</th>
-                <th>Members</th>
-                <th>Complete</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var group in Model.Groups)
-            {
-                <tr>
-                    <td title="@group.Id">@group.Name</td>
-                    <td>@group.Course.Name</td>
-                    <td>
-                        @foreach (var member in group.Members)
-                        {
-                            <span class="badge bg-secondary">@await userService.GetName(member)</span>
-                        }
-                    </td>
-                    <td>
-                        <span
-                            class="badge @(group.Members.Count == group.GroupLimit ? "bg-success" : "bg-warning text-dark")">
-                            @group.Members.Count / @group.GroupLimit
-                        </span>
-                    </td>
-                    <td>
-                        <div>
-                            <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">
-                                <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
-                                    class="btn btn-primary btn-sm" title="Edit"><i class="bi-pencil"></i></a>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.Students)
+                {
+                    <tr>
+                        <td>@await userService.GetName(ticket.User)</td>
+                        <td>@ticket.Course.Name</td>
+                        <td>
+                            <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
                                 <button class="btn btn-danger btn-sm" title="Delete">
                                     <i class="bi-trash"></i>
                                 </button>
                             </form>
-                        </div>
-                    </td>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-center gap-2">
+            <form asp-page-handler="Match" method="post">
+                <button class="btn btn-primary">FORCE STUDENT MATCHMAKING</button>
+            </form>
+            <form asp-page-handler="MatchGroup" method="post">
+                <button class="btn btn-primary">FORCE GROUPS BACKFILL</button>
+            </form>
+        </div>
+
+        <br></br>
+
+        <h1>Courses</h1>
+        <table class="table table-striped border align-middle shadow-sm rounded">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var Course in Model.Courses)
+                {
+                    <tr>
+                        <td>@Course.Name</td>
+                        <td class="d-flex justify-content-center gap-2">
+                            <form asp-page-handler="DeleteGroups" asp-route-courseId="@Course.Id" method="post">
+                                <button class="btn btn-primary btn-sm">DELETE GROUPS</button>
+                            </form>
+                            <form asp-page-handler="FillQueue" asp-route-courseId="@Course.Id" method="post">
+                                <button class="btn btn-primary btn-sm">FILL QUEUE</button>
+                            </form>
+                            <form asp-page-handler="EmptyQueue" asp-route-courseId="@Course.Id" method="post">
+                                <button class="btn btn-primary btn-sm">EMPTY QUEUE</button>
+                            </form>
+                            <form asp-page-handler="DeleteCourse" asp-route-courseId="@Course.Id" method="post">
+                                <button class="btn btn-danger btn-sm">DELETE COURSE</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
     <br></br>
 
-    <table class="table table-striped border align-middle shadow-sm rounded">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var Course in Model.Courses)
-            {
+    <div class="w-50">
+        <h1>Groups</h1>
+        <table class="table table-striped border align-middle shadow-sm rounded">
+            <thead class="table-light">
                 <tr>
-                    <td>@Course.Name</td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <form asp-page-handler="DeleteGroups" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-primary btn-sm">DELETE GROUPS</button>
-                        </form>
-                        <form asp-page-handler="FillQueue" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-primary btn-sm">FILL QUEUE</button>
-                        </form>
-                        <form asp-page-handler="EmptyQueue" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-primary btn-sm">EMPTY QUEUE</button>
-                        </form>
-                        <form asp-page-handler="DeleteCourse" asp-route-courseId="@Course.Id" method="post">
-                            <button class="btn btn-danger btn-sm">DELETE COURSE</button>
-                        </form>
-                    </td>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Members</th>
+                    <th>Complete</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var group in Model.Groups)
+                {
+                    <tr>
+                        <td title="@group.Id">@group.Name</td>
+                        <td>@group.Course.Name</td>
+                        <td>
+                            @foreach (var member in group.Members)
+                            {
+                                <span class="badge bg-secondary">@await userService.GetName(member)</span>
+                            }
+                        </td>
+                        <td>
+                            <span
+                                class="badge @(group.Members.Count == group.GroupLimit ? "bg-success" : "bg-warning text-dark")">
+                                @group.Members.Count / @group.GroupLimit
+                            </span>
+                        </td>
+                        <td>
+                            <div>
+                                <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">
+                                    <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
+                                        class="btn btn-primary btn-sm" title="Edit"><i class="bi-pencil"></i></a>
+                                    <button class="btn btn-danger btn-sm" title="Delete">
+                                        <i class="bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
