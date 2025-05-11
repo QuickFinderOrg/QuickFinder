@@ -28,7 +28,7 @@ public class CoursePreferencesModel(
     public class InputModel
     {
         [Required]
-        [Display(Name = "Availability")]
+        [Display(Name = "Available time:")]
         public Availability NewAvailability { get; set; }
 
         public LanguageFlags SpokenLanguages { get; set; }
