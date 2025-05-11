@@ -5,7 +5,7 @@
 }
 
 
-<h1 class="display-4">Create Course</h1>
+<h1>Create Course</h1>
 <p class="lead">Create a new course that students can form groups in.</p>
 
 @if (ViewData["ErrorMessage"] != null)
@@ -19,19 +19,15 @@
     <div class="row mb-3">
 
         <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" type="text" required class="form-control" />
+        <input asp-for="Name" type="text" required class="form-control w-25" />
         <span asp-validation-for="Name" class="text-danger"></span>
 
     </div>
 
     <div class="row mb-3">
         <label asp-for="GroupSize" class="form-label">Choose Group Size limit</label>
-        <input asp-for="GroupSize" type="number" class="form-control" />
+        <input asp-for="GroupSize" type="number" class="form-control w-25" />
         <span asp-validation-for="GroupSize" class="text-danger"></span>
     </div>
-    <div class="row">
-        <div class="col-md-6">
-            <button class="btn btn-primary" type="submit">Create</button>
-        </div>
-    </div>
+    <button class="btn btn-primary" type="submit">Create</button>
 </form>
