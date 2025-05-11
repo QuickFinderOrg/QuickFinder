@@ -10,8 +10,8 @@
 <div class="text-center">
     <h1 class="display-4">Your Groups</h1>
     <p>@Model.Groups.Count Groups</p>
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-striped border align-middle shadow-sm rounded">
+        <thead class="table-light">
             <tr>
                 <th>Name</th>
                 <th>Course</th>
@@ -29,23 +29,29 @@
                     <td>
                         @foreach (var member in group.Members)
                         {
-                            <p>@member.name</p>
+                            <span class="badge bg-secondary">@member.name</span>
                         }
                     </td>
                     <td>
-                        <p>@group.Members.Count / @group.GroupLimit</p>
+                        <span
+                            class="badge @(group.Members.Count == group.GroupLimit ? "bg-success" : "bg-warning text-dark")">
+                            @group.Members.Count / @group.GroupLimit
+                        </span>
                     </td>
-                    <td>
-                        <form asp-page-handler="Leave" asp-route-groupId="@group.Id" method="post">
-                            <button type="submit">Leave Group</button>
-                        </form>
+                    <td class="d-flex justify-content-center gap-2">
                         @if (!group.IsFull)
                         {
+                            <form asp-page-handler="ChangeAllowAnyone" asp-route-groupId="@group.Id" method="post">
+                                <label>Allow anyone to manually join?</label>
+                                <input type="checkbox" asp-for="@Model.AllowAnyone" checked="@group.AllowAnyone"
+                                    class="form-check-input" onchange="this.form.submit()" />
+                            </form>
                             @if (await groupTicketRepository.CheckIfInQueue(group.Id, group.CourseId))
                             {
                                 <form asp-page-handler="CancelSearch" asp-route-groupId="@group.Id" method="post"
                                     onsubmit="return confirmCancelSearch()">
-                                    <button type="submit">Searching . . .</button>
+                                    <div class="spinner-border spinner-border-sm"></div>
+                                    <button class="btn btn-primary btn-sm" type="submit">Searching . . .</button>
                                 </form>
 
                                 <script>
@@ -57,15 +63,13 @@
                             else
                             {
                                 <form asp-page-handler="Search" asp-route-groupId="@group.Id" method="post">
-                                    <button type="submit">Find member</button>
+                                    <button class="btn btn-primary btn-sm" type="submit">Find member</button>
                                 </form>
                             }
-                            <form asp-page-handler="ChangeAllowAnyone" asp-route-groupId="@group.Id" method="post">
-                                <label>Allow anyone to manually join?</label>
-                                <input type="checkbox" asp-for="@Model.AllowAnyone" checked="@group.AllowAnyone"
-                                    class="form-check-input" onchange="this.form.submit()" />
-                            </form>
                         }
+                        <form asp-page-handler="Leave" asp-route-groupId="@group.Id" method="post">
+                            <button class="btn btn-danger btn-sm" type="submit">Leave Group</button>
+                        </form>
                     </td>
                 </tr>
             }
