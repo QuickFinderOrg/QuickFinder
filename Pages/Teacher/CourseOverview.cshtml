@@ -103,7 +103,10 @@
                             }
                         </td>
                         <td>
-                            <p>@group.Members.Count / @group.GroupLimit</p>
+                            <span
+                                class="badge @(group.Members.Count == group.GroupLimit ? "bg-success" : "bg-warning text-dark")">
+                                @group.Members.Count / @group.GroupLimit
+                            </span>
                         </td>
                         <td>
                             <form asp-page-handler="DeleteGroup" asp-route-groupId="@group.Id" method="post">

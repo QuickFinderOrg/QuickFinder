@@ -10,9 +10,9 @@
 @if (Model.Group is not null && Model.Members is not null)
 {
     <div class="text-center">
-        <h1 class="display-4">Edit Group @Model.Group.Id</h1>
-        <table class="table table-striped">
-            <thead>
+        <h1 class="display-4 mb-4">Edit Group @Model.Group.Name</h1>
+        <table class="table table-striped border align-middle shadow-sm rounded">
+            <thead class="table-light">
                 <tr>
                     <th>Name</th>
                     <th>Actions</th>
@@ -22,12 +22,12 @@
                 @foreach (var member in Model.Group.Members)
                 {
                     <tr>
-                        <td>@await userService.GetName(member)</td>
+                        <td><span class="badge bg-secondary">@await userService.GetName(member)</span></td>
                         <td>
                             <form asp-page-handler="DeleteMember" method="post">
                                 <input hidden value="@member.Id" name="userId">
                                 <input hidden value="@Model.Group.Id" name="groupId">
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger btn-sm" title="Delete">
                                     <i class="bi-trash"></i>
                                 </button>
                             </form>

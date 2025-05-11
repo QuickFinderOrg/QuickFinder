@@ -10,7 +10,8 @@
 @if (Model.Group is not null && Model.Members is not null)
 {
     <div class="text-center">
-        <h1 class="display-4">Split Group @Model.Group.Id</h1>
+        <h1 class="display-4">Split Group @Model.Group.Name</h1>
+        <p class="lead mb-4">Select which members you want to be in a new group</p>
 
         @if (ViewData["ErrorMessage"] != null)
         {
@@ -19,8 +20,8 @@
             </div>
         }
         <form asp-page-handler="Split" method="post">
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-striped border align-middle shadow-sm rounded">
+                <thead class="table-light">
                     <tr>
                         <th>Name</th>
                         <th>Actions</th>
@@ -33,14 +34,14 @@
                         <tr>
                             <td>@await userService.GetName(member)</td>
                             <td>
-                                <input type="checkbox" value="@member.Id" name="SelectedMembers[]" />
+                                <input class="form-check-input" type="checkbox" value="@member.Id" name="SelectedMembers[]" />
                             </td>
                         </tr>
                     }
                     <input value="@Model.Group.Id" name="groupId" hidden />
                 </tbody>
             </table>
-            <button class="btn btn-primary">
+            <button class="btn btn-primary bnt-sm">
                 Split Group
             </button>
         </form>
