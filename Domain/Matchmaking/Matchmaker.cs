@@ -50,6 +50,7 @@ public class Matchmaker<U, G>(MatchmakerConfig options)
         }
 
         valid_group_combinations.Sort((a, b) => a.score.CompareTo(b.score));
+        valid_group_combinations.Reverse();
 
         return valid_group_combinations.Select(g => g.members).FirstOrDefault() ?? [];
     }
@@ -179,6 +180,24 @@ class DaysInCommonPreference : IPreference
     public decimal Check(IMatchmakingData from, IMatchmakingData to)
     {
         return from.Days.GetNumberOfMatchingDays(to.Days) / 7;
+    }
+}
+
+public class LanguagesInCommonPreference : IPreference
+{
+    public decimal Check(IMatchmakingData from, IMatchmakingData to)
+    {
+        var commonCount = from.Languages.IntersectWith(to.Languages).Count();
+
+        var fromCount = from.Languages.Count();
+        var toCount = to.Languages.Count();
+        if (commonCount == 0 || fromCount == 0 || toCount == 0)
+        {
+            return 0; // no matching languages
+        }
+        var fromFactor = commonCount / (decimal)fromCount;
+        var toFactor = commonCount / (decimal)toCount;
+        return Math.Min(fromFactor, toFactor); // Return worst match, regardless of argument order
     }
 }
 
