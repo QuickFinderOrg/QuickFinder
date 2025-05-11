@@ -8,7 +8,7 @@
 <div class="text-center">
     <h1 class="display-4">User Overview</h1>
 
-    <form asp-page-handler="Search" method="post" class="mb-4">
+    <form asp-page-handler="Search" method="post" class="mb-4 w-25 mx-auto">
         <div class="input-group">
             <input type="text" class="form-control" placeholder="Search username..." asp-for="SearchQuery">
             <button class="btn btn-primary" type="submit">Search</button>
@@ -16,8 +16,8 @@
     </form>
 
     <h2>Admins</h2>
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-striped border align-middle shadow-sm rounded">
+        <thead class="table-light">
             <tr>
                 <th>Username</th>
                 <th>Name</th>
@@ -28,13 +28,21 @@
             @foreach (var user in Model.Admins)
             {
                 <tr>
-                    <td>@user.UserName</td>
-                    <td>@await userService.GetName(user)</td>
+                    <td>
+                        <span class="badge bg-secondary">
+                            @user.UserName
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">
+                            @await userService.GetName(user)
+                        </span>
+                    </td>
                     <td>
                         <form asp-page-handler="RemoveAdmin" method="post" onsubmit="return confirmRemoveAdmin()">
                             <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                             <input hidden value="@user.Id" name="userId">
-                            <button class="btn btn-danger">
+                            <button class="btn btn-danger btn-sm">
                                 Remove Admin
                             </button>
                         </form>
@@ -53,8 +61,8 @@
     <div class="row">
         <div class="col-md-6">
             <h2>Teachers</h2>
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-striped border align-middle shadow-sm rounded">
+                <thead class="table-light">
                     <tr>
                         <th>Username</th>
                         <th>Name</th>
@@ -65,13 +73,21 @@
                     @foreach (var user in Model.Teachers)
                     {
                         <tr>
-                            <td>@user.UserName</td>
-                            <td>@await userService.GetName(user)</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @user.UserName
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @await userService.GetName(user)
+                                </span>
+                            </td>
                             <td>
                                 <form asp-page-handler="RemoveTeacher" method="post">
                                     <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                                     <input hidden value="@user.Id" name="userId">
-                                    <button class="btn btn-danger">
+                                    <button class="btn btn-danger btn-sm">
                                         Remove Teacher
                                     </button>
                                 </form>
@@ -84,8 +100,8 @@
 
         <div class="col-md-6">
             <h2>Users</h2>
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-striped border align-middle shadow-sm rounded">
+                <thead class="table-light">
                     <tr>
                         <th>Username</th>
                         <th>Name</th>
@@ -96,15 +112,23 @@
                     @foreach (var user in Model.Users)
                     {
                         <tr>
-                            <td>@user.UserName</td>
-                            <td>@await userService.GetName(user)</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @user.UserName
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @await userService.GetName(user)
+                                </span>
+                            </td>
                             <td class="d-flex justify-content-center gap-2">
                                 @if (!Model.Teachers.Contains(user))
                                 {
                                     <form asp-page-handler="MakeTeacher" method="post">
                                         <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                                         <input hidden value="@user.Id" name="userId">
-                                        <button class="btn btn-primary">
+                                        <button class="btn btn-primary btn-sm">
                                             Make Teacher
                                         </button>
                                     </form>
@@ -114,7 +138,7 @@
                                     <form asp-page-handler="MakeAdmin" method="post" onsubmit="return confirmMakeAdmin()">
                                         <input hidden asp-route="SearchQuery" value="@Model.SearchQuery" name="searchQuery">
                                         <input hidden value="@user.Id" name="userId">
-                                        <button class="btn btn-warning">
+                                        <button class="btn btn-warning btn-sm">
                                             Make Admin
                                         </button>
                                     </form>
