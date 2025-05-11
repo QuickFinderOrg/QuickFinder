@@ -4,14 +4,19 @@
 @inject UserService userService;
 @{
     ViewData["Title"] = "Create Group";
+
+    DaysOfTheWeek[] days = [DaysOfTheWeek.Monday, DaysOfTheWeek.Tuesday, DaysOfTheWeek.Wednesday, DaysOfTheWeek.Thursday,
+DaysOfTheWeek.Friday, DaysOfTheWeek.Saturday, DaysOfTheWeek.Sunday];
+
+    StudyLocation[] studyLocations = [StudyLocation.Online, StudyLocation.InPerson];
 }
 
 <a class="nav-link" href="@Model.ReturnUrl">Go Back</a>
 
-<div class="text-center">
-    <h1>Create Group</h1>
-    <h5>Select preferences for your group</h5>
-</div>
+
+<h1>Create Group</h1>
+<h5>Select preferences for your group</h5>
+
 
 @if (ViewData["ErrorMessage"] != null)
 {
@@ -26,31 +31,53 @@
     <input hidden asp-for="Course.Id">
     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
+    <label>Available days:</label>
+    @foreach (var day in days)
+    {
+        <div class="form-check mx-4">
+            <input class="form-check-input" type="checkbox" value="@day" name="Input.Days" @(Model.Input.Days.HasDay(day) ?
+                                                                                                       "checked" : "") />
+        <label class="form-check-label">@day</label>
+    </div>
+        }
+
+    <br></br>
+
     <label asp-for="Input.NewAvailability" class="form-label"></label>
-    <select asp-for="Input.NewAvailability" class="form-control">
+    <select asp-for="Input.NewAvailability" class="form-control w-25">
         <option value="@Availability.Daytime">Day</option>
         <option value="@Availability.Afternoons">Afternoon</option>
     </select>
     <span asp-validation-for="Input.NewAvailability" class="text-danger"></span>
 
+    <br></br>
+
     <label asp-for="Input.AllowAnyone" class="form-label"></label>
     <input asp-for="Input.AllowAnyone" class="form-check-input" />
 
-    <details>
-        <summary>Languages</summary>
-        @foreach (var language in Enum.GetValues<LanguageFlags>())
-        {
-            if (Model.Input.SpokenLanguages.HasFlag(language))
-            {
-                <input type="checkbox" value="@language" name="Input.SelectedLanguages" checked />
-            }
-            else
-            {
-                <input type="checkbox" value="@language" name="Input.SelectedLanguages" />
-            }
-            <label>@language</label>
-        }
-    </details>
+    <br></br>
 
-    <button type="submit">Create</button>
+    <label>Preferred study location:</label>
+    @foreach (var location in studyLocations)
+    {
+        <div class="form-check mx-4">
+            <input class="form-check-input" type="checkbox" value="@location" name="Input.StudyLocation"
+                @(Model.Input.StudyLocation.HasFlag(location) ? "checked" : "") />
+            <label class="form-check-label">@location</label>
+        </div>
+    }
+    <br></br>
+
+    <label>Languages:</label>
+    @foreach (var language in Enum.GetValues<LanguageFlags>())
+    {
+        <div class="form-check mx-4">
+            <input class="form-check-input" type="checkbox" value="@language" name="Input.SelectedLanguages"
+                @(Model.Input.SpokenLanguages.HasFlag(language) ? "checked" : "") />
+            <label class="form-check-label">@language</label>
+        </div>
+    }
+    <br></br>
+
+    <button class="btn btn-primary" type="submit">Create</button>
 </form>

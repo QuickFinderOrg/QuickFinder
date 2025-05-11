@@ -25,16 +25,24 @@ public class CreateGroupModel(
     public class InputModel
     {
         [Required]
-        [Display(Name = "Availability")]
+        [Display(Name = "Available time:")]
         public Availability NewAvailability { get; set; }
 
-        [Display(Name = "Allow anyone to join?")]
+        [Display(Name = "Allow anyone to manually join?")]
         public bool AllowAnyone { get; set; }
         public LanguageFlags SpokenLanguages { get; set; }
 
         [Required]
-        [Display(Name = "Languages")]
+        [Display(Name = "Languages:")]
         public LanguageFlags SelectedLanguages { get; set; }
+
+        [Required]
+        [Display(Name = "Available days:")]
+        public DaysOfTheWeek Days { get; set; }
+
+        [Required]
+        [Display(Name = "Preferred study location:")]
+        public StudyLocation StudyLocation { get; set; }
     }
 
     public Course Course { get; set; } = default!;
@@ -75,6 +83,7 @@ public class CreateGroupModel(
         {
             NewAvailability = Availability.Afternoons,
             SpokenLanguages = user.Preferences.Language,
+            Days = user.Preferences.GlobalDays,
             AllowAnyone = false,
         };
         await Task.CompletedTask;
@@ -119,6 +128,8 @@ public class CreateGroupModel(
             User = user,
             Course = Course,
             Availability = Input.NewAvailability,
+            Days = Input.Days,
+            StudyLocation = Input.StudyLocation,
         };
         var userPreferences = new UserPreferences() { Language = Input.SelectedLanguages };
         var groupPreferences = Preferences.From(userPreferences, coursePreferences);
