@@ -26,9 +26,6 @@ builder
     .Services.AddOptions<MatchmakingOptions>()
     .Bind(builder.Configuration.GetSection(MatchmakingOptions.Matchmaking))
     .ValidateDataAnnotations();
-builder.Services.Configure<MailjetOptions>(
-    builder.Configuration.GetSection(MailjetOptions.Mailjet)
-);
 
 // Add services to the container.
 var connectionString =
