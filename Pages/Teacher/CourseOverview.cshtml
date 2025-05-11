@@ -5,8 +5,8 @@
     ViewData["Title"] = "Course Overview";
 }
 
-<h4 class="text-center">Courses</h4>
-<form asp-page-handler="ChangeCourse" method="post">
+<h1 class="text-center">Courses</h1>
+<form asp-page-handler="ChangeCourse" method="post" class="mb-1 w-25 mx-auto">
     <select asp-for="Course.Id" class="form-control" onchange="this.form.submit()">
         @foreach (var course in Model.Courses)
         {
@@ -16,34 +16,72 @@
 </form>
 
 <div class="text-center">
-    <h4>Change course group size</h4>
-    <form asp-page-handler="ChangeGroupSize" method="post">
-        <input asp-for="Course.GroupSize" class="form-control" type="number" min="2" max="20" />
-        <input asp-for="Course.Id" hidden />
-        <button class="btn btn-primary">Submit</button>
-    </form>
-
     @if (Model.CourseDiscordServer == null)
     {
         <form asp-page="@TeacherRoutes.AddServer()" asp-route-CourseId="@Model.Course.Id" method="get">
             <input name="CourseId" value="@Model.Course.Id" hidden />
-            <button class="btn btn-primary">Add Discord Server</button>
+            <button class="btn btn-primary btn-sm">Add Discord Server</button>
         </form>
     }
     else
     {
-        <p>Discord Server connected (@Model.CourseDiscordServer.Name)</p>
+        <p class="text-success fw-bold">Discord Server connected (@Model.CourseDiscordServer.Name)</p>
     }
 
-    <h4>Groups</h4>
+    <h2>Change course group size</h2>
+    <form asp-page-handler="ChangeGroupSize" method="post" class="mb-4 w-25 mx-auto">
+        <input asp-for="Course.GroupSize" class="form-control" type="number" min="2" max="20" />
+        <input asp-for="Course.Id" hidden />
+        <button class="btn btn-primary btn-sm mt-1">Submit</button>
+    </form>
+
+    @if (Model.Tickets.Count() == 0)
+    {
+        <p>No students in matching</p>
+    }
+    else
+    {
+        <h2>Students in matchmaking</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model.Tickets)
+                {
+                    <tr>
+                        <td>
+                            <span class="badge bg-secondary">
+                                @await userService.GetName(ticket.User)
+                            </span>
+                        </td>
+                        <td>@ticket.Course.Name</td>
+                        <td>
+                            <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
+                                <button class="btn btn-danger btn-sm" title="Delete">
+                                    <i class="bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h2 class="mt-4">Groups</h2>
     @if (Model.Groups.Count() == 0)
     {
         <p>No groups formed in this course</p>
     }
     else
     {
-        <table class="table table-striped">
-            <thead>
+        <table class="table table-striped border align-middle shadow-sm rounded">
+            <thead class="table-light">
                 <tr>
                     <th>Name</th>
                     <th>Course</th>
@@ -61,7 +99,7 @@
                         <td>
                             @foreach (var member in group.Members)
                             {
-                                <p>@await userService.GetName(member)</p>
+                                <span class="badge bg-secondary">@await userService.GetName(member)</span>
                             }
                         </td>
                         <td>
@@ -72,48 +110,16 @@
                                 <input asp-for="Course.Id" hidden />
 
                                 <a asp-page="@TeacherRoutes.EditGroup()" asp-route-groupId="@group.Id"
-                                    asp-route-courseId="@Model.Course.Id" class="btn btn-primary"><i class="bi-pencil"></i></a>
+                                    asp-route-courseId="@Model.Course.Id" class="btn btn-primary btn-sm" title="Edit">
+                                    <i class="bi-pencil"></i></a>
 
                                 <a asp-page="@TeacherRoutes.SplitGroup()" asp-route-groupId="@group.Id"
-                                    asp-route-courseId="@Model.Course.Id" class="btn btn-warning"><i class="bi-slash"></i></a>
+                                    asp-route-courseId="@Model.Course.Id" class="btn btn-warning btn-sm" title="Split">
+                                    <i class="bi-slash"></i>
 
-                                <button class="btn btn-danger">
-                                    <i class="bi-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+                                </a>
 
-    @if (Model.Tickets.Count() == 0)
-    {
-        <p>No students in matching</p>
-    }
-    else
-    {
-        <h1 class="display-4">Students in matchmaking</h1>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Course</th>
-                    <th>Availability</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var ticket in Model.Tickets)
-                {
-                    <tr>
-                        <td>@await userService.GetName(ticket.User)</td>
-                        <td>@ticket.Course.Name</td>
-                        <td>@ticket.Preferences.Availability</td>
-                        <td>
-                            <form asp-page-handler="RemoveTicket" asp-route-ticketId="@ticket.Id" method="post">
-                                <button class="btn btn-danger">
+                                <button class="btn btn-danger btn-sm" title="Delete">
                                     <i class="bi-trash"></i>
                                 </button>
                             </form>
