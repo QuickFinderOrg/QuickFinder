@@ -59,6 +59,7 @@
                             {
                                 @if (await ticketRepository.CheckIfInQueue(user, Course))
                                 {
+                                    <div class="spinner-border"></div>
                                     <form asp-page-handler="LeaveQueue" asp-route-courseId="@Course.Id" method="post">
                                         <button class="btn btn-primary btn-sm" type="submit">Leave queue</button>
                                     </form>
