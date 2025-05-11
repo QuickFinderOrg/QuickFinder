@@ -121,7 +121,8 @@ public record class MatchmakerConfig
     ];
     public (decimal weight, IPreference preference)[] WeightedPreferenceList =
     [
-        (1m, new DaysInCommonPreference()),
+        (1.5m, new DaysInCommonPreference()),
+        (1m, new LanguagesInCommonPreference()),
     ];
 }
 

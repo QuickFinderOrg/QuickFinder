@@ -173,32 +173,40 @@ public static class DaysOfTheWeekHelper
 public static class LanguageFlagsExtensions
 {
     public static readonly LanguageFlags None = 0;
+    public static readonly LanguageFlags All =
+        LanguageFlags.English
+        | LanguageFlags.Norwegian
+        | LanguageFlags.Spanish
+        | LanguageFlags.French
+        | LanguageFlags.German
+        | LanguageFlags.Chinese
+        | LanguageFlags.Arabic;
 
-    public static LanguageFlags IntersectWith(this LanguageFlags LanguageFlags, LanguageFlags value)
+    public static LanguageFlags IntersectWith(this LanguageFlags languageFlags, LanguageFlags value)
     {
-        return LanguageFlags & value;
+        return languageFlags & value;
     }
 
-    public static bool Any(this LanguageFlags LanguageFlags, LanguageFlags value)
+    public static bool Any(this LanguageFlags languageFlags, LanguageFlags value)
     {
-        return (LanguageFlags & value) != 0;
+        return (languageFlags & value) != 0;
     }
 
     public static int Count(this LanguageFlags lValue)
     {
         int iCount = 0;
 
-        //Loop the value while there are still bits
+        // Loop the value while there are still bits
         while (lValue != 0)
         {
-            //Remove the end bit
+            // Remove the end bit
             lValue = lValue & (lValue - 1);
 
-            //Increment the count
+            // Increment the count
             iCount++;
         }
 
-        //Return the count
+        // Return the count
         return iCount;
     }
 }

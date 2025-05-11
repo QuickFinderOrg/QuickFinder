@@ -24,6 +24,73 @@ public class LanguageTests
     }
 
     [Fact]
+    public void PreferMoreSharedLanguages()
+    {
+        var preference = new LanguagesInCommonPreference();
+        var speakerEngNor = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian,
+            UserId = "a",
+        };
+        var speakerSpanish = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.Spanish,
+            UserId = "s",
+        };
+        var speakerEngSpa = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.English | LanguageFlags.Spanish,
+            UserId = "e",
+        };
+        var SpeakerEngNor2 = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian,
+            UserId = "c",
+        };
+
+        Assert.Equal(0, preference.Check(speakerEngNor, speakerSpanish));
+        Assert.Equal(0.5m, preference.Check(speakerEngNor, speakerEngSpa));
+        Assert.Equal(1, preference.Check(speakerEngNor, SpeakerEngNor2));
+    }
+
+    [Fact]
+    public void MatchmakerPreferMoreSharedLanguages()
+    {
+        var matchmaker = new Matchmaker<DefaultUserMatchmakingData, DefaultGroupMatchmakingData>(
+            new MatchmakerConfig
+            {
+                CriteriaList = [],
+                WeightedPreferenceList = [(1m, new LanguagesInCommonPreference())],
+            }
+        );
+        var speakerEngNor = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian,
+            UserId = "a",
+        };
+        var speakerSpanish = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.Spanish,
+            UserId = "s",
+        };
+        var speakerEngSpa = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.English | LanguageFlags.Spanish,
+            UserId = "e",
+        };
+        var SpeakerEngNor2 = new DefaultUserMatchmakingData
+        {
+            Languages = LanguageFlags.English | LanguageFlags.Norwegian,
+            UserId = "c",
+        };
+
+        var match = matchmaker
+            .Match(speakerEngNor, [speakerEngSpa, speakerSpanish, SpeakerEngNor2], 1)
+            .First();
+        Assert.Equal(SpeakerEngNor2, match);
+    }
+
+    [Fact]
     public void SucceedsOnOneSharedLanguage()
     {
         var criteria = new MustHaveAtLeastOneLanguageInCommonCriteria();
