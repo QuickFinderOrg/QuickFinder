@@ -26,34 +26,202 @@ class SeedDB(
             [
                 new Tester()
                 {
-                    Name = "Van Helsing",
-                    Email = "van.helsing@gmail.com",
+                    Name = "Dave",
+                    Email = "dave@example.org",
                     Password = "Password-123",
                 },
                 new Tester()
                 {
-                    Name = "Blade",
-                    Email = "uphill@iceskating.com",
+                    Name = "Taylor",
+                    Email = "taylor@example.org",
                     Password = "Password-123",
                 },
                 new Tester()
                 {
-                    Name = "Nosferatu",
-                    Email = "nosferatu1922@gmail.com",
-                    Password = "Password-123",
-                    availability = Availability.Afternoons,
-                },
-                new Tester()
-                {
-                    Name = "Dracula",
-                    Email = "dr.acula@bloodbank.us",
+                    Name = "Nate",
+                    Email = "nate@example.org",
                     Password = "Password-123",
                     availability = Availability.Afternoons,
                 },
                 new Tester()
                 {
-                    Name = "Sylvanas",
-                    Email = "sylvanas.windrunner@aol.com",
+                    Name = "Pat",
+                    Email = "pat@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Chris",
+                    Email = "chris@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Rami",
+                    Email = "rami@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Josh",
+                    Email = "josh@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "William",
+                    Email = "william@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Franz",
+                    Email = "franz@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Monoco",
+                    Email = "monoco@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Max",
+                    Email = "max@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Lewis",
+                    Email = "lewis@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Fernando",
+                    Email = "fernando@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Valtteri",
+                    Email = "valtteri@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Michael",
+                    Email = "@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Alain",
+                    Email = "alain@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Niki",
+                    Email = "niki@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "James",
+                    Email = "james@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Oscar",
+                    Email = "oscar@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Sebastian",
+                    Email = "sebastian@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Carlos",
+                    Email = "carlos@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Janove",
+                    Email = "janove@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Geir",
+                    Email = "geir@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Terje",
+                    Email = "terje@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Rune",
+                    Email = "rune@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Helge",
+                    Email = "helge@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Øyvind",
+                    Email = "øyvind@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Jon",
+                    Email = "jon@example.org",
+                    Password = "Password-123",
+                    availability = Availability.Afternoons,
+                },
+                new Tester()
+                {
+                    Name = "Ben",
+                    Email = "ben@example.org",
                     Password = "Password-123",
                     availability = Availability.Afternoons,
                 },
