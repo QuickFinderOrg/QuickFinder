@@ -123,7 +123,7 @@ class SeedDB(
                 new Tester()
                 {
                     Name = "Michael",
-                    Email = "@example.org",
+                    Email = "michael@example.org",
                     Password = "Password-123",
                     availability = Availability.Afternoons,
                 },
@@ -207,7 +207,7 @@ class SeedDB(
                 new Tester()
                 {
                     Name = "Øyvind",
-                    Email = "øyvind@example.org",
+                    Email = "oyvind@example.org",
                     Password = "Password-123",
                     availability = Availability.Afternoons,
                 },
