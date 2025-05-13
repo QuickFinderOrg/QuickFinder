@@ -11,7 +11,6 @@ class SeedDB(
     UserService userService,
     UserManager<User> userManager,
     ApplicationDbContext db,
-    IOptions<DiscordServiceOptions> discordOptions,
     MatchmakingService matchmakingService
 )
 {
@@ -243,17 +242,8 @@ class SeedDB(
         var TestCourse1 = new Course() { Name = "DAT120" };
         var TestCourse2 = new Course() { Name = "DAT240" };
 
-        var TestServer = new Server()
-        {
-            Id = ulong.Parse(discordOptions.Value.ServerId),
-            Name = "QuickFinder Discord",
-        };
-        TestServer.Courses.Add(TestCourse1);
-
         db.Add(TestCourse1);
         db.Add(TestCourse2);
-
-        db.Add(TestServer);
 
         foreach (var account in test_accounts)
         {

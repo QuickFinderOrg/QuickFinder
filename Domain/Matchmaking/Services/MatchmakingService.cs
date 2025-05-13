@@ -70,8 +70,6 @@ public class MatchmakingService(
 
         var matchingCandidatesData = matchmaker.Match(seedData, candidatesData, groupMembersToFind);
 
-        logger.LogWarning("{}", matchingCandidatesData);
-
         var dt = DateTime.Now - t0;
 
         logger.LogInformation("matchmaking with {candidates} took {t}", candidates.Count(), dt);

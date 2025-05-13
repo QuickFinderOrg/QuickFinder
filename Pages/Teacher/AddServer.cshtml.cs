@@ -1,17 +1,18 @@
+using System.Reflection.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.VisualBasic;
 using QuickFinder.Domain.DiscordDomain;
 using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Pages.Teacher;
 
-public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService discordService)
+public class AddServerModel(ILogger<AddServerModel> logger, DiscordService discordService)
     : PageModel
 {
-    private readonly ILogger<CreateCourseModel> _logger = logger;
     public DiscordServerItem[] Servers = [];
 
-    public string InviteURL = discordService.InviteURL;
+    public string InviteURL = "";
 
     [BindProperty(SupportsGet = true)]
     public string CourseId { get; set; } = string.Empty;
@@ -31,7 +32,16 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
 
     public void Load(ulong discordId)
     {
-        Servers = discordService.GetServersOwnedByUser(discordId);
+        try
+        {
+            Servers = discordService.GetServersOwnedByUser(discordId);
+            InviteURL = discordService.InviteURL;
+        }
+        catch (System.Exception)
+        {
+            PageContext.ViewData["ErrorMessage"] = "Could not load discord servers. ";
+            logger.LogError("Could not load discord servers for user. Is Discord configured?");
+        }
     }
 
     public async Task<IActionResult> OnPostAsync(ulong serverId, Guid courseId)
@@ -50,7 +60,7 @@ public class AddServerModel(ILogger<CreateCourseModel> logger, DiscordService di
 
         await discordService.EnsureCourseServer(courseId, serverId);
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Server with ID {ServerId} has been added to course {CourseId}.",
             serverId,
             CourseId

@@ -16,6 +16,9 @@ public class DeleteUnusedGroupsInvocable(
 
         var scope = serviceProvider.CreateScope();
         var discordService = scope.ServiceProvider.GetRequiredService<DiscordService>();
-        await discordService.DeleteUnusedGroupChannels();
+        if (discordService.IsEnabled)
+        {
+            await discordService.DeleteUnusedGroupChannels();
+        }
     }
 }

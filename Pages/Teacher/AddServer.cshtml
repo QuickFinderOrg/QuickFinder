@@ -30,6 +30,12 @@
         }
     </tbody>
 </table>
-
-<p>Is your Server not in the list?</p>
-<a href="@Model.InviteURL" class="btn btn-primary" target="_blank">Invite our Discord bot</a>
+@if (!string.IsNullOrEmpty(Model.InviteURL))
+{
+    <p>Is your Server not in the list?</p>
+    <a href="@Model.InviteURL" class="btn btn-primary" target="_blank">Invite our Discord bot</a>
+}
+else
+{
+    <p>Discord integration is not configured for this QuickFinder instance.</p>
+}
