@@ -127,12 +127,6 @@
                 &copy; 2025 - QuickFinder - <a class="text-decoration-none" asp-page="/Privacy">Privacy</a>
                 - <a class="text-decoration-none" asp-area="Identity" asp-page="/Account/Login">Admin</a>
             </span>
-
-            @if ((await authorizationService.AuthorizeAsync(User, "Student")).Succeeded)
-            {
-                <a href="https://discord.gg/W8twZqauKf" class="btn btn-primary">Join the QuickFinder
-                    Discord Server</a>
-            }
         </div>
     </footer>
 
