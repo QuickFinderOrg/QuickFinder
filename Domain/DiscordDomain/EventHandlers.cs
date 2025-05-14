@@ -1,16 +1,5 @@
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text;
 using Coravel.Events.Interfaces;
-using Coravel.Invocable;
-using Coravel.Queuing.Interfaces;
-using Discord;
-using Discord.WebSocket;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using QuickFinder.Data;
 using QuickFinder.Domain.Matchmaking;
 
 namespace QuickFinder.Domain.DiscordDomain;
@@ -20,7 +9,8 @@ public class CreateDiscordChannelOnGroupFilled(
     DiscordService discord,
     UserService userService,
     ILogger<CreateDiscordChannelOnGroupFilled> logger,
-    GroupRepository groupRepository
+    GroupRepository groupRepository,
+    CourseRepository courseRepository
 ) : IListener<GroupFilled>
 {
     public async Task HandleAsync(GroupFilled notification)
@@ -41,8 +31,11 @@ public class CreateDiscordChannelOnGroupFilled(
 
             var groupMembers = group.Members;
 
+            var servers = await discord.GetCourseServer(group.Course.Id);
+            var server = servers.FirstOrDefault();
+
             logger.LogInformation("Group filled {name}", groupName);
-            var defaultServerId = ulong.Parse(options.Value.ServerId);
+            var defaultServerId = server?.Id ?? ulong.Parse(options.Value.ServerId);
             var defaultCategoryId = ulong.Parse(options.Value.GroupChannelCategoryId);
             var channelName = notification.Group.Name;
 

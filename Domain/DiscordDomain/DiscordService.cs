@@ -160,16 +160,16 @@ public class DiscordService : IHostedService
 
             var serverDB =
                 await dbContext.DiscordServers.FirstAsync(s => s.Id == serverId)
-                ?? throw new Exception($"Server {_options.ServerId} not in db");
+                ?? throw new Exception($"Server {serverId} not in db");
 
             var channel = await server.CreateTextChannelAsync(
                 channelName,
-                p => p.CategoryId = ulong.Parse(_options.GroupChannelCategoryId)
+                p => p.CategoryId = categoryId ?? ulong.Parse(_options.GroupChannelCategoryId)
             );
             var channelDB = new Channel()
             {
                 Id = channel.Id,
-                CategoryId = ulong.Parse(_options.GroupChannelCategoryId),
+                CategoryId = categoryId ?? ulong.Parse(_options.GroupChannelCategoryId),
                 Server = serverDB,
                 OwningGroupId = owningGroup,
             };
