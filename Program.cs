@@ -1,4 +1,5 @@
 using Coravel;
+using Coravel.Queuing.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
 using Discord.WebSocket;
 using Microsoft.AspNetCore.DataProtection;
@@ -115,6 +116,7 @@ builder.Services.AddTransient<DeleteUnusedGroupsInvocable>();
 builder.Services.AddTransient<SendDMInvocable>();
 builder.Services.AddTransient<OnUserDeleted>();
 builder.Services.AddTransient<NotifyUsersOnGroupFilled>();
+builder.Services.AddTransient<CreateDiscordChannelOnGroupFilled>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -123,6 +125,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 var app = builder.Build();
+using var scope = app.Services.CreateScope();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<IQueue>>();
+app.Services.ConfigureQueue().OnError(e => logger.LogError(e, "Error in queue:"));
 app.Services.ConfigureScheduler(app.Configuration);
 
 var registration = app.Services.ConfigureEvents();
@@ -167,8 +172,8 @@ app.MapRazorPages();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    using var scope = app.Services.CreateScope();
-    var seed_db = scope.ServiceProvider.GetRequiredService<SeedDB>();
+    using var db_scope = app.Services.CreateScope();
+    var seed_db = db_scope.ServiceProvider.GetRequiredService<SeedDB>();
     seed_db.Seed();
 }
 

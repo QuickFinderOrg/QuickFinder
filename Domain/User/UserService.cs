@@ -34,7 +34,8 @@ public class UserService(
 
         if (!result.Succeeded)
         {
-            throw new Exception("User creation failed");
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new Exception($"User creation failed: {errors}");
         }
 
         await userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));

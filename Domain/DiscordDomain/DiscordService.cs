@@ -642,7 +642,7 @@ public class CreateDiscordChannelOnGroupFilled(
     IOptions<DiscordServiceOptions> options,
     DiscordService discord,
     UserService userService,
-    ILogger<NotifyUsersOnGroupFilled> logger,
+    ILogger<CreateDiscordChannelOnGroupFilled> logger,
     GroupRepository groupRepository
 ) : IListener<GroupFilled>
 {
@@ -650,6 +650,7 @@ public class CreateDiscordChannelOnGroupFilled(
     {
         try
         {
+            logger.LogInformation("CREATE DISCORD CHANNEL");
             if (discord.IsEnabled == false)
             {
                 return;
