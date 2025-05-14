@@ -117,6 +117,7 @@ builder.Services.AddTransient<SendDMInvocable>();
 builder.Services.AddTransient<OnUserDeleted>();
 builder.Services.AddTransient<NotifyUsersOnGroupFilled>();
 builder.Services.AddTransient<CreateDiscordChannelOnGroupFilled>();
+builder.Services.AddTransient<InviteToServerOnCourseJoined>();
 
 // Configure forwarded headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -127,7 +128,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var logger = scope.ServiceProvider.GetRequiredService<ILogger<IQueue>>();
-app.Services.ConfigureQueue().OnError(e => logger.LogError(e, "Error in queue:"));
+app.Services.ConfigureQueue()
+    .LogQueuedTaskProgress(logger)
+    .OnError(e => logger.LogError(e, "Error in queue:"));
 app.Services.ConfigureScheduler(app.Configuration);
 
 var registration = app.Services.ConfigureEvents();
