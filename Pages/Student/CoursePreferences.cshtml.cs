@@ -39,7 +39,8 @@ public class CoursePreferencesModel(
 
         public DaysOfTheWeek Days { get; set; }
 
-        public StudyLocation StudyLocation { get; set; }
+        public StudyLocation StudyLocation { get; set; } =
+            StudyLocation.InPerson | StudyLocation.Online;
     }
 
     public async Task<IActionResult> OnGetAsync(Guid courseId, string? returnUrl = null)
