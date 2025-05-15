@@ -48,11 +48,11 @@ The project can be configured using [ASP.NET Configuration](https://learn.micros
 
 Using the Discord integration requires you to have a [Discord](https://discord.com) account, a Discord Application and at least one Discord server for students to join.
 
-Create an application on the [Discord Developer Pages](https://discord.com/developers/applications). Store the client id, secret and bot token for later.
+Create an application on the [Discord Developer Pages](https://discord.com/developers/applications). Store the client id, secret and bot token for later. For authentication, add redirect urls for the domains the application is hosten on, and the path `/LoginDiscord`. Example: `https://localhost:5056/LoginDiscord`.
 
-To create a discord server, press the "+" in at the bottom of the server list in the Discord client. To get the server id, you first enable developer mode inside the Discord Client's settings. Afterward, right click the server icon in the server list and click the "Copy Server ID" button.
+To create a discord server, press the "+" in at the bottom of the server list in the Discord client. To get the server id, you first enable developer mode inside the Discord Client's settings. Afterward, right click the server icon in the server list and click the "Copy Server ID" button. Invite the created bot to the server and give it accesss to creating and removing channels.
 
-Add these values to your configuration. Values under *"DiscordAuth"* are required for users to sign up with Discord. Without it you will only be able to log into the admin account and other test accounts. Values under `"Discord"` are used for the Discord server management. See the example below for an example.
+Add these values to your configuration. Values under *"DiscordAuth"* are required for users to sign up with Discord. Without it you will only be able to log into the admin account and other test accounts. Values under `"Discord"` are used for the Discord server management. See the example below.
 
 ```json
 "Discord": {
@@ -67,6 +67,8 @@ Add these values to your configuration. Values under *"DiscordAuth"* are require
 ```
 
 *Excerpt from the `appsettings.json` file.*
+
+
 
 ### Disable scheduler
 
